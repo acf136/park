@@ -12,6 +12,7 @@ import { ForgotPasswordComponent } from './forgot-password/forgot-password.compo
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { UserService } from 'src/shared/services/user.service';
+import { LoadingService } from 'src/shared/services/Loading.service';
 
 
 @NgModule({
@@ -25,7 +26,9 @@ import { UserService } from 'src/shared/services/user.service';
     ReactiveFormsModule,
     HttpClientModule,
     BrowserModule],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, UserService],
+  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, 
+    UserService,
+    LoadingService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

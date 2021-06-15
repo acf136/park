@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
 import { IUser } from 'src/shared/interfaces/interfaces';
+import { LoadingService } from 'src/shared/services/Loading.service';
 import { UserService } from 'src/shared/services/user.service';
 
 @Component({
@@ -14,13 +15,13 @@ export class LoginComponent implements OnInit {
 
   loginForm: FormGroup;
   isSubmitted = false;
-  loading: HTMLIonLoadingElement;
+  isLoading = false;
   form: any;
 
   constructor(private router: Router,
     private userService: UserService,
     private formBuilder: FormBuilder,
-    private loadingController: LoadingController) { }
+    private loadingService: LoadingService) { }
 
   ngOnInit() {
     console.log("Login loaded");
@@ -37,39 +38,23 @@ export class LoginComponent implements OnInit {
   }
 
   /**
-   * THIS METHOD INVOKES A SPINNER (LOADING...)
-   */
-  async presentLoading() {
-    this.loading = await this.loadingController.create({
-      cssClass: 'my-custom-class',
-      message: 'Please wait...'      
-    });
-    await this.loading.present();
-    console.log('Loading presented!');
-  }
-
-  /**
-   * THIS METHOD FINISHES THE INVOKED SPINNER
-   */
-  async dismissLoading() {
-    await this.loading.dismiss();
-    console.log('Loading dismissed!');
-  }
-
-  /**
    * THIS METHOD CHECKS THE USER INPUT WHEN CLICKING THE SIGN IN BUTTON
+   * 
+   * NOTA: HE AÑADIDO EL SERVICIO LoadingService EN SHARED>SERVICES, EL CUAL PODEMOS UTILIZAR
+   * A PARTIR DE AHORA PARA MOSTRAR SPINNERS DE CARGA CUANDO LA APP SE ESPERE A RECIBIR DATOS
+   * DE UN SERVIDOR O UNA API REST
    * 
    * @returns 
    */
   public submitForm(){
     //init spinner
-    (async () => await this.presentLoading())();
+    this.loadingService.present();
     this.isSubmitted = true;
     //Form not valid
     if (!this.loginForm.valid) {
       console.log('Please provide all the required values!');
       //stop spinner
-      (async () => await this.dismissLoading())();
+      this.loadingService.dismiss();
       return false;
     } else {
       //Form valid
@@ -78,18 +63,18 @@ export class LoginComponent implements OnInit {
       
       this.userService.getUsers().subscribe((list: IUser[]) => {
         //stop spinner
-        (async () => await this.dismissLoading())();
+        this.loadingService.dismiss();
         list.forEach(element => {
           //Check if user input exists on the API rest json
           if (element.email == email && element.password == password) 
           {
             console.log("usuario correcto");
-            //TODO: Go to the next page
+            //TODO: Go to the next page: PAGINA O COMPONENTE CON SIDEMENU Y LOS 2 TABS
           }
         });
       }, (err) => {
         //stop spinner
-        (async () => await this.dismissLoading())();
+        this.loadingService.dismiss();
         console.error(err);
       });
     }
