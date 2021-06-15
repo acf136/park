@@ -6,13 +6,7 @@ import { IUser } from '../interfaces/interfaces'
 @Injectable()
 export class UserService {
 
-    //private llistaUsuaris: IUser[];
-
     constructor(private httpClient: HttpClient) {
-    }
-
-    public InitializeList(){
-        //
     }
 
     /**

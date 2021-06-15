@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
 import { IUser } from 'src/shared/interfaces/interfaces';
+import { LoadingService } from 'src/shared/services/Loading.service';
 import { UserService } from 'src/shared/services/user.service';
 
 
@@ -17,7 +18,8 @@ export class RegistrationComponent implements OnInit {
 
   constructor(private formBuilder: FormBuilder,
     private userService: UserService,
-    private router: Router) { 
+    private router: Router,
+    private loadingService: LoadingService) { 
   }
 
   ngOnInit() {
@@ -32,22 +34,30 @@ export class RegistrationComponent implements OnInit {
   }
 
   submitForm(){
+    //init spinner
+    this.loadingService.present();
     this.isSubmitted = true;
+    //Form invalid
     if (!this.ionicForm.valid) {
       console.log('Please provide all the required values!');
+      //stop spinner
+      this.loadingService.dismiss();
       return false;
     } else {
+      //Form valid
       console.log(this.ionicForm.value)
 
       const newUser: IUser = {
-        //id: this.ionicForm..length + 1, //AÑADIMOS AUTOMÁTICAMENTE EL ID AL NUEVO USUARIO
         name: this.ionicForm.get('name').value,
         surname: this.ionicForm.get('surname').value,
         email: this.ionicForm.get('email').value,
         password: this.ionicForm.get('password').value
       }
 
+      //Register the new user
       this.userService.setUser(newUser).subscribe((user: IUser) => {
+        //stop spinner
+        this.loadingService.dismiss();
         const newus = user;
         this.router.navigate(['/home']);
       });
