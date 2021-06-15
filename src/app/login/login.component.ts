@@ -15,6 +15,7 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   isSubmitted = false;
   loading: HTMLIonLoadingElement;
+  form: any;
 
   constructor(private router: Router,
     private userService: UserService,
@@ -28,6 +29,11 @@ export class LoginComponent implements OnInit {
       email: ['', [Validators.required, Validators.pattern('[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$')]],
       password: ['', [Validators.required, Validators.minLength(2)]],
     })
+
+    this.form = [
+      { val: 'Envio disponibilidad', isChecked: false },
+      { val: 'Envio informes', isChecked: false }
+    ];
   }
 
   /**
@@ -62,6 +68,8 @@ export class LoginComponent implements OnInit {
     //Form not valid
     if (!this.loginForm.valid) {
       console.log('Please provide all the required values!');
+      //stop spinner
+      (async () => await this.dismissLoading())();
       return false;
     } else {
       //Form valid

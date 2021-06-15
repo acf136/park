@@ -9,15 +9,24 @@
 
 <ion-content>
   <form [formGroup]="loginForm" (ngSubmit)="submitForm()">
+    
+    <!-- EMAIL -->
     <ion-item lines="full">
       <ion-label position="floating">Email</ion-label>
       <ion-input formControlName="email" type="text" required></ion-input>
     </ion-item>
 
+    <!-- PASSWORD -->
     <ion-item lines="full">
       <ion-label position="floating">Password</ion-label>
       <ion-input formControlName="password" type="password" required></ion-input>
     </ion-item>
+
+    <!-- CHECKBOX: ENVIO DISPONIBILIDAD Y GENERACION DE INFORMES -->
+    <!-- <ion-item *ngFor="let entry of form">
+      <ion-label>{{entry.val}}</ion-label>
+      <ion-checkbox slot="end" [(ngModel)]="entry.isChecked"></ion-checkbox>
+    </ion-item> -->
 
     <ion-row>
       <ion-col>
