@@ -16,7 +16,7 @@ export class UserService {
      * @returns 
      */
     public getUsers(){
-        return this.httpClient.get('https://crudcrud.com/api/0affdd2926404718adaee2b8d8678980/users');
+        return this.httpClient.get('https://crudcrud.com/api/e941466b75d94a10a13a3ed9d882bbda/users');
     }
 
     //returns the IUser object depending on the id number received as parameter
@@ -32,6 +32,6 @@ export class UserService {
      * @returns 
      */
     public setUser(user: IUser): Observable<any> {
-        return this.httpClient.post<IUser>("https://crudcrud.com/api/0affdd2926404718adaee2b8d8678980/users", user);
+        return this.httpClient.post<IUser>("https://crudcrud.com/api/e941466b75d94a10a13a3ed9d882bbda/users", user);
     }
 }
