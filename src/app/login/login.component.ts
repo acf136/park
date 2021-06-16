@@ -70,6 +70,7 @@ export class LoginComponent implements OnInit {
           {
             console.log("usuario correcto");
             //TODO: Go to the next page: PAGINA O COMPONENTE CON SIDEMENU Y LOS 2 TABS
+            this.router.navigate(['/tabs']);
           }
         });
       }, (err) => {

@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { TabsPageModule } from './list-map/tabs/tabs.module';
 import { LoginComponent } from './login/login.component';
 import { RegistrationComponent } from './registration/registration.component';
 
@@ -19,6 +20,16 @@ const routes: Routes = [
     path: 'forgot-password',
     component: ForgotPasswordComponent
   },
+  {
+    path: 'tabs',
+    loadChildren: () => import('./list-map/tabs/tabs.module').then(m => m.TabsPageModule)
+  },
+  { 
+    path: '',
+    loadChildren: () => import('./list-map/tabs/tabs.module').then(m => m.TabsPageModule)
+  }
+  //{ path: 'list-map', loadChildren: './list-map/tabs/tabs.module#TabsPageModule' }//,
+  //{ path: '', loadChildren: './list-map/tabs/tabs.module#TabsPageModule' }
 ];
 
 @NgModule({
