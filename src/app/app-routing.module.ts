@@ -28,8 +28,6 @@ const routes: Routes = [
     path: '',
     loadChildren: () => import('./list-map/tabs/tabs.module').then(m => m.TabsPageModule)
   }
-  //{ path: 'list-map', loadChildren: './list-map/tabs/tabs.module#TabsPageModule' }//,
-  //{ path: '', loadChildren: './list-map/tabs/tabs.module#TabsPageModule' }
 ];
 
 @NgModule({
