@@ -8,28 +8,11 @@ import { RegistrationComponent } from './registration/registration.component';
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)},
-  {
-    path: 'login',
-    component: LoginComponent
-  },
-  {
-    path: 'registration',
-    component: RegistrationComponent
-  },
-  {
-    path: 'forgot-password',
-    component: ForgotPasswordComponent
-  },
-  {
-    path: 'tabs',
-    loadChildren: () => import('./list-map/tabs/tabs.module').then(m => m.TabsPageModule)
-  },
-  { 
-    path: '',
-    loadChildren: () => import('./list-map/tabs/tabs.module').then(m => m.TabsPageModule)
-  }
-  //{ path: 'list-map', loadChildren: './list-map/tabs/tabs.module#TabsPageModule' }//,
-  //{ path: '', loadChildren: './list-map/tabs/tabs.module#TabsPageModule' }
+  { path: 'login',           component: LoginComponent  },
+  { path: 'registration',    component: RegistrationComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'tabs',  loadChildren: () => import('./list-map/tabs/tabs.module').then(m => m.TabsPageModule) },
+  { path: '',  loadChildren: () => import('./list-map/tabs/tabs.module').then(m => m.TabsPageModule) },
 ];
 
 @NgModule({
