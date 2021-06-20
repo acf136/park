@@ -13,6 +13,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { UserService } from 'src/shared/services/user.service';
 import { LoadingService } from 'src/shared/services/Loading.service';
+// Geolocation Plugins
+import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
 
 
 @NgModule({
@@ -28,7 +31,9 @@ import { LoadingService } from 'src/shared/services/Loading.service';
     BrowserModule],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, 
     UserService,
-    LoadingService],
+    LoadingService,
+    Geolocation,
+    NativeGeocoder],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
