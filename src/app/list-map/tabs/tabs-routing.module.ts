@@ -16,9 +16,9 @@ const routes: Routes = [
       { path: '', redirectTo: '/tabs/tab1', pathMatch: 'full' } //by default
     ]
   },
-  { path: 'list-map/List', redirectTo: '/tabs/tab1' },
-  { path: 'list-map/Map',  redirectTo: '/tabs/tab2' },
-  { path: 'list-map/Config', redirectTo: '/config' },   // TODO : app/config/config.page - is a component, no module=>no routing
+  { path: '/list-map/List', redirectTo: '/tabs/tab1' },
+  { path: '/list-map/Map',  redirectTo: '/tabs/tab2' },
+  { path: '/list-map/Config', redirectTo: '/config' },   // TODO : app/config/config.page - is a component, no module=>no routing
   { path: '',  redirectTo: '/tabs/tab1',  pathMatch: 'full' } //by default
 ];
 
