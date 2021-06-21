@@ -51,6 +51,22 @@ export class Tab2Page implements OnInit {
       //CUANDO TENEMOS LAS COORDENADAS SIMPLEMENTE NECESITAMOS PASAR AL MAPA DE GOOGLE TODOS LOS PARAMETROS.
       this.getAddressFromCoords(resp.coords.latitude, resp.coords.longitude); 
       this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions); 
+      
+      let latLngMarker = new google.maps.LatLng(41.3870154, 2.1700471);
+
+      var marker = new google.maps.Marker({
+        position: latLngMarker
+      });
+      marker.setMap(this.map);
+      google.maps.event.addListener(marker, 'click', function () {
+
+        console.log("holaa");
+        
+
+    });
+      //this.map.setZoom(15);
+      //this.map.setCenter(marker.getPosition());
+      
       this.map.addListener('tilesloaded', () => {
         console.log('accuracy',this.map, this.map.center.lat());
         this.getAddressFromCoords(this.map.center.lat(), this.map.center.lng())
