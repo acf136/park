@@ -10,6 +10,10 @@ const routes: Routes = [
       { path: 'tab1',
         loadChildren: () => import('../tab1/tab1.module').then(m => m.Tab1PageModule)
       },
+      // TODO: Make Detail View Page for parking => ViewParkPageModule
+      // { path: 'parking/:id',
+      //   loadChildren: () => import('../list-park/list-park.module').then( m => m.ViewParkPageModule)
+      // },
       { path: 'tab2',
         loadChildren: () => import('../tab2/tab2.module').then(m => m.Tab2PageModule)
       },
