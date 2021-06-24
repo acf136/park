@@ -2,6 +2,9 @@ import { Component } from '@angular/core';
 import { OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
+import { IParking } from 'src/shared/interfaces/interfaces';
+import { LoadingService } from 'src/shared/services/Loading.service';
+import { ParkingService } from 'src/shared/services/parking.service';
 
 declare var google;
 
@@ -25,7 +28,9 @@ export class Tab2Page implements OnInit {
 
   constructor(private geolocation: Geolocation,
     private nativeGeocoder: NativeGeocoder,    
-    public zone: NgZone) 
+    public zone: NgZone,
+    private parkingService: ParkingService,
+    private loadingService: LoadingService) 
     {
       this.GoogleAutocomplete = new google.maps.places.AutocompleteService();
       this.autocomplete = { input: '' };
@@ -52,20 +57,7 @@ export class Tab2Page implements OnInit {
       this.getAddressFromCoords(resp.coords.latitude, resp.coords.longitude); 
       this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions); 
       
-      let latLngMarker = new google.maps.LatLng(41.3870154, 2.1700471);
-
-      var marker = new google.maps.Marker({
-        position: latLngMarker
-      });
-      marker.setMap(this.map);
-      google.maps.event.addListener(marker, 'click', function () {
-
-        console.log("holaa");
-        
-
-    });
-      //this.map.setZoom(15);
-      //this.map.setCenter(marker.getPosition());
+      this.printAllParkingsMarkers();
       
       this.map.addListener('tilesloaded', () => {
         console.log('accuracy',this.map, this.map.center.lat());
@@ -78,6 +70,32 @@ export class Tab2Page implements OnInit {
     });
   }
 
+  printAllParkingsMarkers(){
+    //Obtenemos toda la lista de párkings
+    this.parkingService.getParkings().subscribe((list: IParking[]) => {
+      //stop spinner
+      this.loadingService.dismiss();
+      list.forEach(element => {
+        //Por cada párking colocamos un marcador en el mapa
+        let latLngMarker = new google.maps.LatLng(element.coordinates.lat, element.coordinates.long);
+        var marker = new google.maps.Marker({
+          position: latLngMarker
+        });
+        marker.setMap(this.map);
+        //Controlamos el click sobre cada marcador
+        google.maps.event.addListener(marker, 'click', function () {
+          console.log("Parking Selected: " + element.name);
+          //TODO: Toda la lógica que cargue el parking seleccionado para el usuario seleccionado
+          //TODO: Go to the next page: DETALLE DEL PARKING
+          //this.router.navigate(['/tabs']);
+        });
+      });
+    }, (err) => {
+      //stop spinner
+      this.loadingService.dismiss();
+      console.error(err);
+    });
+  }
   
   getAddressFromCoords(lattitude, longitude) {
     console.log("getAddressFromCoords "+lattitude+" "+longitude);

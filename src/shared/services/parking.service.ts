@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -6,5 +7,11 @@ import { Injectable } from '@angular/core';
 // TODO: Implement this service with a in-memoryDB
 export class ParkingService {
 
-  constructor() { }
+  constructor(private httpClient: HttpClient) { 
+
+  }
+
+  public getParkings(){
+    return this.httpClient.get('http://demo4787583.mockable.io/parkings');
+}
 }
