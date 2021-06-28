@@ -43,6 +43,9 @@ export class Tab2Page implements OnInit {
 
   //CARGAR EL MAPA TIENE DOS PARTES 
   loadMap() {
+
+    //init spinner
+    this.loadingService.present();
     
     //OBTENEMOS LAS COORDENADAS DESDE EL TELEFONO.
     this.geolocation.getCurrentPosition().then((resp) => {
@@ -87,7 +90,7 @@ export class Tab2Page implements OnInit {
           console.log("Parking Selected: " + element.name);
           //TODO: Toda la lógica que cargue el parking seleccionado para el usuario seleccionado
           //TODO: Go to the next page: DETALLE DEL PARKING
-          //this.router.navigate(['/tabs']);
+          //this.router.navigate(['/detalle_parking']);
         });
       });
     }, (err) => {
@@ -128,40 +131,40 @@ export class Tab2Page implements OnInit {
   }
   
   //AUTOCOMPLETE, SIMPLEMENTE ACTUALIZAMOS LA LISTA CON CADA EVENTO DE ION CHANGE EN LA VISTA.
-  UpdateSearchResults(){
-    if (this.autocomplete.input == '') {
-      this.autocompleteItems = [];
-      return;
-    }
-    this.GoogleAutocomplete.getPlacePredictions({ input: this.autocomplete.input },
-    (predictions, status) => {
-      this.autocompleteItems = [];
-      this.zone.run(() => {
-        predictions.forEach((prediction) => {
-          this.autocompleteItems.push(prediction);
-        });
-      });
-    });
-  }
+  // UpdateSearchResults(){
+  //   if (this.autocomplete.input == '') {
+  //     this.autocompleteItems = [];
+  //     return;
+  //   }
+  //   this.GoogleAutocomplete.getPlacePredictions({ input: this.autocomplete.input },
+  //   (predictions, status) => {
+  //     this.autocompleteItems = [];
+  //     this.zone.run(() => {
+  //       predictions.forEach((prediction) => {
+  //         this.autocompleteItems.push(prediction);
+  //       });
+  //     });
+  //   });
+  // }
   
   //FUNCION QUE LLAMAMOS DESDE EL ITEM DE LA LISTA.
-  SelectSearchResult(item) {
-    //AQUI PONDREMOS LO QUE QUERAMOS QUE PASE CON EL PLACE ESCOGIDO, GUARDARLO, SUBIRLO A FIRESTORE.
-    //HE AÑADIDO UN ALERT PARA VER EL CONTENIDO QUE NOS OFRECE GOOGLE Y GUARDAMOS EL PLACEID PARA UTILIZARLO POSTERIORMENTE SI QUEREMOS.
-    alert(JSON.stringify(item))      
-    this.placeid = item.place_id
-  }
+  // SelectSearchResult(item) {
+  //   //AQUI PONDREMOS LO QUE QUERAMOS QUE PASE CON EL PLACE ESCOGIDO, GUARDARLO, SUBIRLO A FIRESTORE.
+  //   //HE AÑADIDO UN ALERT PARA VER EL CONTENIDO QUE NOS OFRECE GOOGLE Y GUARDAMOS EL PLACEID PARA UTILIZARLO POSTERIORMENTE SI QUEREMOS.
+  //   alert(JSON.stringify(item))      
+  //   this.placeid = item.place_id
+  // }
   
   
   //LLAMAMOS A ESTA FUNCION PARA LIMPIAR LA LISTA CUANDO PULSAMOS IONCLEAR.
-  ClearAutocomplete(){
-    this.autocompleteItems = []
-    this.autocomplete.input = ''
-  }
+  // ClearAutocomplete(){
+  //   this.autocompleteItems = []
+  //   this.autocomplete.input = ''
+  // }
  
   //EJEMPLO PARA IR A UN LUGAR DESDE UN LINK EXTERNO, ABRIR GOOGLE MAPS PARA DIRECCIONES. 
-  GoTo(){
-    return window.location.href = 'https://www.google.com/maps/search/?api=1&query=Google&query_place_id='+this.placeid;
-  }
+  // GoTo(){
+  //   return window.location.href = 'https://www.google.com/maps/search/?api=1&query=Google&query_place_id='+this.placeid;
+  // }
 
 }
