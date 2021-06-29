@@ -5,6 +5,7 @@ import { LoadingController } from '@ionic/angular';
 import { IUser } from 'src/shared/interfaces/interfaces';
 import { LoadingService } from 'src/shared/services/Loading.service';
 import { UserService } from 'src/shared/services/user.service';
+import { AuthenticationService } from "../../shared/services/authentication.service";
 
 @Component({
   selector: 'app-login',
@@ -21,7 +22,8 @@ export class LoginComponent implements OnInit {
   constructor(private router: Router,
     private userService: UserService,
     private formBuilder: FormBuilder,
-    private loadingService: LoadingService) { }
+    private loadingService: LoadingService,
+    public authService: AuthenticationService) { }
 
   ngOnInit() {
     console.log("Login loaded");
@@ -58,26 +60,26 @@ export class LoginComponent implements OnInit {
       return false;
     } else {
       //Form valid
-      const email = this.loginForm.get('email').value;
-      const password = this.loginForm.get('password').value;
-      
-      this.userService.getUsers().subscribe((list: IUser[]) => {
+      this.authService.SignIn(this.loginForm.get('email').value, 
+                              this.loginForm.get('password').value)
+      .then((res) => {
+        // ESTO ES POR SI SE DECIDE HACER LA AUTETICACIÓN CON VERIFICACION DE EMAIL
+
+        // if(this.authService.isEmailVerified) {
+        //   this.router.navigate(['dashboard']);          
+        // } else {
+        //   window.alert('Email is not verified')
+        //   return false;
+        // }
+
         //stop spinner
         this.loadingService.dismiss();
-        list.forEach(element => {
-          //Check if user input exists on the API rest json
-          if (element.email == email && element.password == password) 
-          {
-            console.log("usuario correcto");
-            //TODO: Go to the next page: PAGINA O COMPONENTE CON SIDEMENU Y LOS 2 TABS
-            this.router.navigate(['/tabs']);
-          }
-        });
-      }, (err) => {
+        this.router.navigate(['/tabs']);
+      }).catch((error) => {
         //stop spinner
         this.loadingService.dismiss();
-        console.error(err);
-      });
+        window.alert(error.message)
+      })
     }
   }
 
@@ -87,5 +89,3 @@ export class LoginComponent implements OnInit {
   }
 
 }
-
-//comentario

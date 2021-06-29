@@ -14,6 +14,11 @@ import { HttpClientModule } from '@angular/common/http';
 import { UserService } from 'src/shared/services/user.service';
 import { LoadingService } from 'src/shared/services/Loading.service';
 
+import { AngularFireModule } from '@angular/fire';
+import { AngularFireAuthModule } from '@angular/fire/auth';
+import { AngularFireDatabaseModule } from '@angular/fire/database';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [AppComponent,
@@ -25,10 +30,15 @@ import { LoadingService } from 'src/shared/services/Loading.service';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    BrowserModule],
+    BrowserModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireAuthModule,
+    AngularFireDatabaseModule,
+    AngularFirestoreModule],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, 
     UserService,
-    LoadingService],
+    LoadingService,
+    AngularFirestoreModule],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
