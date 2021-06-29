@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AuthenticationService } from 'src/shared/services/authentication.service';
 
 @Component({
   selector: 'app-root',
@@ -12,5 +13,5 @@ export class AppComponent {
     { title: 'Config', url: '/list-map/Config', icon: 'settings' }
   ];
   public labels = ['List-park', 'Map-park' ];
-  constructor() {}
+  constructor(public authService: AuthenticationService) {}
 }
