@@ -12,7 +12,9 @@ export class HomePage implements OnInit{
   constructor(private router: Router, public authService: AuthenticationService) {}
   
   ngOnInit(): void {
-    console.log("En home ngOnInit: " + this.authService.isLoggedIn);
+    if (this.authService.isLoggedIn) {
+      this.router.navigate(['/tabs']);
+    }
   }
 
   public RegisterClicked()
