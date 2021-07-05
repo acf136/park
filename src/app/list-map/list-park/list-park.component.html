@@ -1,19 +1,39 @@
-<p>
-  list-park works!
-</p>
-<ion-item *ngIf="parking" [routerLink]="'/parking/' + parking.idParking" [detail]="false">
-  <!-- <div slot="start" [class]="!parking.read ? 'dot dot-unread' : 'dot'"></div> -->
-  <ion-label class="ion-text-wrap">
-    <h2>
-      {{ parking.name }}
-      <span class="date">
-        <ion-note>{{ parking.address }}</ion-note>
-        <ion-icon name="chevron-forward" size="small" *ngIf="isIos()"></ion-icon>
-      </span>
-    </h2>
-    <h3>Capacity: {{ parking.capacity }}</h3>
-    <!-- <p>
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-    </p> -->
-  </ion-label>
-</ion-item>
+<ion-list  *ngFor="let parking of parkings" >
+  <ion-item-sliding>
+    <ion-item *ngIf="parking" [routerLink]="'/parking/' + parking.id" [detail]="false">
+      <div slot="start" class="parking-access"  style="width: 5%;" >
+        <ion-icon  name="car" size="large"></ion-icon>
+      </div>
+      <ion-label class="ion-text-wrap"  >
+        <h2>
+          <strong> Name: {{ parking.name }} </strong><br>
+          Address: {{ parking.address }}
+        </h2>
+        <h3>
+          Capacity =&gt;
+          <span  *ngFor="let cap of parking.capacity" >
+            <span  *ngIf="cap.size === 1" >moto </span>
+            <span  *ngIf="cap.size === 2" >small </span>
+            <span  *ngIf="cap.size === 3" >normal </span>
+            <span  *ngIf="cap.size === 4" >doble </span>
+                : {{ cap.numOfPlaces }}
+          </span> <br>
+          Places =&gt;
+          <span  *ngFor="let place of parking.places" >
+            <span  *ngIf="place.occupied" class="occupied" >{{ place.coordX }}-{{ place.coordY }} </span>
+            <span  *ngIf="!place.occupied" class="free">{{ place.coordX }}-{{ place.coordY }} </span>
+          </span>
+        </h3>
+      </ion-label>
+    </ion-item>
+    <!-- Buttons for update and delete -->
+    <ion-item-options side="end">
+      <ion-item-option >
+        <ion-icon name="create" style="zoom:1.5" [routerLink]="'/modify-park/' + parking.id"></ion-icon>
+      </ion-item-option>
+      <ion-item-option (click)="remove(parking.idParking, parking.id)">
+        <ion-icon name="trash" style="zoom:1.5"></ion-icon>
+      </ion-item-option>
+    </ion-item-options>
+  </ion-item-sliding>
+</ion-list>

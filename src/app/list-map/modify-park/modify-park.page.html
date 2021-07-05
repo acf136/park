@@ -1,0 +1,56 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>MODIFY Parking {{ parking?.name }} idParking = {{ parking?.idParking }} </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-grid class="gridBorder" >
+    <ion-row *ngFor="let placeRow of placesRows">
+      <ion-col  class="gridBorder place" *ngFor="let placeCol of placeRow" >
+        <span  *ngIf="placeCol.occupied" class="occupied">
+          <ion-icon *ngIf="placeCol.size === 1" name="bicycle" size="small"></ion-icon>
+          <ion-icon *ngIf="placeCol.size === 2" name="car" size="small"></ion-icon>
+          <ion-icon *ngIf="placeCol.size === 3" name="car-sport" size="small"></ion-icon>
+          <ion-icon *ngIf="placeCol.size === 4" name="bus" size="small"></ion-icon>
+        </span>
+        <span  *ngIf="!placeCol.occupied" class="free" >{{ placeCol.coordX }}-{{ placeCol.coordY }}</span>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <form [formGroup]='duplicateForm' (ngSubmit)="onSubmitDuplicate()">
+    <ion-item>
+      <ion-label position="floating">Rows</ion-label>
+      <ion-input formControlName="rows" type="number" ></ion-input>
+      <ion-label position="floating">Cols</ion-label>
+      <ion-input formControlName="cols" type="number"  ></ion-input>
+      <ion-label position="floating">idParking</ion-label>
+      <ion-input formControlName="idParking" type="number"  ></ion-input>
+    </ion-item>
+    <ion-button class="ion-margin-top" type="submit" expand="block" color="success">Duplicate</ion-button>
+  </form>
+
+  <form [formGroup]='modifyForm' (ngSubmit)="onSubmitModify()">
+    <ion-item>
+      <ion-label position="floating">Name</ion-label>
+      <ion-input formControlName="name" type="text" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Address</ion-label>
+      <ion-input formControlName="address" type="text" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Latitude</ion-label>
+      <ion-input formControlName="lat" type="text" required></ion-input>
+      <ion-label position="floating">Longitude</ion-label>
+      <ion-input formControlName="long" type="text" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">ZIP Code</ion-label>
+      <ion-input formControlName="zipCode" type="text" required></ion-input>
+    </ion-item>
+    <ion-button class="ion-margin-top" type="submit" expand="block" color="success">Update</ion-button>
+  </form>
+</ion-content>

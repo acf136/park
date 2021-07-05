@@ -41,14 +41,15 @@ export class LoginComponent implements OnInit {
 
   /**
    * THIS METHOD CHECKS THE USER INPUT WHEN CLICKING THE SIGN IN BUTTON
-   * 
+   *
    * NOTA: HE AÑADIDO EL SERVICIO LoadingService EN SHARED>SERVICES, EL CUAL PODEMOS UTILIZAR
    * A PARTIR DE AHORA PARA MOSTRAR SPINNERS DE CARGA CUANDO LA APP SE ESPERE A RECIBIR DATOS
    * DE UN SERVIDOR O UNA API REST
-   * 
-   * @returns 
+   *
+   * @returns
    */
   public submitForm(){
+    this.router.navigate(['/tabs']);
     //init spinner
     this.loadingService.present();
     this.isSubmitted = true;
