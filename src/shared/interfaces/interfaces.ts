@@ -12,37 +12,40 @@ export interface IUser {
     // envioDisponibilidad: boolean;
     // envioInformes: boolean ;
 }
-/**
- * Park: Parking con localización y plazas de varios tamaños
- *
- * Every Parking is identified uniquely by  idParking
- */
-enum PlaceSize { small = 1, medium, large };
-type PlaceCapacity = { size: PlaceSize ; numOfPlaces: number } ;
 
-export interface IParking{
-  idParking: number;
-  name: string;
-  address: string;
-  zipCode: string;
-  // lat: string;
-  // long: string;
-  coordinates: { "lat": number, "long": number },
-  //capacity: PlaceCapacity[] ;
-}
+export enum PlaceSize { moto = 1, small, normal, doble };
 /**
  * Place : Place inside a Parking
  *
- * Every place is identified uniquely by  idParking + coordX + coordY
+ * Every place is identified uniquely by  coordX+'-'+coordY (p.e. 'A-28') ,  inside every parking
  */
-export interface IPlace {
-  idParking: number;
+ export interface IPlace {
+  // idParking: number;
   coordX: string;
   coordY: string;
   size: PlaceSize;
   occupied: boolean;
   outOfService: boolean;
 }
+
+export type PlaceCapacity = { size: PlaceSize ; numOfPlaces: number } ;
+/**
+ * Park: Parking con localización y plazas de varios tamaños
+ *
+ * Every Parking is identified uniquely by  idParking
+ */
+export interface IParking{
+  idParking: number;
+  name: string;
+  address: string;
+  zipCode: string;
+  lat: string;
+  long: string;
+  capacity: PlaceCapacity[] ;
+  places: IPlace[] ;  // grid of IPlace ot this parking
+}
+
+  //TODO: coordinates: { "lat": number, "long": number },
 
 /**
  * UserParking: Relación entre IUser-IParking

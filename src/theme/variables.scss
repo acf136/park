@@ -234,3 +234,31 @@
     --ion-card-background: #1e1e1e;
   }
 }
+
+  /*
+   * Colors for Parkings
+   * -------------------------------------------
+   */
+
+
+.gridBorder{
+    border-style: solid;
+    border-width: 1px;
+
+}
+
+// ion-col.place.md.hydrated {
+ion-col.place.md.hydrated {
+  padding: 0px;
+  margin: 0px;
+}
+ion-col.gridBorder.place.md.free span{
+  align-content: center;
+}
+
+.occupied {
+  background: rgb(241, 195, 195) ;
+}
+.free {
+  background: rgb(127, 241, 142) ;
+}

@@ -11,29 +11,54 @@ import { RegistrationComponent } from './registration/registration.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+// simulating Http client through In-memory Web API
+// import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
+// import { InMemoryDataService } from '../shared/services/in-memory-data.service';
+// simulating Http client through In-memory Web API
+
 import { UserService } from 'src/shared/services/user.service';
 import { LoadingService } from 'src/shared/services/Loading.service';
 // Geolocation Plugins
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
 
+import { AngularFireModule } from '@angular/fire';
+import { AngularFireAuthModule } from '@angular/fire/auth';
+import { AngularFireDatabaseModule } from '@angular/fire/database';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [AppComponent,
-    LoginComponent, 
-    RegistrationComponent, 
+    LoginComponent,
+    RegistrationComponent,
     ForgotPasswordComponent],
   entryComponents: [],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule,
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    // The HttpClientInMemoryWebApiModule module intercepts HTTP requests and returns simulated server responses.
+    // Remove it when a real server is ready to receive requests, or use
+    // ( environment.production ? HttpClientInMemoryWebApiModule.forRoot(DataService) : [] )
+    // in environment files
+    // HttpClientInMemoryWebApiModule.forRoot( InMemoryDataService, { dataEncapsulation: false, delay : 500 } ),
+    // end of HttpClientInMemoryWebApiModule
+    IonicModule.forRoot(),
+    AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    BrowserModule],
+    BrowserModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireAuthModule,
+    AngularFireDatabaseModule,
+    AngularFirestoreModule],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, 
     UserService,
     LoadingService,
     Geolocation,
-    NativeGeocoder],
+    NativeGeocoder,
+    AngularFirestoreModule],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

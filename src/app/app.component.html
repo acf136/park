@@ -11,6 +11,11 @@
               <ion-label>{{ p.title }}</ion-label>
             </ion-item>
           </ion-menu-toggle>
+
+          <!-- Log out button -->
+          <ion-button color="danger" (click)="authService.SignOut()">
+            Log Out
+          </ion-button>
         </ion-list>
 
       </ion-content>

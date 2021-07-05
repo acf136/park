@@ -12,4 +12,5 @@ import { ListParkComponent } from './list-park.component';
   declarations: [ListParkComponent],
   exports: [ListParkComponent]
 })
+
 export class ListParkModule { }
