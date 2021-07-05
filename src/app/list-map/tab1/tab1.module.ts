@@ -15,9 +15,10 @@ import { Tab1PageRoutingModule } from './tab1-routing.module';
     CommonModule,
     FormsModule,
     ExploreContainerComponentModule,
-    ListParkModule,
     Tab1PageRoutingModule
   ],
+  exports: [ ListParkModule ],
   declarations: [Tab1Page]
 })
+
 export class Tab1PageModule {}

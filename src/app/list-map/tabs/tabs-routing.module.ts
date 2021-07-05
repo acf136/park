@@ -10,10 +10,6 @@ const routes: Routes = [
       { path: 'tab1',
         loadChildren: () => import('../tab1/tab1.module').then(m => m.Tab1PageModule)
       },
-      // TODO: Make Detail View Page for parking => ViewParkPageModule
-      // { path: 'parking/:id',
-      //   loadChildren: () => import('../list-park/list-park.module').then( m => m.ViewParkPageModule)
-      // },
       { path: 'tab2',
         loadChildren: () => import('../tab2/tab2.module').then(m => m.Tab2PageModule)
       },
@@ -22,6 +18,12 @@ const routes: Routes = [
   },
   { path: '/list-map/List', redirectTo: '/tabs/tab1' },
   { path: '/list-map/Map',  redirectTo: '/tabs/tab2' },
+  { path: 'parking/:id',
+    loadChildren: () => import('../view-park/view-park.module').then( m => m.ViewParkPageModule)
+  },
+  { path: 'modify-park/:id',
+    loadChildren: () => import('../modify-park/modify-park.module').then( m => m.ModifyParkPageModule)
+  },
   { path: '/list-map/Config', redirectTo: '/config' },   // TODO : app/config/config.page - is a component, no module=>no routing
   { path: '',  redirectTo: '/tabs/tab1',  pathMatch: 'full' } //by default
 ];
