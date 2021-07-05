@@ -80,7 +80,8 @@ export class Tab2Page implements OnInit {
       this.loadingService.dismiss();
       list.forEach(element => {
         //Por cada párking colocamos un marcador en el mapa
-        let latLngMarker = new google.maps.LatLng(element.coordinates.lat, element.coordinates.long);
+        // let latLngMarker = new google.maps.LatLng(element.coordinates.lat, element.coordinates.long);
+        let latLngMarker = new google.maps.LatLng(element.lat, element.long);
         var marker = new google.maps.Marker({
           position: latLngMarker
         });
