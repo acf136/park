@@ -41,14 +41,6 @@ export class AuthenticationService {
     return this.ngFireAuth.createUserWithEmailAndPassword(email, password)
   }
 
-  // Email verification when new user register
-  // SendVerificationMail() {
-  //   return this.ngFireAuth.currentUser.sendEmailVerification()
-  //   .then(() => {
-  //     this.router.navigate(['verify-email']);
-  //   })
-  // }
-
   SendVerificationMail() {
     return this.ngFireAuth.currentUser.then(u => u.sendEmailVerification())
     .then(() => {
@@ -100,10 +92,11 @@ export class AuthenticationService {
   SetUserData(user) {
     const userRef: AngularFirestoreDocument<any> = this.afStore.doc(`users/${user.uid}`);
     const userData: IUser = {
+      idUser: user.uid,
       email: user.email,
       name: user.name,
       password: user.password,
-      surname: user.password
+      surname: user.password,
       
       // uid: user.uid,
       // email: user.email,

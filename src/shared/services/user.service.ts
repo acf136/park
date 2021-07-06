@@ -1,12 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { IUser } from '../interfaces/interfaces';
+import { AuthenticationService } from './authentication.service';
 
 @Injectable()
 export class UserService {
 
-    constructor(private httpClient: HttpClient) {
+    constructor(private httpClient: HttpClient,
+        private ngFirestore: AngularFirestore,
+        private authService: AuthenticationService) {
     }
 
     /**
@@ -31,7 +35,8 @@ export class UserService {
      * @param user
      * @returns
      */
-    public setUser(user: IUser): Observable<any> {
-        return this.httpClient.post<IUser>('https://crudcrud.com/api/5c46e42c83eb485c896c19622ebbe13d/users', user);
-    }
+
+     setUser(user: IUser, uid: string) {
+        return this.ngFirestore.collection('User').doc(uid).set(user);
+      }
 }

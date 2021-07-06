@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
+import { IUser } from 'src/shared/interfaces/interfaces';
 import { LoadingService } from 'src/shared/services/Loading.service';
 import { UserService } from 'src/shared/services/user.service';
 
@@ -50,35 +51,44 @@ export class RegistrationComponent implements OnInit {
       //Form valid
       console.log(this.ionicForm.value)
 
-      // const newUser: IUser = {
-      //   name: this.ionicForm.get('name').value,
-      //   surname: this.ionicForm.get('surname').value,
-      //   email: this.ionicForm.get('email').value,
-      //   password: this.ionicForm.get('password').value
-      // }
+      const newUser: IUser = {
+        name: this.ionicForm.get('name').value,
+        surname: this.ionicForm.get('surname').value,
+        email: this.ionicForm.get('email').value,
+        password: this.ionicForm.get('password').value
+      }
 
       //Register the new user
-      this.signUp(this.ionicForm.get('email').value, this.ionicForm.get('password').value)
-      // this.userService.setUser(newUser).subscribe((user: IUser) => {
-      //   //stop spinner
-      //   this.loadingService.dismiss();
-      //   const newus = user;
-      //   this.router.navigate(['/home']);
-      // });
+      this.signUp(newUser)
     }
   }
 
-  signUp(email: string, password: string){
-    this.authService.RegisterUser(email, password)      
+  /**
+   * Registers the new user in Authentication firebase database AND firestore database
+   * @param newUser 
+   */
+  signUp(newUser: IUser){
+    
+    //Authentication database
+    this.authService.RegisterUser(newUser.email, newUser.password)      
     .then((res) => {
       //stop spinner
       this.loadingService.dismiss();
-      this.router.navigate(['/tabs']);
+
+      //Firestore database
+      this.userService.setUser(newUser, res.user.uid)
+      .then(() => {
+        this.router.navigate(['/tabs']);
+      }).catch((err) => {
+        console.log(err)
+      });
+
     }).catch((error) => {
       //stop spinner
       this.loadingService.dismiss();
       window.alert(error.message)
     })
+
   }
 
 }

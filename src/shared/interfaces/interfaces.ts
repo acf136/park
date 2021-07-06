@@ -4,7 +4,7 @@
  * Every User is identified uniquely by idUser
  */
 export interface IUser {
-    //idUser: number;
+    idUser?: string;
     name: string;
     surname: string;
     email: string;
