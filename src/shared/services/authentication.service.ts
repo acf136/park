@@ -31,6 +31,10 @@ export class AuthenticationService {
     })
   }
 
+  getUserData(): any{
+    return this.userData;
+  }
+
   // Login in with email/password
   SignIn(email, password) {
     return this.ngFireAuth.signInWithEmailAndPassword(email, password)
@@ -39,6 +43,14 @@ export class AuthenticationService {
   // Register user with email/password
   RegisterUser(email, password) {
     return this.ngFireAuth.createUserWithEmailAndPassword(email, password)
+  }
+
+  UpdateAuthPassword(password) {
+    return this.ngFireAuth.currentUser.then(u => u.updatePassword(password))
+    .then(() => {
+    }).catch(function(error) {
+      console.log(error);
+    });
   }
 
   SendVerificationMail() {

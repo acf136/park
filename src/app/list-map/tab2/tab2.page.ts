@@ -1,10 +1,14 @@
 import { Component } from '@angular/core';
 import { OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
+import { Router } from '@angular/router';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
-import { IParking } from 'src/shared/interfaces/interfaces';
+import { IParking, IUserParking } from 'src/shared/interfaces/interfaces';
+import { AuthenticationService } from 'src/shared/services/authentication.service';
+import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { LoadingService } from 'src/shared/services/Loading.service';
 import { ParkingService } from 'src/shared/services/parking.service';
+import { UserService } from 'src/shared/services/user.service';
 
 declare var google;
 
@@ -26,11 +30,17 @@ export class Tab2Page implements OnInit {
   placeid: any;
   GoogleAutocomplete: any;
 
+  public parkings: IParking[] = [];
+  public logedUserId: string;
+
   constructor(private geolocation: Geolocation,
     private nativeGeocoder: NativeGeocoder,    
     public zone: NgZone,
-    private parkingService: ParkingService,
-    private loadingService: LoadingService) 
+    private firestoreParkingService: FirestoreParkingService,
+    private loadingService: LoadingService,
+    public authService: AuthenticationService,
+    private userService: UserService,
+    private router: Router) 
     {
       this.GoogleAutocomplete = new google.maps.places.AutocompleteService();
       this.autocomplete = { input: '' };
@@ -74,30 +84,60 @@ export class Tab2Page implements OnInit {
   }
 
   printAllParkingsMarkers(){
-    //Obtenemos toda la lista de párkings
-    this.parkingService.getParkings().subscribe((list: IParking[]) => {
+    this.firestoreParkingService.getParkings().subscribe((pparkings) =>  { 
       //stop spinner
       this.loadingService.dismiss();
-      list.forEach(element => {
+      const uid = this.authService.getUserData().uid;
+
+      const _userService: UserService = this.userService;
+      const _router: Router = this.router;
+
+      let newUserParking: IUserParking;
+
+      this.parkings = pparkings.map((t) => ({                           //1st subscribe param
+        id: t.payload.doc.id,  
+        ...t.payload.doc.data() as IParking
+      }));
+
+      console.log("in ", this.parkings);
+      
+      this.parkings.forEach(element => {
         //Por cada párking colocamos un marcador en el mapa
-        // let latLngMarker = new google.maps.LatLng(element.coordinates.lat, element.coordinates.long);
         let latLngMarker = new google.maps.LatLng(element.lat, element.long);
         var marker = new google.maps.Marker({
           position: latLngMarker
         });
         marker.setMap(this.map);
-        //Controlamos el click sobre cada marcador
+        
         google.maps.event.addListener(marker, 'click', function () {
-          console.log("Parking Selected: " + element.name);
-          //TODO: Toda la lógica que cargue el parking seleccionado para el usuario seleccionado
-          //TODO: Go to the next page: DETALLE DEL PARKING
-          //this.router.navigate(['/detalle_parking']);
+          prueba(element, _userService, _router);
         });
+
+        function prueba(element: IParking, service: UserService, _router: Router){
+          console.log("Parking Selected: " + element.name);
+          
+          //TODO: Toda la lógica que cargue el parking seleccionado para el usuario seleccionado
+          newUserParking = {
+            idParking: element.id,
+            idUser: uid
+          }
+
+          //TODO: CONTROL NON REPEATED RELATIONSHIP IN FIRESTORE DB
+          _userService.AddParkingOnUser(newUserParking).then(() => {
+            //Go to the next page: DETALLE DEL PARKING
+            _router.navigate(['/parking/' + newUserParking.idParking]);
+          }).catch((err) => {
+            console.log(err)
+          });
+
+        }
+
       });
-    }, (err) => {
+
+    }, (err) => { 
       //stop spinner
       this.loadingService.dismiss();
-      console.error(err);
+      console.error(err); 
     });
   }
   

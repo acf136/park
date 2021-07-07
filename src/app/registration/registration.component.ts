@@ -51,7 +51,7 @@ export class RegistrationComponent implements OnInit {
       //Form valid
       console.log(this.ionicForm.value)
 
-      const newUser: IUser = {
+      const newAuthUser: IUser = {
         name: this.ionicForm.get('name').value,
         surname: this.ionicForm.get('surname').value,
         email: this.ionicForm.get('email').value,
@@ -59,7 +59,7 @@ export class RegistrationComponent implements OnInit {
       }
 
       //Register the new user
-      this.signUp(newUser)
+      const res = this.signUp(newAuthUser)
     }
   }
 
@@ -67,16 +67,21 @@ export class RegistrationComponent implements OnInit {
    * Registers the new user in Authentication firebase database AND firestore database
    * @param newUser 
    */
-  signUp(newUser: IUser){
+  signUp(newAuthUser: IUser): any{
     
     //Authentication database
-    this.authService.RegisterUser(newUser.email, newUser.password)      
+    this.authService.RegisterUser(newAuthUser.email, newAuthUser.password)      
     .then((res) => {
       //stop spinner
       this.loadingService.dismiss();
 
+      const newFirestoreUser: IUser = {
+        name: this.ionicForm.get('name').value,
+        surname: this.ionicForm.get('surname').value,
+        email: this.ionicForm.get('email').value,
+      }
       //Firestore database
-      this.userService.setUser(newUser, res.user.uid)
+      this.userService.setUser(newFirestoreUser, res)
       .then(() => {
         this.router.navigate(['/tabs']);
       }).catch((err) => {

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import { IUser } from '../interfaces/interfaces';
+import { IUser, IUserParking } from '../interfaces/interfaces';
 import { AuthenticationService } from './authentication.service';
 
 @Injectable()
@@ -36,7 +36,11 @@ export class UserService {
      * @returns
      */
 
-     setUser(user: IUser, uid: string) {
-        return this.ngFirestore.collection('User').doc(uid).set(user);
-      }
+    setUser(user: IUser, res: any) {
+        return this.ngFirestore.collection('User').doc(res.user.uid).set(user);
+    }
+
+    AddParkingOnUser(userParking: IUserParking){
+        return this.ngFirestore.collection('UserParking').add(userParking);
+    }
 }

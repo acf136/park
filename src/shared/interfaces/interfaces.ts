@@ -8,7 +8,7 @@ export interface IUser {
     name: string;
     surname: string;
     email: string;
-    password: string;
+    password?: string;
     // envioDisponibilidad: boolean;
     // envioInformes: boolean ;
 }
@@ -36,6 +36,7 @@ export type PlaceCapacity = { size: PlaceSize ; numOfPlaces: number } ;
  */
 export interface IParking{
   idParking: number;
+  id?: string,
   name: string;
   address: string;
   zipCode: string;
@@ -53,12 +54,12 @@ export interface IParking{
  * Every UserParking is identified uniquely by  idUser + idParking + coordX + coordY
  */
 export interface IUserParking{
-  idUser: number;
-  idParking: number;
-  coordX: string;
-  coordY: string;
-  datePark: Date;     // Last date of parking in a place
-  dateLeave: Date;    // Last date the user leave the place
+  idUser: string;
+  idParking: string;
+  // coordX: string;
+  // coordY: string;
+  // datePark: Date;     // Last date of parking in a place
+  // dateLeave: Date;    // Last date the user leave the place
 }
 
 
