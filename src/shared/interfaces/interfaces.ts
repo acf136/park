@@ -4,13 +4,11 @@
  * Every User is identified uniquely by idUser
  */
 export interface IUser {
-    idUser?: string;
     name: string;
     surname: string;
     email: string;
-    password?: string;
-    // envioDisponibilidad: boolean;
-    // envioInformes: boolean ;
+    envioDisponibilidad: boolean;
+    envioInformes: boolean ;
 }
 
 export enum PlaceSize { moto = 1, small, normal, doble };
@@ -20,7 +18,6 @@ export enum PlaceSize { moto = 1, small, normal, doble };
  * Every place is identified uniquely by  coordX+'-'+coordY (p.e. 'A-28') ,  inside every parking
  */
  export interface IPlace {
-  // idParking: number;
   coordX: string;
   coordY: string;
   size: PlaceSize;
@@ -36,7 +33,7 @@ export type PlaceCapacity = { size: PlaceSize ; numOfPlaces: number } ;
  */
 export interface IParking{
   idParking: number;
-  id?: string,
+  id: string,
   name: string;
   address: string;
   zipCode: string;
@@ -56,13 +53,14 @@ export interface IParking{
 export interface IUserParking{
   idUser: string;
   idParking: string;
-  // coordX: string;
-  // coordY: string;
-  // datePark: Date;     // Last date of parking in a place
-  // dateLeave: Date;    // Last date the user leave the place
 }
 
-
+export interface IPArks{
+  idUser: string;
+  idParking: string;
+  datePark: Date;     // Last date of parking in a place
+  dateLeave: Date;    // Last date the user leave the place
+}
 
 
 // [
