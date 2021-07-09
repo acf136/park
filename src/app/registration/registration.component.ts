@@ -55,11 +55,12 @@ export class RegistrationComponent implements OnInit {
         name: this.ionicForm.get('name').value,
         surname: this.ionicForm.get('surname').value,
         email: this.ionicForm.get('email').value,
-        password: this.ionicForm.get('password').value
+        envioDisponibilidad: true,
+        envioInformes: true
       }
 
       //Register the new user
-      const res = this.signUp(newAuthUser)
+      const res = this.signUp(newAuthUser, this.ionicForm.get('password').value)
     }
   }
 
@@ -67,10 +68,10 @@ export class RegistrationComponent implements OnInit {
    * Registers the new user in Authentication firebase database AND firestore database
    * @param newUser 
    */
-  signUp(newAuthUser: IUser): any{
+  signUp(newAuthUser: IUser, password: string): any{
     
     //Authentication database
-    this.authService.RegisterUser(newAuthUser.email, newAuthUser.password)      
+    this.authService.RegisterUser(newAuthUser.email, password)      
     .then((res) => {
       //stop spinner
       this.loadingService.dismiss();
@@ -79,6 +80,8 @@ export class RegistrationComponent implements OnInit {
         name: this.ionicForm.get('name').value,
         surname: this.ionicForm.get('surname').value,
         email: this.ionicForm.get('email').value,
+        envioDisponibilidad: true,
+        envioInformes: true
       }
       //Firestore database
       this.userService.setUser(newFirestoreUser, res)

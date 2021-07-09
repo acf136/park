@@ -188,6 +188,7 @@ export class ModifyParkPage implements OnInit {
       this.firestoreParkingService.create(
         {
           idParking : newIdParking ,
+          id        : this.parking.id,
           name      : this.parking.name,
           address   : this.parking.address,
           lat       : this.parking.lat,

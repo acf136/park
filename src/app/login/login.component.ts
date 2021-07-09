@@ -48,7 +48,6 @@ export class LoginComponent implements OnInit {
    * @returns
    */
   public submitForm(){
-    this.router.navigate(['/tabs']);
     //init spinner
     this.loadingService.present();
     this.isSubmitted = true;

@@ -103,12 +103,12 @@ export class AuthenticationService {
   // Store user in localStorage
   SetUserData(user) {
     const userRef: AngularFirestoreDocument<any> = this.afStore.doc(`users/${user.uid}`);
-    const userData: IUser = {
+    const userData: IUserLS = {
       idUser: user.uid,
       email: user.email,
       name: user.name,
       password: user.password,
-      surname: user.password,
+      surname: user.surname
       
       // uid: user.uid,
       // email: user.email,
@@ -129,4 +129,12 @@ export class AuthenticationService {
     })
   }
 
+}
+
+export interface IUserLS {
+  idUser: string,
+  name: string;
+  surname: string;
+  email: string;
+  password: string
 }
