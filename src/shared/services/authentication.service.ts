@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
-import { IUser } from "../../shared/interfaces/interfaces";
-import { Router } from "@angular/router";
-import { AngularFireAuth } from "@angular/fire/auth";
+import { IUser } from '../../shared/interfaces/interfaces';
+import { Router } from '@angular/router';
+import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import firebase from 'firebase/app';
 
@@ -16,8 +16,8 @@ export class AuthenticationService {
   constructor(
     public afStore: AngularFirestore,
     public ngFireAuth: AngularFireAuth,
-    public router: Router,  
-    public ngZone: NgZone 
+    public router: Router,
+    public ngZone: NgZone
   ) {
     this.ngFireAuth.authState.subscribe(user => {
       if (user) {
@@ -37,7 +37,7 @@ export class AuthenticationService {
 
   // Login in with email/password
   SignIn(email, password) {
-    return this.ngFireAuth.signInWithEmailAndPassword(email, password)
+    return this.ngFireAuth.signInWithEmailAndPassword(email, password);
   }
 
   // Register user with email/password
@@ -57,8 +57,8 @@ export class AuthenticationService {
     return this.ngFireAuth.currentUser.then(u => u.sendEmailVerification())
     .then(() => {
     this.router.navigate(['verify-email-address']);
-    })
-    }
+    });
+  }
 
   // Recover password
   PasswordRecover(passwordResetEmail) {
@@ -66,8 +66,8 @@ export class AuthenticationService {
     .then(() => {
       window.alert('Password reset email has been sent, please check your inbox.');
     }).catch((error) => {
-      window.alert(error)
-    })
+      window.alert(error);
+    });
   }
 
   // Returns true when user is looged in
@@ -90,14 +90,13 @@ export class AuthenticationService {
   // Auth providers
   AuthLogin(provider) {
     return this.ngFireAuth.signInWithPopup(provider)
-    .then((result) => {
-       this.ngZone.run(() => {
-          this.router.navigate(['dashboard']);
-        })
-      this.SetUserData(result.user);
-    }).catch((error) => {
-      window.alert(error)
-    })
+      .then( (result) => {
+        this.ngZone.run( () =>  this.router.navigate(['dashboard']) );
+
+        this.SetUserData(result.user);
+      }).catch((error) => {
+          window.alert(error);
+        });
   }
 
   // Store user in localStorage
@@ -106,27 +105,23 @@ export class AuthenticationService {
     const userData: IUserLS = {
       idUser: user.uid,
       email: user.email,
-      name: user.name,
       password: user.password,
-      surname: user.surname
-      
-      // uid: user.uid,
-      // email: user.email,
-      // displayName: user.displayName,
-      // photoURL: user.photoURL,
-      // emailVerified: user.emailVerified
-    }
+      name: user.name,
+      surname: user.surname,
+      envioDisponibilidad: true,
+      envioInformes: true
+    };
     return userRef.set(userData, {
       merge: true
-    })
+    });
   }
 
-  // Sign-out 
+  // Sign-out
   SignOut() {
     return this.ngFireAuth.signOut().then(() => {
       localStorage.removeItem('user');
       this.router.navigate(['home']);
-    })
+    });
   }
 
 }
@@ -137,4 +132,6 @@ export interface IUserLS {
   surname: string;
   email: string;
   password: string
+  envioDisponibilidad: boolean,
+  envioInformes: boolean
 }

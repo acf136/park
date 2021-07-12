@@ -6,9 +6,10 @@
 
 <ion-content class="ion-padding">
 
-  <ion-grid class="gridBorder" >
+  <ion-grid  fixed="true" >       <!-- Fixed width of grid -->
     <ion-row *ngFor="let placeRow of placesRows">
-      <ion-col  class="gridBorder place" *ngFor="let placeCol of placeRow" >
+      <ion-col  class="gridBorder place" *ngFor="let placeCol of placeRow;count as ncols" [size]="myPlaceColSize(ncols,placeCol)">
+        <!-- class="if placeCol.occupied 'ion-hide'"> -->
         <span  *ngIf="placeCol.occupied" class="occupied">
           <ion-icon *ngIf="placeCol.size === 1" name="bicycle" size="small"></ion-icon>
           <ion-icon *ngIf="placeCol.size === 2" name="car" size="small"></ion-icon>
@@ -19,6 +20,21 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+
+  <div>
+    <tr *ngFor="let placeRow of placesRows;index as indexRow">
+      <td  class="gridBorder place" *ngFor="let placeCol of placeRow;index as indexCol;count as ncols" [style]="myPlaceColSizeTab(indexRow,ncols,placeCol)">
+        <!-- class="if placeCol.occupied 'ion-hide'"> -->
+        <span  *ngIf="placeCol.occupied" class="occupied">
+          <ion-icon *ngIf="placeCol.size === 1" name="bicycle" size="small"></ion-icon>
+          <ion-icon *ngIf="placeCol.size === 2" name="car" size="small"></ion-icon>
+          <ion-icon *ngIf="placeCol.size === 3" name="car-sport" size="small"></ion-icon>
+          <ion-icon *ngIf="placeCol.size === 4" name="bus" size="small"></ion-icon>
+        </span>
+        <span  *ngIf="!placeCol.occupied" class="free" >{{ placeCol.coordX }}-{{ placeCol.coordY }}</span>
+      </td>
+    </tr>
+  </div>
 
   <form [formGroup]='duplicateForm' (ngSubmit)="onSubmitDuplicate()">
     <ion-item>

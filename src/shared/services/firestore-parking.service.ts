@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { Router } from '@angular/router';
 import { IParking } from '../interfaces/interfaces';
 
 @Injectable({
@@ -10,7 +9,6 @@ export class FirestoreParkingService {
 
   constructor(
     private ngFirestore: AngularFirestore,
-    private router: Router
   ) { }
 
   create(parking: IParking) {
@@ -26,10 +24,10 @@ export class FirestoreParkingService {
   }
 
   update(id, parking: IParking) {
-    this.ngFirestore.collection('Parking').doc(id).update(parking)
-      .then(() => {
-        this.router.navigate(['/list-map/List']);  //TODO : Revisar routing
-      }).catch(error => console.log(error));;
+    this.ngFirestore.collection('Parking').doc(id).update(parking).then(
+        () => console.log('Parking with id = '+ id +' updated') ,               //onfulfilled
+        (err) => console.log('Parking with id = '+ id +' REJECTED to update')   //onrejected
+     );
   }
 
   delete(id: string) {

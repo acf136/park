@@ -24,3 +24,36 @@
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
+
+
+// :root {
+//   --myPlaceColSize : 52;
+// }
+
+.gridBorder.place{
+  border-style: solid;
+  border-width: 1px;
+  background: rgb(212, 205, 205) ;
+}
+
+// ion-grid {
+//   --ion-grid-width: var(--miiongridwidth,90%);
+// }
+// ion-col{
+//   --ion-grid-columns: 3;
+// }
+// ion-col.place.md.hydrated {
+// padding: 0px;
+// margin: 0px;
+// }
+
+// ion-col.gridBorder.place.md.free span{
+// align-content: center;
+// }
+
+.occupied {
+background: rgb(247, 134, 134) ;
+}
+.free {
+background: rgb(127, 241, 142) ;
+}

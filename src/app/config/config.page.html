@@ -1,0 +1,37 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button [text]="getBackButtonText()" [defaultHref]="getBackRoute()"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Config User : <strong>{{ user?.name }}</strong></ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]='modifyForm' (ngSubmit)="onSubmitModify()">
+    <ion-item>
+      <ion-label position="floating">Name</ion-label>
+      <ion-input formControlName="name" type="text" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Surname</ion-label>
+      <ion-input formControlName="surname" type="text" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">email</ion-label>
+      <ion-input formControlName="email" type="email" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-checkbox formControlName="envioDisponibilidad" checked="true"></ion-checkbox>
+      <a style="width: 5px;" comment="To separate"></a>
+      <ion-label position="inline">Envio Disponibilidad Ultimo Parking</ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label position="inline">Envio Informes de actividad</ion-label>
+      <ion-checkbox slot="end" formControlName="envioInformes"  checked="true"></ion-checkbox>
+    </ion-item>
+
+    <ion-button class="ion-margin-top" type="submit" expand="block" color="success">Update</ion-button>
+  </form>
+
+</ion-content>

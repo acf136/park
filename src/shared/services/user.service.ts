@@ -8,17 +8,17 @@ import { AuthenticationService } from './authentication.service';
 @Injectable()
 export class UserService {
 
-    constructor(private httpClient: HttpClient,
-        private ngFirestore: AngularFirestore,
-        private authService: AuthenticationService) {
-    }
+  constructor ( private httpClient: HttpClient,
+    private ngFirestore: AngularFirestore,
+    private authService: AuthenticationService) {
+  }
 
-    /**
-     *
-     * GETS THE LIST OF USERS IN THE REST API
-     *
-     * @returns
-     */
+  /**
+   *
+   * GETS THE LIST OF USERS IN THE REST API
+   *
+   * @returns
+   */
     public getUsers(){
         return this.httpClient.get('https://crudcrud.com/api/5c46e42c83eb485c896c19622ebbe13d/users');
     }
@@ -28,19 +28,12 @@ export class UserService {
     //     return this.llistaUsuaris.filter(usuari => usuari.id === + id)[0];
     // }
 
-    /**
-     *
-     * SETS A USER TO THE REST API
-     *
-     * @param user
-     * @returns
-     */
+  setUser(user: IUser, res: any): Promise<void> {
+    return this.ngFirestore.collection('User').doc(res.user.uid).set(user);
+  }
 
-    setUser(user: IUser, res: any) {
-        return this.ngFirestore.collection('User').doc(res.user.uid).set(user);
-    }
+  addParkingOnUser(userParking: IUserParking): Promise<any> {   //Promise<DocumentReference<unknown>>
+    return this.ngFirestore.collection('UserParking').add(userParking);
+  }
 
-    AddParkingOnUser(userParking: IUserParking){
-        return this.ngFirestore.collection('UserParking').add(userParking);
-    }
-}
+}  // end of export class UserService

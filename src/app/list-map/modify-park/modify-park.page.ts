@@ -11,7 +11,8 @@ import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/fo
 })
 export class ModifyParkPage implements OnInit {
   @Input() parking: IParking;
-  @Input() placesRows: IPlace[][] = [[]] ;  //Array of Array of IPlace for ion-grid
+  @Input() placesRows: IPlace[][] = [[]] ;  //Array of Array of IPlace for the grid
+  placesRowsSizes: number[] = [];  // Array of total sizes for every row in the grid
   id: any;
   public duplicateForm: FormGroup;
   public modifyForm: FormGroup;
@@ -118,16 +119,18 @@ export class ModifyParkPage implements OnInit {
   // copy ordered parking.places to a 2 dimensional placesRows array grid
   copyPlacesToGrid() {
     if (this.parking.places.length > 0) {
+      this.placesRowsSizes[0] = 0;
       for ( let i=0, nextCol = 0, nextRow = 0, lastCoordX = this.parking.places[0].coordX ;
             i <  this.parking.places.length;
             i++)
       {
         if ( this.parking.places[i].coordX !== lastCoordX ) { // break: continue on next row
             lastCoordX = this.parking.places[i].coordX ;
-            nextRow++; this.placesRows[nextRow] = [] ;
+            nextRow++; this.placesRows[nextRow] = [] ; this.placesRowsSizes[nextRow] = 0 ;
             nextCol=0;
           }
           this.placesRows[nextRow][nextCol] = this.parking.places[i];
+          this.placesRowsSizes[nextRow] += this.parking.places[i].size;
           nextCol++;
       }
     }
@@ -143,7 +146,7 @@ export class ModifyParkPage implements OnInit {
   /**
    *  Duplicatte the data in Firestore
    */
-   onSubmitDuplicate() {
+  onSubmitDuplicate() {
     this.extractModifyForm(); // get modifications in this.parking 1st level collection fields
     const newRows = this.duplicateForm.controls.rows.value;
     const newCols = this.duplicateForm.controls.cols.value;
@@ -205,4 +208,13 @@ export class ModifyParkPage implements OnInit {
     }
   }
 
+  myPlaceColSize(pncols: number, pplaceCol: IPlace): number{
+    const sizeRelative = pplaceCol.size; // / pncols) ;
+    return sizeRelative;
+  }
+
+  myPlaceColSizeTab(pndxRow: number, pncols: number, pplaceCol: IPlace): string{
+    const sizeRelative = ( pplaceCol.size * (1 / this.placesRowsSizes[pndxRow]) ) * 100 ; // / pncols) ;
+    return 'width: '+sizeRelative.toString()+'%;';
+  }
 }
