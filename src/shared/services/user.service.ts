@@ -32,7 +32,7 @@ export class UserService {
     return this.ngFirestore.collection('User').doc(res.user.uid).set(user);
   }
 
-  addParkingOnUser(userParking: IUserParking): Promise<any> {   //Promise<DocumentReference<unknown>>
+  addParkingOnUser(userParking: IUserParking) {   //Promise<DocumentReference<unknown>>
     return this.ngFirestore.collection('UserParking').add(userParking);
   }
 

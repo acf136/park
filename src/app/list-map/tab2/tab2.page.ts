@@ -123,7 +123,7 @@ export class Tab2Page implements OnInit {
           }
 
           //TODO: CONTROL NON REPEATED RELATIONSHIP IN FIRESTORE DB
-          _userService.AddParkingOnUser(newUserParking).then(() => {
+          _userService.addParkingOnUser(newUserParking).then(() => {
             //Go to the next page: DETALLE DEL PARKING
             _router.navigate(['/parking/' + newUserParking.idParking]);
           }).catch((err) => {
