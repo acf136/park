@@ -27,6 +27,7 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFireDatabaseModule } from '@angular/fire/database';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { environment } from '../environments/environment';
+import { AuthenticationService } from 'src/shared/services/authentication.service';
 
 @NgModule({
   declarations: [AppComponent,
@@ -54,6 +55,7 @@ import { environment } from '../environments/environment';
   providers: [ 
     UserService,
     LoadingService,
+    AuthenticationService,
     Geolocation,
     NativeGeocoder,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
