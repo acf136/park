@@ -22,13 +22,12 @@
       <ion-input formControlName="email" type="email" required></ion-input>
     </ion-item>
     <ion-item>
-      <ion-checkbox formControlName="envioDisponibilidad" checked="true"></ion-checkbox>
-      <a style="width: 5px;" comment="To separate"></a>
       <ion-label position="inline">Envio Disponibilidad Ultimo Parking</ion-label>
+      <ion-checkbox formControlName="envioDisponibilidad" checked="true"></ion-checkbox>
     </ion-item>
     <ion-item>
       <ion-label position="inline">Envio Informes de actividad</ion-label>
-      <ion-checkbox slot="end" formControlName="envioInformes"  checked="true"></ion-checkbox>
+      <ion-checkbox formControlName="envioInformes"  checked="true"></ion-checkbox>
     </ion-item>
 
     <ion-button class="ion-margin-top" type="submit" expand="block" color="success">Update</ion-button>

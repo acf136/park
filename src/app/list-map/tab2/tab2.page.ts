@@ -23,7 +23,7 @@ export class Tab2Page implements OnInit {
   map: any;
   address:string;
   lat: string;
-  long: string;  
+  long: string;
   autocomplete: { input: string; };
   autocompleteItems: any[];
   location: any;
@@ -34,13 +34,13 @@ export class Tab2Page implements OnInit {
   public logedUserId: string;
 
   constructor(private geolocation: Geolocation,
-    private nativeGeocoder: NativeGeocoder,    
+    private nativeGeocoder: NativeGeocoder,
     public zone: NgZone,
     private firestoreParkingService: FirestoreParkingService,
     private loadingService: LoadingService,
     public authService: AuthenticationService,
     private userService: UserService,
-    private router: Router) 
+    private router: Router)
     {
       this.GoogleAutocomplete = new google.maps.places.AutocompleteService();
       this.autocomplete = { input: '' };
@@ -51,12 +51,12 @@ export class Tab2Page implements OnInit {
     this.loadMap();
   }
 
-  //CARGAR EL MAPA TIENE DOS PARTES 
+  //CARGAR EL MAPA TIENE DOS PARTES
   loadMap() {
 
     //init spinner
     this.loadingService.present();
-    
+
     //OBTENEMOS LAS COORDENADAS DESDE EL TELEFONO.
     this.geolocation.getCurrentPosition().then((resp) => {
       let latLng = new google.maps.LatLng(resp.coords.latitude, resp.coords.longitude);
@@ -64,27 +64,27 @@ export class Tab2Page implements OnInit {
         center: latLng,
         zoom: 15,
         mapTypeId: google.maps.MapTypeId.ROADMAP
-      } 
-      
+      }
+
       //CUANDO TENEMOS LAS COORDENADAS SIMPLEMENTE NECESITAMOS PASAR AL MAPA DE GOOGLE TODOS LOS PARAMETROS.
-      this.getAddressFromCoords(resp.coords.latitude, resp.coords.longitude); 
-      this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions); 
-      
+      this.getAddressFromCoords(resp.coords.latitude, resp.coords.longitude);
+      this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
+
       this.printAllParkingsMarkers();
-      
+
       this.map.addListener('tilesloaded', () => {
         console.log('accuracy',this.map, this.map.center.lat());
         this.getAddressFromCoords(this.map.center.lat(), this.map.center.lng())
         this.lat = this.map.center.lat()
         this.long = this.map.center.lng()
-      }); 
+      });
     }).catch((error) => {
       console.log('Error getting location', error);
     });
   }
 
   printAllParkingsMarkers(){
-    this.firestoreParkingService.getParkings().subscribe((pparkings) =>  { 
+    this.firestoreParkingService.getParkings().subscribe((pparkings) =>  {
       //stop spinner
       this.loadingService.dismiss();
       const uid = this.authService.getUserData().uid;
@@ -95,12 +95,12 @@ export class Tab2Page implements OnInit {
       let newUserParking: IUserParking;
 
       this.parkings = pparkings.map((t) => ({                           //1st subscribe param
-        id: t.payload.doc.id,  
+        id: t.payload.doc.id,
         ...t.payload.doc.data() as IParking
       }));
 
       console.log("in ", this.parkings);
-      
+
       this.parkings.forEach(element => {
         //Por cada párking colocamos un marcador en el mapa
         let latLngMarker = new google.maps.LatLng(element.lat, element.long);
@@ -108,14 +108,14 @@ export class Tab2Page implements OnInit {
           position: latLngMarker
         });
         marker.setMap(this.map);
-        
+
         google.maps.event.addListener(marker, 'click', function () {
           prueba(element, _userService, _router);
         });
 
         function prueba(element: IParking, service: UserService, _router: Router){
           console.log("Parking Selected: " + element.name);
-          
+
           //TODO: Toda la lógica que cargue el parking seleccionado para el usuario seleccionado
           newUserParking = {
             idParking: element.id,
@@ -123,7 +123,7 @@ export class Tab2Page implements OnInit {
           }
 
           //TODO: CONTROL NON REPEATED RELATIONSHIP IN FIRESTORE DB
-          _userService.AddParkingOnUser(newUserParking).then(() => {
+          _userService.addParkingOnUser(newUserParking).then(() => {
             //Go to the next page: DETALLE DEL PARKING
             _router.navigate(['/parking/' + newUserParking.idParking]);
           }).catch((err) => {
@@ -134,26 +134,26 @@ export class Tab2Page implements OnInit {
 
       });
 
-    }, (err) => { 
+    }, (err) => {
       //stop spinner
       this.loadingService.dismiss();
-      console.error(err); 
+      console.error(err);
     });
   }
-  
+
   getAddressFromCoords(lattitude, longitude) {
     console.log("getAddressFromCoords "+lattitude+" "+longitude);
     let options: NativeGeocoderOptions = {
       useLocale: true,
-      maxResults: 5    
-    }; 
+      maxResults: 5
+    };
     this.nativeGeocoder.reverseGeocode(lattitude, longitude, options)
       .then((result: NativeGeocoderResult[]) => {
         this.address = "";
         let responseAddress = [];
         for (let [key, value] of Object.entries(result[0])) {
           if(value.length>0)
-          responseAddress.push(value); 
+          responseAddress.push(value);
         }
         responseAddress.reverse();
         for (let value of responseAddress) {
@@ -161,16 +161,16 @@ export class Tab2Page implements OnInit {
         }
         this.address = this.address.slice(0, -2);
       })
-      .catch((error: any) =>{ 
+      .catch((error: any) =>{
         this.address = "Address Not Available!";
-      }); 
+      });
   }
 
   //FUNCION DEL BOTON INFERIOR PARA QUE NOS DIGA LAS COORDENADAS DEL LUGAR EN EL QUE POSICIONAMOS EL PIN.
   ShowCords(){
     alert('lat' +this.lat+', long'+this.long )
   }
-  
+
   //AUTOCOMPLETE, SIMPLEMENTE ACTUALIZAMOS LA LISTA CON CADA EVENTO DE ION CHANGE EN LA VISTA.
   // UpdateSearchResults(){
   //   if (this.autocomplete.input == '') {
@@ -187,23 +187,23 @@ export class Tab2Page implements OnInit {
   //     });
   //   });
   // }
-  
+
   //FUNCION QUE LLAMAMOS DESDE EL ITEM DE LA LISTA.
   // SelectSearchResult(item) {
   //   //AQUI PONDREMOS LO QUE QUERAMOS QUE PASE CON EL PLACE ESCOGIDO, GUARDARLO, SUBIRLO A FIRESTORE.
   //   //HE AÑADIDO UN ALERT PARA VER EL CONTENIDO QUE NOS OFRECE GOOGLE Y GUARDAMOS EL PLACEID PARA UTILIZARLO POSTERIORMENTE SI QUEREMOS.
-  //   alert(JSON.stringify(item))      
+  //   alert(JSON.stringify(item))
   //   this.placeid = item.place_id
   // }
-  
-  
+
+
   //LLAMAMOS A ESTA FUNCION PARA LIMPIAR LA LISTA CUANDO PULSAMOS IONCLEAR.
   // ClearAutocomplete(){
   //   this.autocompleteItems = []
   //   this.autocomplete.input = ''
   // }
- 
-  //EJEMPLO PARA IR A UN LUGAR DESDE UN LINK EXTERNO, ABRIR GOOGLE MAPS PARA DIRECCIONES. 
+
+  //EJEMPLO PARA IR A UN LUGAR DESDE UN LINK EXTERNO, ABRIR GOOGLE MAPS PARA DIRECCIONES.
   // GoTo(){
   //   return window.location.href = 'https://www.google.com/maps/search/?api=1&query=Google&query_place_id='+this.placeid;
   // }

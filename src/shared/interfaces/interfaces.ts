@@ -33,7 +33,7 @@ export type PlaceCapacity = { size: PlaceSize ; numOfPlaces: number } ;
  */
 export interface IParking{
   idParking: number;
-  id: string,
+  id: string;
   name: string;
   address: string;
   zipCode: string;
@@ -51,8 +51,8 @@ export interface IParking{
  * Every UserParking is identified uniquely by  idUser + idParking + coordX + coordY
  */
 export interface IUserParking{
-  idUser: string;
-  idParking: string;
+  idUser: string;    // external key to IParking.id Firestores key
+  idParking: string; // external key to IUser.id Firestore key
 }
 
 export interface IParks{

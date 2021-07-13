@@ -11,7 +11,7 @@ import firebase from 'firebase/app';
 })
 
 export class AuthenticationService {
-  userData: any;
+  userData   = {};
 
   constructor(
     public afStore: AngularFirestore,
