@@ -10,5 +10,9 @@
     <param name="android-package" value="cordova.plugin.nativegeocoder.NativeGeocoder"/>
   </feature>
 
+  <feature name="BarcodeScanner">
+    <param name="android-package" value="com.phonegap.plugins.barcodescanner.BarcodeScanner"/>
+  </feature>
+
   
 </widget>

@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { IParking, IPlace } from 'src/shared/interfaces/interfaces';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 
 @Component({
   selector: 'app-view-park',
@@ -12,11 +13,13 @@ export class ViewParkPage implements OnInit {
   @Input() parking: IParking;
   @Input() placesRows: IPlace[][] = [[]] ;  //Array of Array of IPlace for ion-grid
   id: any;
+  data: any;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private firestoreParkingService: FirestoreParkingService,
+    private barcodeScanner: BarcodeScanner
    ) {
     this.id = this.activatedRoute.snapshot.paramMap.get('id');
    }
@@ -72,6 +75,16 @@ export class ViewParkPage implements OnInit {
         (err) => { alert('Error caught at subscribe on Firebase url "' + err.url + '" '); },   //2nd subscribe param
         () => {} //Complete
       );
+  }
+
+  ScanQr() {
+    this.data = null;
+    this.barcodeScanner.scan().then(barcodeData => {
+      console.log('Barcode data', barcodeData);
+      this.data = barcodeData;
+    }).catch(err => {
+      console.log('Error', err);
+    });
   }
 
 }
