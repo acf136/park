@@ -23,11 +23,11 @@ export class FirestoreParkingService {
     return this.ngFirestore.collection('Parking').doc(id).valueChanges();
   }
 
-  async getParkingPromise(id): Promise<IParking> {
+  async getParkingPromise(pid): Promise<any> {
     return new Promise( (resolve, reject) => {  //make to call with await
-      this.ngFirestore.collection('Parking').doc(id).valueChanges().subscribe(
+      this.ngFirestore.collection('Parking').doc(pid).valueChanges().subscribe(
           (pparking) => {
-               resolve( pparking as IParking);
+               resolve( pparking );
                if ( !pparking ) reject('getParkingPromise: pparking empty');
           },
           (err) => alert('Error caught at subscribe on getParkingPromise')   //2nd subscribe param

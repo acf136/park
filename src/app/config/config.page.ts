@@ -54,8 +54,9 @@ export class ConfigPage implements OnInit, OnDestroy {
   // Load info of current user
   ngOnInit( ) {
     //  get the id of the current user
-    // this.id = 'GzELohIVXZXZaFOvqdB3XBwAUZf2' ;    // TODO: eliminate this hardcode
     this.id = this.authService.getUserData().uid;
+    const userData = JSON.parse(localStorage.getItem('user')) ;
+    this.id = userData.uid;
     this.loadData();
   }
 

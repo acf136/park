@@ -21,8 +21,9 @@ export class ListParkComponent implements OnInit {
               private firestoreUserParkingService: FirestoreUserParkingService,
               private authService: AuthenticationService
               ) {
-                  // console.log('userdata: '+this.authService.getUserData().uid);
-               }
+                this.idUser = this.authService.getUserData().uid;
+                console.log('this.idUser '+ this.idUser);
+              }
 
   ngOnInit() {
     this.loadData();
@@ -53,7 +54,12 @@ export class ListParkComponent implements OnInit {
 // Get all Parkings - DON'T DELETE WHILE developing
     //
     // Retrieve UserParking N:M relationship for the current user this.idUser
-    this.idUser = this.authService.getUserData().uid;
+    // this.idUser = this.authService.getUserData().uid;
+    this.idUser = JSON.parse(localStorage.getItem('user')).uid;
+    // if ( !this.idUser ) {
+    //   const userData = JSON.parse(localStorage.getItem('user')) ;
+    //   if ( userData ) this.idUser = userData.uid;
+    // }
     // this.idUser = 'l4biVd2tDRNDWDTkJWA03bRPLOH3' ; // idUser de prueba
     console.log('list-park -> idUser: '+ this.idUser);
     if ( !this.idUser ) return;  //to avoid undefined
@@ -64,12 +70,15 @@ export class ListParkComponent implements OnInit {
     for (let i = 0 ; i < myUPTable.length ; i++)
       await this.firestoreParkingService.getParkingPromise(myUPTable[i].idParking)
               .then(
-                (pparking) => this.parkings.push(pparking as IParking),                   //onfulfilledO
+                (pparking) => {                                                              //onfulfilled
+                  const newParking: IParking = pparking as IParking;
+                  newParking.id = myUPTable[i].idParking;
+                  this.parkings.push(newParking);
+                } ,
                 (error) => console.log('getParkingPromise error :'+error)                 //onrejected
               );
 
     console.log('this.parkings  = '+this.parkings);
-
   }  // end of loadData
 
   parkingList() {

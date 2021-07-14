@@ -1,6 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { IParking, IPlace } from 'src/shared/interfaces/interfaces';
 import { Router, ActivatedRoute } from '@angular/router';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -37,7 +39,8 @@ export class ModifyParkPage implements OnInit {
         long      : [ 0 ],
         zipCode   : [ '' ]
     });
-   }  // end of constructor
+
+  }  // end of constructor
 
    /**
     *
