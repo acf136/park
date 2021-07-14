@@ -21,11 +21,12 @@ export class ListParkComponent implements OnInit {
               private firestoreUserParkingService: FirestoreUserParkingService,
               private authService: AuthenticationService
               ) {
-                  // console.log('userdata: '+this.authService.getUserData().uid);
-               }
+                this.idUser = this.authService.getUserData().uid;
+                console.log('this.idUser '+ this.idUser);
+              }
 
   ngOnInit() {
-    this.loadData();
+    // this.loadData();
   }
 
   /**
@@ -54,6 +55,10 @@ export class ListParkComponent implements OnInit {
     //
     // Retrieve UserParking N:M relationship for the current user this.idUser
     this.idUser = this.authService.getUserData().uid;
+    if ( !this.idUser ) {
+      const userData = JSON.parse(localStorage.getItem('user')) ;
+      if ( userData ) this.idUser = userData.uid;
+    }
     // this.idUser = 'l4biVd2tDRNDWDTkJWA03bRPLOH3' ; // idUser de prueba
     console.log('list-park -> idUser: '+ this.idUser);
     if ( !this.idUser ) return;  //to avoid undefined
@@ -69,7 +74,6 @@ export class ListParkComponent implements OnInit {
               );
 
     console.log('this.parkings  = '+this.parkings);
-
   }  // end of loadData
 
   parkingList() {
