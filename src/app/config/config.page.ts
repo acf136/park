@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { IUser } from 'src/shared/interfaces/interfaces';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FirestoreUserService } from 'src/shared/services/firestore-user.service';
+import { AuthenticationService } from 'src/shared/services/authentication.service';
 
 @Component({
   selector: 'app-config',
@@ -19,6 +20,7 @@ export class ConfigPage implements OnInit, OnDestroy {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private firestoreUserService: FirestoreUserService,
+    private authService: AuthenticationService,
     public formBuilder: FormBuilder
   ) {
     // this.id = this.activatedRoute.snapshot.paramMap.get('id');
@@ -27,11 +29,9 @@ export class ConfigPage implements OnInit, OnDestroy {
     // ) ;
     // this.getBackRoute();
     this.modifyForm = this.formBuilder.group({
-      // idUser : [ '' ],
       name      : [ '' ],
       surname   : [ '' ],
       email       : [ '' ],
-      // password      : [ 0 ],
       envioDisponibilidad   : [ false ],
       envioInformes   : [ true ]
   });
@@ -43,11 +43,9 @@ export class ConfigPage implements OnInit, OnDestroy {
   */
   fillModifyForm(pdata: IUser) {
     this.modifyForm = this.formBuilder.group({
-      // idUser    : [ pdata.idUser],
       name      : [ pdata.name ],
       surname   : [ pdata.surname ],
       email     : [ pdata.email ],
-      // password  : [ pdata.password],
       envioDisponibilidad  : [ pdata.envioDisponibilidad ],
       envioInformes   : [ pdata.envioInformes ]
     });
@@ -55,8 +53,8 @@ export class ConfigPage implements OnInit, OnDestroy {
 
   // Load info of current user
   ngOnInit( ) {
-    // TODO : get the id of the current user
-    this.id = 'GzELohIVXZXZaFOvqdB3XBwAUZf2' ;    // TODO: eliminate this hardcode
+    //  get the id of the current user
+    this.id = JSON.parse(localStorage.getItem('user')).uid;
     this.loadData();
   }
 
@@ -100,7 +98,7 @@ export class ConfigPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(){
-    this.router.navigate(['/tabs/tab2']);
+    // this.router.navigate(['/tabs/tab2']);
   }
   getBackRoute(){
     // return this.backRoute ;
