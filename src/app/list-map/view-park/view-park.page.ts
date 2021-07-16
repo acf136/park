@@ -3,6 +3,7 @@ import { IParking, IPlace } from 'src/shared/interfaces/interfaces';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-view-park',
@@ -19,7 +20,8 @@ export class ViewParkPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private firestoreParkingService: FirestoreParkingService,
-    private barcodeScanner: BarcodeScanner
+    private barcodeScanner: BarcodeScanner,
+    private alertController: AlertController,
    ) {
     this.id = this.activatedRoute.snapshot.paramMap.get('id');
    }
@@ -71,20 +73,131 @@ export class ViewParkPage implements OnInit {
           // console.log('ParkingView.idParking = ', this.parking.idParking );
           // this.parking.places.forEach( item => console.log('X=',item.coordX,'Y=',item.coordY));
           this.copyPlacesToGrid();
+
+          console.log("parking: ", this.parking);
+          console.log("places: ", this.parking.places);
+          
         },
         (err) => { alert('Error caught at subscribe on Firebase url "' + err.url + '" '); },   //2nd subscribe param
         () => {} //Complete
       );
   }
 
+  /**
+   * Scan QR process, automatically opens camera, and catches
+   * the scanned code in barcodeData variable
+   */
   ScanQr() {
     this.data = null;
     this.barcodeScanner.scan().then(barcodeData => {
       console.log('Barcode data', barcodeData);
       this.data = barcodeData;
+      //TODO:
+      //Buscar si existe la plaza escaneada
+      const place = this.checkScannedCode(barcodeData.text);
+      if(place != null){
+        //mirar el estado de la plaza escaneada
+        let header: string = "Barcode " + this.data.text + " Scanned!";
+        let message: string;
+        let isLeaving: boolean;
+        if(place.occupied){
+          //Ask sure leaving
+          console.log("Place occupied!");
+          message = "Do you want to leave your parking place free?";
+          isLeaving = true;
+        }else{
+          //Ask sure staying
+          console.log("Place NOT occupied!");
+          isLeaving = false;
+          message = "Do you want to park in this place?";
+        }
+        this.presentAlertConfirm(header, message, this.data.text, isLeaving)
+      }else{
+        console.log("El código escaneado no existe en este párking");
+      }
+      //Dependiendo del estado, preguntar una cosa u otra
+      //Responder l input del usuario
+
     }).catch(err => {
       console.log('Error', err);
     });
+  } 
+
+  checkScannedCode(data: string): IPlace{
+    const row = data[0];
+    const col = data[1];
+
+    for (var i = 0, len = this.parking.places.length; i < len; i++) {
+      console.log(this.parking.places[i].coordX + this.parking.places[i].coordY);
+      
+      if (this.parking.places[i].coordX == row && this.parking.places[i].coordY == col) {
+        console.log("Place found!");
+        return this.parking.places[i];
+      }
+      console.log('Loop will continue.');
+    }
+    return null;
+  }
+
+  invertPlaceStatus(data: string){
+    const row = data[0];
+    const col = data[1];
+
+    for (var i = 0, len = this.parking.places.length; i < len; i++) {
+      console.log(this.parking.places[i].coordX + this.parking.places[i].coordY);
+      
+      if (this.parking.places[i].coordX == row && this.parking.places[i].coordY == col) {
+        console.log("Occupied BEFORE: " + this.parking.places[i].occupied);
+        this.parking.places[i].occupied = !this.parking.places[i].occupied;
+        console.log("Occupied AFTER: " + this.parking.places[i].occupied);
+        break;
+      }
+      console.log('Loop will continue.');
+    }
+  }
+
+  /**
+   * Presents the modal where the user is asked to confirm or cancel
+   * when he scans a parking place
+   * 
+   * @param data 
+   */
+  async presentAlertConfirm(_header: string, _message: string, data: string, isLeaving: boolean) {
+    console.log("Alert creation");
+    const alert = await this.alertController.create({
+      header: _header,
+      message: _message,
+      backdropDismiss: false,
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: (blah) => {
+            console.log('Confirm Cancel: blah');
+          }
+        }, {
+          text: 'Okay',
+          handler: () => {
+            console.log('Confirm Okay');
+            //if (isLeaving) {
+              //
+              //const place = this.checkScannedCode(data);
+              this.invertPlaceStatus(data);
+              console.log("PARKING ID: " + this.id);
+              console.log("PARKING: " + this.parking.places);
+              this.firestoreParkingService.update(this.id, this.parking)
+
+              this.loadData();
+            //}else{
+              //
+            //}
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
 }
