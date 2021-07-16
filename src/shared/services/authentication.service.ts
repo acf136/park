@@ -18,26 +18,23 @@ export class AuthenticationService {
     public ngFireAuth: AngularFireAuth,
     public router: Router,
     public ngZone: NgZone
-  ) {
-    this.ngFireAuth.authState.subscribe(user => {
-      if (user) {
-        this.userData = user;
-        localStorage.setItem('user', JSON.stringify(this.userData));
-        JSON.parse(localStorage.getItem('user'));
-      } else {
-        localStorage.setItem('user', null);
-        JSON.parse(localStorage.getItem('user'));
-      }
-    })
-  }
-
-  getUserData(): any{
-    return this.userData;
-  }
+  ) { }
 
   // Login in with email/password
   SignIn(email, password) {
-    return this.ngFireAuth.signInWithEmailAndPassword(email, password);
+    return this.ngFireAuth.signInWithEmailAndPassword(email, password)
+    .then((result) => {
+      this.ngFireAuth.authState.subscribe((user) => {
+        if (user) {
+          this.userData = user;
+          localStorage.setItem('user', JSON.stringify(this.userData));
+          JSON.parse(localStorage.getItem('user'));
+          this.router.navigate(['/tabs']);
+        }
+      })
+    }).catch((error) => {
+      window.alert(error.message)
+    })
   }
 
   // Register user with email/password
@@ -120,6 +117,8 @@ export class AuthenticationService {
   SignOut() {
     return this.ngFireAuth.signOut().then(() => {
       localStorage.removeItem('user');
+      localStorage.setItem('user', null);
+      JSON.parse(localStorage.getItem('user'));
       this.router.navigate(['home']);
     });
   }

@@ -49,13 +49,13 @@ export class LoginComponent implements OnInit {
    */
   public submitForm(){
     //init spinner
-    this.loadingService.present();
+    //this.loadingService.present();
     this.isSubmitted = true;
     //Form not valid
     if (!this.loginForm.valid) {
       console.log('Please provide all the required values!');
       //stop spinner
-      this.loadingService.dismiss();
+      //this.loadingService.dismiss();
       return false;
     } else {
       //Form valid
@@ -72,8 +72,11 @@ export class LoginComponent implements OnInit {
         // }
 
         //stop spinner
-        this.loadingService.dismiss();
-        this.router.navigate(['/tabs']);
+        //this.loadingService.dismiss();
+        //this.router.navigate(['/tabs']);
+
+        //Ahora se gestiona el routing desde el propio servicio authentication
+      
       }).catch((error) => {
         //stop spinner
         this.loadingService.dismiss();

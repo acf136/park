@@ -87,7 +87,8 @@ export class Tab2Page implements OnInit {
     this.firestoreParkingService.getParkings().subscribe((pparkings) =>  { 
       //stop spinner
       this.loadingService.dismiss();
-      const uid = this.authService.getUserData().uid;
+      //const uid = this.authService.getUserData().uid;
+      const uid = JSON.parse(localStorage.getItem('user')).uid;
 
       const _userService: UserService = this.userService;
       const _router: Router = this.router;

@@ -86,7 +86,7 @@ export class RegistrationComponent implements OnInit {
       //Firestore database
       this.userService.setUser(newFirestoreUser, res)
       .then(() => {
-        this.router.navigate(['/tabs']);
+        this.router.navigate(['/home']);
       }).catch((err) => {
         console.log(err)
       });
