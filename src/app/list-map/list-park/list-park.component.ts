@@ -24,7 +24,7 @@ export class ListParkComponent implements OnInit {
               }
 
   ngOnInit() {
-    // this.loadData();
+    this.loadData();
   }
 
   /**
