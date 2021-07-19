@@ -10,7 +10,8 @@ export class AppComponent {
   public appPages = [
     { title: 'List', url: '/list-map/List', icon: 'list' },
     { title: 'Map', url: '/list-map/Map', icon: 'map' },
-    { title: 'Config', url: '/config', icon: 'settings' }
+    { title: 'Config', url: '/config', icon: 'settings' },
+    { title: 'Charts', url: '/charts', icon: 'pie-chart' }
   ];
   public labels = ['List-park', 'Map-park' ];
   constructor(public authService: AuthenticationService) {}
