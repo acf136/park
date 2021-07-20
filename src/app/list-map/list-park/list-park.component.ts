@@ -20,7 +20,7 @@ export class ListParkComponent implements OnInit {
               private firestoreUserParkingService: FirestoreUserParkingService
               ) {
                 this.idUser = JSON.parse(localStorage.getItem('user')).uid;
-                console.log('this.idUser '+ this.idUser);
+                // console.log('this.idUser '+ this.idUser);
               }
 
   ngOnInit() {
@@ -59,7 +59,7 @@ export class ListParkComponent implements OnInit {
     //   if ( userData ) this.idUser = userData.uid;
     // }
     // this.idUser = 'l4biVd2tDRNDWDTkJWA03bRPLOH3' ; // idUser de prueba
-    console.log('list-park -> idUser: '+ this.idUser);
+    // console.log('list-park -> idUser: '+ this.idUser);
     if ( !this.idUser ) return;  //to avoid undefined
     // Get IUserParking elements for this.idUser
     await this.firestoreUserParkingService.getParkingsOfUser(this.idUser)

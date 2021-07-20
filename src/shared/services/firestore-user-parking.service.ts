@@ -20,6 +20,9 @@ export class FirestoreUserParkingService {
   getUserParking(id) {
     return this.ngFirestore.collection('UserParking').doc(id).valueChanges();
   }
+  async getUserParkingSync(id) {
+    return this.ngFirestore.collection('UserParking').doc(id).valueChanges();
+  }
 
   async getUserParkings(): Promise<IUserParking[]> {
     return new Promise( (resolve, reject) => {  //make to call with await
@@ -41,7 +44,7 @@ export class FirestoreUserParkingService {
   async getParkingsOfUser(idUser: string): Promise<IUserParking[]> {   //: Promise<IUserParking[]>
     const response = await this.getUserParkings();
     if ( response.length > 0 )
-      this.myUserParkings = response.filter( (up) => up.idUser === idUser ) //discard if not idUser
+      this.myUserParkings = response.filter( (up) => up.idUser === idUser ); //discard if not idUser
     return this.myUserParkings;
   }
 

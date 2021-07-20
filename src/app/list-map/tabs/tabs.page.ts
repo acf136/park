@@ -22,7 +22,7 @@ export class TabsPage implements OnInit{
   ionViewDidEnter(){
     // cambia la propiedad disabled del tag html  <ion-menu> en app.component.html
     // <ion-menu contentId="main-content" type="overlay" disabled="true" menuId="mId-Park">
-    this.menu.enable(true, 'mId-Park');
+    // this.menu.enable(true, 'mId-Park');
     // console.log("after login (did enter): " + this.authService.isLoggedIn);
   }
 
@@ -31,7 +31,7 @@ export class TabsPage implements OnInit{
   }
 
   ionViewDidLeave(){
-    this.menu.enable(false, 'mId-Park');
+    // this.menu.enable(false, 'mId-Park');
     // console.log("after login (did leave): " + this.authService.isLoggedIn);d
   }
 

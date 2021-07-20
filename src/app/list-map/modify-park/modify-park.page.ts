@@ -1,10 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { IParking, IPlace } from 'src/shared/interfaces/interfaces';
-import { Router, ActivatedRoute } from '@angular/router';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import { ActivatedRoute } from '@angular/router';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { NavigationService } from 'src/shared/services/navigation.service';
 
 @Component({
   selector: 'app-modify-park',
@@ -18,12 +17,13 @@ export class ModifyParkPage implements OnInit {
   id: any;
   public duplicateForm: FormGroup;
   public modifyForm: FormGroup;
+  backdropEnabled = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private router: Router,
     private firestoreParkingService: FirestoreParkingService,
-    public formBuilder: FormBuilder
+    public formBuilder: FormBuilder,
+    private navigation: NavigationService
    ) {
       this.id = this.activatedRoute.snapshot.paramMap.get('id');
       this.duplicateForm = this.formBuilder.group({
@@ -219,5 +219,20 @@ export class ModifyParkPage implements OnInit {
   myPlaceColSizeTab(pndxRow: number, pncols: number, pplaceCol: IPlace): string{
     const sizeRelative = ( pplaceCol.size * (1 / this.placesRowsSizes[pndxRow]) ) * 100 ; // / pncols) ;
     return 'width: '+sizeRelative.toString()+'%;';
+  }
+
+  getBackButtonText() {
+    const win = window as any;
+    const mode = win && win.Ionic && win.Ionic.mode;
+    // return mode === 'ios' ? 'Back' : 'Back';
+    return 'Back';  //no 'Back' text for the moment
+  }
+
+  // [defaultHref]="getBackRoute()"
+  getBackRoute(){
+    // use the navigationService to get the last route into backRoute
+    const backRoute = this.navigation.history[this.navigation.history.length - 2];
+    if ( !backRoute )  return '/' ; // only one route in history
+    else   return backRoute;
   }
 }

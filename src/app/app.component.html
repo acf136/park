@@ -1,6 +1,6 @@
 <ion-app>
   <ion-split-pane contentId="main-content">
-    <ion-menu contentId="main-content" type="overlay" disabled="true" menuId="mId-Park">
+    <ion-menu contentId="main-content" type="overlay" disabled="false" menuId="mId-Park">
       <ion-content>
         <ion-list id="inbox-list">
           <ion-list-header>@Park</ion-list-header>
@@ -9,13 +9,11 @@
             <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
               <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
               <ion-label>{{ p.title }}</ion-label>
+              <span *ngIf="p.title === 'Exit'" >
+                <ion-button color="danger" (click)="authService.signOut()">Log Out</ion-button>
+              </span>
             </ion-item>
           </ion-menu-toggle>
-
-          <!-- Log out button -->
-          <ion-button color="danger" (click)="authService.SignOut()">
-            Log Out
-          </ion-button>
         </ion-list>
 
       </ion-content>

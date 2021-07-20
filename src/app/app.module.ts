@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { RouteReuseStrategy } from '@angular/router';
+import { Router, RouteReuseStrategy } from '@angular/router';
 
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
@@ -16,8 +16,8 @@ import { HttpClientModule } from '@angular/common/http';
 // import { InMemoryDataService } from '../shared/services/in-memory-data.service';
 // simulating Http client through In-memory Web API
 
-import { UserService } from 'src/shared/services/user.service';
 import { LoadingService } from 'src/shared/services/Loading.service';
+import { FirestoreUserService } from 'src/shared/services/firestore-user.service';
 // Geolocation Plugins
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
@@ -29,6 +29,7 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { environment } from '../environments/environment';
 import { AuthenticationService } from 'src/shared/services/authentication.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+
 
 @NgModule({
   declarations: [AppComponent,
@@ -53,8 +54,8 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
     AngularFireAuthModule,
     AngularFireDatabaseModule,
     AngularFirestoreModule],
-  providers: [ 
-    UserService,
+  providers: [
+    FirestoreUserService,
     LoadingService,
     AuthenticationService,
     Geolocation,
@@ -63,4 +64,12 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule {
+    // // Diagnostic only: inspect router configuration
+    // constructor(router: Router) {
+    //   // Use a custom replacer to display function names in the route configs
+    //   const replacer = (key, value) => (typeof value === 'function') ? value.name : value;
+
+    //   console.log('Routes: ', JSON.stringify(router.config, replacer, 2));
+    // }
+}

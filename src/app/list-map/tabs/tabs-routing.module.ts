@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AuthGuard } from 'src/shared/auth/auth.guard';
 import { TabsPage } from './tabs.page';
 
 const routes: Routes = [
@@ -22,6 +23,7 @@ const routes: Routes = [
     loadChildren: () => import('../view-park/view-park.module').then( m => m.ViewParkPageModule)
   },
   { path: 'modify-park/:id',
+    canActivate: [AuthGuard],
     loadChildren: () => import('../modify-park/modify-park.module').then( m => m.ModifyParkPageModule)
   },
   { path: 'config',

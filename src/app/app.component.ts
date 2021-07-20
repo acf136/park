@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { AuthenticationService } from 'src/shared/services/authentication.service';
+import { NavigationService } from 'src/shared/services/navigation.service';
 
 @Component({
   selector: 'app-root',
@@ -10,8 +11,12 @@ export class AppComponent {
   public appPages = [
     { title: 'List', url: '/list-map/List', icon: 'list' },
     { title: 'Map', url: '/list-map/Map', icon: 'map' },
-    { title: 'Config', url: '/config', icon: 'settings' }
+    { title: 'Config', url: '/config', icon: 'settings' },
+    { title: 'Exit', url: 'login', icon: '' }              //Button LogOut
   ];
   public labels = ['List-park', 'Map-park' ];
-  constructor(public authService: AuthenticationService) {}
+  constructor(
+    public authService: AuthenticationService,
+    private navigation: NavigationService
+    ) {}
 }

@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { IParking, IPlace } from 'src/shared/interfaces/interfaces';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { AlertController } from '@ionic/angular';
+import { NavigationService } from 'src/shared/services/navigation.service';
 
 @Component({
   selector: 'app-view-park',
@@ -18,10 +19,10 @@ export class ViewParkPage implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private router: Router,
     private firestoreParkingService: FirestoreParkingService,
     private barcodeScanner: BarcodeScanner,
     private alertController: AlertController,
+    private navigation: NavigationService
    ) {
     this.id = this.activatedRoute.snapshot.paramMap.get('id');
    }
@@ -76,7 +77,7 @@ export class ViewParkPage implements OnInit {
 
           console.log("parking: ", this.parking);
           console.log("places: ", this.parking.places);
-          
+
         },
         (err) => { alert('Error caught at subscribe on Firebase url "' + err.url + '" '); },   //2nd subscribe param
         () => {} //Complete
@@ -121,7 +122,7 @@ export class ViewParkPage implements OnInit {
     }).catch(err => {
       console.log('Error', err);
     });
-  } 
+  }
 
   checkScannedCode(data: string): IPlace{
     const row = data[0];
@@ -129,7 +130,7 @@ export class ViewParkPage implements OnInit {
 
     for (var i = 0, len = this.parking.places.length; i < len; i++) {
       console.log(this.parking.places[i].coordX + this.parking.places[i].coordY);
-      
+
       if (this.parking.places[i].coordX == row && this.parking.places[i].coordY == col) {
         console.log("Place found!");
         return this.parking.places[i];
@@ -145,7 +146,7 @@ export class ViewParkPage implements OnInit {
 
     for (var i = 0, len = this.parking.places.length; i < len; i++) {
       console.log(this.parking.places[i].coordX + this.parking.places[i].coordY);
-      
+
       if (this.parking.places[i].coordX == row && this.parking.places[i].coordY == col) {
         console.log("Occupied BEFORE: " + this.parking.places[i].occupied);
         this.parking.places[i].occupied = !this.parking.places[i].occupied;
@@ -159,8 +160,8 @@ export class ViewParkPage implements OnInit {
   /**
    * Presents the modal where the user is asked to confirm or cancel
    * when he scans a parking place
-   * 
-   * @param data 
+   *
+   * @param data
    */
   async presentAlertConfirm(_header: string, _message: string, data: string, isLeaving: boolean) {
     console.log("Alert creation");
@@ -200,4 +201,18 @@ export class ViewParkPage implements OnInit {
     await alert.present();
   }
 
+  getBackButtonText() {
+    const win = window as any;
+    const mode = win && win.Ionic && win.Ionic.mode;
+    // return mode === 'ios' ? 'Back' : 'Back';
+    return 'Back';  //no 'Back' text for the moment
+  }
+
+  // [defaultHref]="getBackRoute()"
+  getBackRoute(){
+    // use the navigationService to get the last route into backRoute
+    const backRoute = this.navigation.history[this.navigation.history.length - 2];
+    if ( !backRoute )  return '/' ; // only one route in history
+    else   return backRoute;
+  }
 }

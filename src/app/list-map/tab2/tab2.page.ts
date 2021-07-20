@@ -6,9 +6,8 @@ import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@io
 import { IParking, IUserParking } from 'src/shared/interfaces/interfaces';
 import { AuthenticationService } from 'src/shared/services/authentication.service';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
+import { FirestoreUserParkingService } from 'src/shared/services/firestore-user-parking.service';
 import { LoadingService } from 'src/shared/services/Loading.service';
-import { ParkingService } from 'src/shared/services/parking.service';
-import { UserService } from 'src/shared/services/user.service';
 
 declare var google;
 
@@ -39,7 +38,7 @@ export class Tab2Page implements OnInit {
     private firestoreParkingService: FirestoreParkingService,
     private loadingService: LoadingService,
     public authService: AuthenticationService,
-    private userService: UserService,
+    private firestoreUserParkingService: FirestoreUserParkingService,
     private router: Router)
     {
       this.GoogleAutocomplete = new google.maps.places.AutocompleteService();
@@ -53,18 +52,16 @@ export class Tab2Page implements OnInit {
 
   //CARGAR EL MAPA TIENE DOS PARTES
   loadMap() {
-
-    //init spinner
-    this.loadingService.present();
+    this.loadingService.present();       //init spinner
 
     //OBTENEMOS LAS COORDENADAS DESDE EL TELEFONO.
-    this.geolocation.getCurrentPosition().then((resp) => {
+    this.geolocation.getCurrentPosition().then( (resp) => {
       let latLng = new google.maps.LatLng(resp.coords.latitude, resp.coords.longitude);
       let mapOptions = {
         center: latLng,
         zoom: 15,
         mapTypeId: google.maps.MapTypeId.ROADMAP
-      }
+      };
 
       //CUANDO TENEMOS LAS COORDENADAS SIMPLEMENTE NECESITAMOS PASAR AL MAPA DE GOOGLE TODOS LOS PARAMETROS.
       this.getAddressFromCoords(resp.coords.latitude, resp.coords.longitude);
@@ -81,67 +78,61 @@ export class Tab2Page implements OnInit {
     }).catch((error) => {
       console.log('Error getting location', error);
     });
-  }
+    this.loadingService.dismiss();                //stop spinner
 
+  }  //end of loadMap()
+
+  /**
+   * Print all parking marks in the map
+   */
   printAllParkingsMarkers(){
-    this.firestoreParkingService.getParkings().subscribe((pparkings) =>  {
-      //stop spinner
-      this.loadingService.dismiss();
-      //const uid = this.authService.getUserData().uid;
-      const uid = JSON.parse(localStorage.getItem('user')).uid;
+    this.firestoreParkingService.getParkings().subscribe( (pparkings) =>  {
 
-      const _userService: UserService = this.userService;
+      const uid = JSON.parse(localStorage.getItem('user')).uid;
+      const userParkingService = this.firestoreUserParkingService;
       const _router: Router = this.router;
 
       let newUserParking: IUserParking;
 
-      this.parkings = pparkings.map((t) => ({                           //1st subscribe param
-        id: t.payload.doc.id,
-        ...t.payload.doc.data() as IParking
-      }));
+      this.parkings = pparkings.map( (t) => ({                           //1st subscribe param
+        id: t.payload.doc.id,   ...t.payload.doc.data() as IParking
+      }) );
 
       console.log("in ", this.parkings);
 
-      this.parkings.forEach(element => {
+      this.parkings.forEach( elemParking => {
         //Por cada párking colocamos un marcador en el mapa
-        let latLngMarker = new google.maps.LatLng(element.lat, element.long);
-        var marker = new google.maps.Marker({
-          position: latLngMarker
-        });
+        let latLngMarker = new google.maps.LatLng(elemParking.lat, elemParking.long);
+        let marker = new google.maps.Marker( { position: latLngMarker } );
         marker.setMap(this.map);
 
-        google.maps.event.addListener(marker, 'click', function () {
-          prueba(element, _userService, _router);
-        });
+        google.maps.event.addListener(marker, 'click', () => createNewUserParking(elemParking, userParkingService, _router)  );
 
-        function prueba(element: IParking, service: UserService, _router: Router){
-          console.log("Parking Selected: " + element.name);
-
+        async function createNewUserParking(elemParking: IParking, service: FirestoreUserParkingService, _router: Router) {
+          console.log("Parking Selected: " + elemParking.name);
           //TODO: Toda la lógica que cargue el parking seleccionado para el usuario seleccionado
-          newUserParking = {
-            idParking: element.id,
-            idUser: uid
-          }
-
-          //TODO: CONTROL NON REPEATED RELATIONSHIP IN FIRESTORE DB
-          _userService.addParkingOnUser(newUserParking).then(() => {
-            //Go to the next page: DETALLE DEL PARKING
-            _router.navigate(['/parking/' + newUserParking.idParking]);
-          }).catch((err) => {
-            console.log(err)
-          });
-
+          let newUserParking = {  idParking: elemParking.id,  idUser: uid   } ;
+          let myUPTable: IUserParking[] = [];
+          await service.getParkingsOfUser(newUserParking.idUser).then( (uptable) => myUPTable = uptable );
+          const existingUP =  myUPTable.filter( (up) => up.idParking === elemParking.id ) ;
+          // avoid creation of existing UserParking  elements
+          if ( existingUP.length === 0 )  service.create(newUserParking).then( (resolve) => {}  );
+          _router.navigate(['/parking/' + newUserParking.idParking]) ;  //Go to the next page: parking detail
         }
 
       });
 
     }, (err) => {
-      //stop spinner
-      this.loadingService.dismiss();
+      this.loadingService.dismiss();    //stop spinner
       console.error(err);
     });
   }
 
+  /**
+   *
+   * @param lattitude
+   * @param longitude
+   */
   getAddressFromCoords(lattitude, longitude) {
     console.log("getAddressFromCoords "+lattitude+" "+longitude);
     let options: NativeGeocoderOptions = {
@@ -168,7 +159,7 @@ export class Tab2Page implements OnInit {
   }
 
   //FUNCION DEL BOTON INFERIOR PARA QUE NOS DIGA LAS COORDENADAS DEL LUGAR EN EL QUE POSICIONAMOS EL PIN.
-  ShowCords(){
+  showCords(){
     alert('lat' +this.lat+', long'+this.long )
   }
 

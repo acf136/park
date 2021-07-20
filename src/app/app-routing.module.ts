@@ -13,18 +13,6 @@ const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'tabs',  loadChildren: () => import('./list-map/tabs/tabs.module').then(m => m.TabsPageModule) },
   { path: '',  loadChildren: () => import('./list-map/tabs/tabs.module').then(m => m.TabsPageModule) },
-  {
-    path: 'view-park',
-    loadChildren: () => import('./list-map/view-park/view-park.module').then( m => m.ViewParkPageModule)
-  },
-  {
-    path: 'modify-park',
-    loadChildren: () => import('./list-map/modify-park/modify-park.module').then( m => m.ModifyParkPageModule)
-  },
-  {
-    path: 'config',
-    loadChildren: () => import('./config/config.module').then( m => m.ConfigPageModule)
-  },
   { path: '**', redirectTo: '/login' }
 ];
 

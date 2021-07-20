@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoadingController } from '@ionic/angular';
-import { IUser } from 'src/shared/interfaces/interfaces';
 import { LoadingService } from 'src/shared/services/Loading.service';
-import { UserService } from 'src/shared/services/user.service';
-import { AuthenticationService } from "../../shared/services/authentication.service";
+import { AuthenticationService } from '../../shared/services/authentication.service';
 
 @Component({
   selector: 'app-login',
@@ -30,7 +27,7 @@ export class LoginComponent implements OnInit {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.pattern('[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$')]],
       password: ['', [Validators.required, Validators.minLength(2)]],
-    })
+    });
 
     this.form = [
       { val: 'Envio disponibilidad', isChecked: false },
@@ -41,52 +38,28 @@ export class LoginComponent implements OnInit {
   /**
    * THIS METHOD CHECKS THE USER INPUT WHEN CLICKING THE SIGN IN BUTTON
    *
-   * NOTA: HE AÑADIDO EL SERVICIO LoadingService EN SHARED>SERVICES, EL CUAL PODEMOS UTILIZAR
-   * A PARTIR DE AHORA PARA MOSTRAR SPINNERS DE CARGA CUANDO LA APP SE ESPERE A RECIBIR DATOS
-   * DE UN SERVIDOR O UNA API REST
-   *
    * @returns
    */
-  public submitForm(){
-    //init spinner
-    //this.loadingService.present();
+  async submitForm() {
+    this.loadingService.present();   //init spinner
     this.isSubmitted = true;
     //Form not valid
-    if (!this.loginForm.valid) {
-      console.log('Please provide all the required values!');
-      //stop spinner
-      //this.loadingService.dismiss();
-      return false;
-    } else {
-      //Form valid
-      this.authService.SignIn(this.loginForm.get('email').value, 
-                              this.loginForm.get('password').value)
-      .then((res) => {
-        // ESTO ES POR SI SE DECIDE HACER LA AUTETICACIÓN CON VERIFICACION DE EMAIL
-
-        // if(this.authService.isEmailVerified) {
-        //   this.router.navigate(['dashboard']);          
-        // } else {
-        //   window.alert('Email is not verified')
-        //   return false;
-        // }
-
-        //stop spinner
-        //this.loadingService.dismiss();
-        //this.router.navigate(['/tabs']);
-
-        //Ahora se gestiona el routing desde el propio servicio authentication
-      
-      }).catch((error) => {
-        //stop spinner
-        this.loadingService.dismiss();
-        window.alert(error.message)
-      })
+    if ( !this.loginForm.valid ) alert('Please provide all the required values!');
+    else { // ( this.loginForm.valid )
+      let newEmail = this.loginForm.get('email').value;
+      let newPassword =  this.loginForm.get('password').value;
+      await this.authService.signIn(newEmail, newPassword).then(
+        (resolve) => {                                                      //onfulfilled
+          localStorage.setItem('user', JSON.stringify(resolve.user));
+          this.router.navigate(['tabs']);
+        } ,
+        (reject)  => console.log('Reject authService.signIn :  ' +reject)   //onrejected
+      );
     }
+    this.loadingService.dismiss();       //stop spinner
   }
 
-  public forgotPasswordClicked()
-  {
+  public forgotPasswordClicked() {
     this.router.navigate(['/forgot-password']);
   }
 

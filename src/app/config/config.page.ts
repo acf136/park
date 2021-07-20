@@ -1,40 +1,34 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { IUser } from 'src/shared/interfaces/interfaces';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FirestoreUserService } from 'src/shared/services/firestore-user.service';
-import { AuthenticationService } from 'src/shared/services/authentication.service';
+import { NavigationService } from 'src/shared/services/navigation.service';
 
 @Component({
   selector: 'app-config',
   templateUrl: './config.page.html',
   styleUrls: ['./config.page.scss'],
 })
-export class ConfigPage implements OnInit, OnDestroy {
+export class ConfigPage implements OnInit {
   @Input() user: IUser;
   id: any;
-  backRoute = '';
   public modifyForm: FormGroup;
 
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private firestoreUserService: FirestoreUserService,
-    private authService: AuthenticationService,
-    public formBuilder: FormBuilder
+    public formBuilder: FormBuilder,
+    private navigation: NavigationService
   ) {
-    // this.id = this.activatedRoute.snapshot.paramMap.get('id');
-    // this.activatedRoute.parent.url.subscribe(
-    //   (urlSegment) => { this.backRoute = urlSegment[urlSegment.length - 1].path; }
-    // ) ;
-    // this.getBackRoute();
-    this.modifyForm = this.formBuilder.group({
-      name      : [ '' ],
-      surname   : [ '' ],
-      email       : [ '' ],
-      envioDisponibilidad   : [ false ],
-      envioInformes   : [ true ]
-  });
+      this.modifyForm = this.formBuilder.group({
+        name      : [ '' ],
+        surname   : [ '' ],
+        email       : [ '' ],
+        envioDisponibilidad   : [ false ],
+        envioInformes   : [ true ]
+      });
   }
 
     /**
@@ -97,12 +91,18 @@ export class ConfigPage implements OnInit, OnDestroy {
     return 'Back';  //no 'Back' text for the moment
   }
 
-  ngOnDestroy(){
-    // this.router.navigate(['/tabs/tab2']);
-  }
+  // [defaultHref]="getBackRoute()"
   getBackRoute(){
-    // return this.backRoute ;
-    return '/tabs/tab1';
+    // use the navigationService to get the last route into backRoute
+    const backRoute = this.navigation.history[this.navigation.history.length - 2];
+    if ( !backRoute ) {
+    //  console.log('getBackRoute /');
+      return '/' ; // only one route in history
+    }
+    else {
+      // console.log('getBackRoute '+backRoute);
+      return backRoute;
+    }
   }
 
 }
