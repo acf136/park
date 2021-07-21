@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
-import { OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
-import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
+// import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
+import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
 import { IParking, IUserParking } from 'src/shared/interfaces/interfaces';
 import { AuthenticationService } from 'src/shared/services/authentication.service';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
@@ -20,28 +20,27 @@ export class Tab2Page implements OnInit {
 
   @ViewChild('map',  {static: false}) mapElement: ElementRef;
   map: any;
-  address:string;
-  lat: string;
-  long: string;
-  autocomplete: { input: string; };
-  autocompleteItems: any[];
+  address: string;
+  // lat: string;
+  // long: string;
+  autocomplete: { input: string };  autocompleteItems: any[];  googleAutocomplete: any;
   location: any;
   placeid: any;
-  GoogleAutocomplete: any;
 
   public parkings: IParking[] = [];
   public logedUserId: string;
 
-  constructor(private geolocation: Geolocation,
-    private nativeGeocoder: NativeGeocoder,
-    public zone: NgZone,
-    private firestoreParkingService: FirestoreParkingService,
-    private loadingService: LoadingService,
-    public authService: AuthenticationService,
-    private firestoreUserParkingService: FirestoreUserParkingService,
-    private router: Router)
-    {
-      this.GoogleAutocomplete = new google.maps.places.AutocompleteService();
+  constructor(
+      private geolocation: Geolocation,
+      private nativeGeocoder: NativeGeocoder,
+      public zone: NgZone,
+      private firestoreParkingService: FirestoreParkingService,
+      private loadingService: LoadingService,
+      public authService: AuthenticationService,
+      private firestoreUserParkingService: FirestoreUserParkingService,
+      private router: Router
+    ) {
+      this.googleAutocomplete = new google.maps.places.AutocompleteService();
       this.autocomplete = { input: '' };
       this.autocompleteItems = [];
     }
@@ -56,29 +55,29 @@ export class Tab2Page implements OnInit {
 
     //OBTENEMOS LAS COORDENADAS DESDE EL TELEFONO.
     this.geolocation.getCurrentPosition().then( (resp) => {
-      let latLng = new google.maps.LatLng(resp.coords.latitude, resp.coords.longitude);
-      let mapOptions = {
+      const latLng = new google.maps.LatLng(resp.coords.latitude, resp.coords.longitude);
+      const mapOptions = {
         center: latLng,
         zoom: 15,
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
-
       //CUANDO TENEMOS LAS COORDENADAS SIMPLEMENTE NECESITAMOS PASAR AL MAPA DE GOOGLE TODOS LOS PARAMETROS.
-      this.getAddressFromCoords(resp.coords.latitude, resp.coords.longitude);
+      // this.getAddressFromCoords(resp.coords.latitude, resp.coords.longitude);
       this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
 
       this.printAllParkingsMarkers();
 
       this.map.addListener('tilesloaded', () => {
-        // console.log('accuracy',this.map, this.map.center.lat());
-        this.getAddressFromCoords(this.map.center.lat(), this.map.center.lng());
-        this.lat = this.map.center.lat();
-        this.long = this.map.center.lng();
+        console.log('accuracy',this.map, this.map.center.lat());
+        // this.getAddressFromCoords(this.map.center.lat(), this.map.center.lng());
+        // this.lat = this.map.center.lat();
+        // this.long = this.map.center.lng();
       });
+      this.loadingService.dismiss();                //stop spinner
     }).catch((error) => {
+      this.loadingService.dismiss();                //stop spinner
       console.log('Error getting location', error);
     });
-    this.loadingService.dismiss();                //stop spinner
 
   }  //end of loadMap()
 
@@ -128,76 +127,97 @@ export class Tab2Page implements OnInit {
     });
   }
 
-  /**
-   *
-   * @param lattitude
-   * @param longitude
-   */
-  getAddressFromCoords(lattitude, longitude) {
-    // console.log("getAddressFromCoords "+lattitude+" "+longitude);
-    let options: NativeGeocoderOptions = {
-      useLocale: true,
-      maxResults: 5
-    };
-    this.nativeGeocoder.reverseGeocode(lattitude, longitude, options)
-      .then((result: NativeGeocoderResult[]) => {
-        this.address = "";
-        let responseAddress = [];
-        for (let [key, value] of Object.entries(result[0])) {
-          if(value.length>0)
-          responseAddress.push(value);
-        }
-        responseAddress.reverse();
-        for (let value of responseAddress) {
-          this.address += value+", ";
-        }
-        this.address = this.address.slice(0, -2);
-      })
-      .catch((error: any) =>{
-        this.address = "Address Not Available!";
-      });
-  }
+  // /**
+  //  *
+  //  * @param lattitude
+  //  * @param longitude
+  //  */
+  // getAddressFromCoords(lattitude, longitude) {
+  //   // console.log("getAddressFromCoords "+lattitude+" "+longitude);
+  //   let options: NativeGeocoderOptions = {
+  //     useLocale: true,
+  //     maxResults: 5
+  //   };
+  //   this.nativeGeocoder.reverseGeocode(lattitude, longitude, options)
+  //     .then((result: NativeGeocoderResult[]) => {
+  //       this.address = "";
+  //       let responseAddress = [];
+  //       for (let [key, value] of Object.entries(result[0])) {
+  //         if(value.length>0)
+  //         responseAddress.push(value);
+  //       }
+  //       responseAddress.reverse();
+  //       for (let value of responseAddress) {
+  //         this.address += value+", ";
+  //       }
+  //       this.address = this.address.slice(0, -2);
+  //     })
+  //     .catch((error: any) =>{
+  //       this.address = "Address Not Available!";
+  //     });
+  // }
 
   //FUNCION DEL BOTON INFERIOR PARA QUE NOS DIGA LAS COORDENADAS DEL LUGAR EN EL QUE POSICIONAMOS EL PIN.
   showCords(){
-    alert('lat' +this.lat+', long'+this.long )
+    // alert('lat' +this.lat+', long'+this.long );
+    alert('latitude = ' +this.map.center.lat()+', longitude = '+this.map.center.lng() );
   }
 
-  //AUTOCOMPLETE, SIMPLEMENTE ACTUALIZAMOS LA LISTA CON CADA EVENTO DE ION CHANGE EN LA VISTA.
-  // UpdateSearchResults(){
-  //   if (this.autocomplete.input == '') {
-  //     this.autocompleteItems = [];
-  //     return;
-  //   }
-  //   this.GoogleAutocomplete.getPlacePredictions({ input: this.autocomplete.input },
-  //   (predictions, status) => {
-  //     this.autocompleteItems = [];
-  //     this.zone.run(() => {
-  //       predictions.forEach((prediction) => {
-  //         this.autocompleteItems.push(prediction);
-  //       });
-  //     });
-  //   });
-  // }
+  //autocomplete, update list in every view ion change event
+  updateSearchResults(){
+    if (this.autocomplete.input === '') {
+      this.autocompleteItems = [];
+      return;
+    }
+    this.googleAutocomplete.getPlacePredictions( { input: this.autocomplete.input } ,
+      (predictions, status) => {
+        this.autocompleteItems = [];
+        this.zone.run( () => {
+          predictions?.forEach( (prediction) => { this.autocompleteItems.push(prediction); } );
+        });
+      }
+    );
+  }
 
-  //FUNCION QUE LLAMAMOS DESDE EL ITEM DE LA LISTA.
-  // SelectSearchResult(item) {
-  //   //AQUI PONDREMOS LO QUE QUERAMOS QUE PASE CON EL PLACE ESCOGIDO, GUARDARLO, SUBIRLO A FIRESTORE.
-  //   //HE AÑADIDO UN ALERT PARA VER EL CONTENIDO QUE NOS OFRECE GOOGLE Y GUARDAMOS EL PLACEID PARA UTILIZARLO POSTERIORMENTE SI QUEREMOS.
-  //   alert(JSON.stringify(item))
-  //   this.placeid = item.place_id
-  // }
+  //Función llamada desde ion-item en la ion-list
+  selectSearchResult(item) {
+    // alert(JSON.stringify(item));
+    this.goTo(item);
+  }
 
+  // Llamada desde el evento ionClear de la ion-searchbar
+  clearAutocomplete(){
+    this.autocompleteItems = [];
+    this.autocomplete.input = '';
+  }
 
-  //LLAMAMOS A ESTA FUNCION PARA LIMPIAR LA LISTA CUANDO PULSAMOS IONCLEAR.
-  // ClearAutocomplete(){
-  //   this.autocompleteItems = []
-  //   this.autocomplete.input = ''
-  // }
+  /**
+   *  Llamar a geocoder para cambiar el centro de this.map a la localización de address
+   * @param address : valid google maps address, i.e "Calle Corcega, 123, Barcelona, Spain"
+   */
+   geocodeAddress( address: any ) {
+    const geocoder = new google.maps.Geocoder();
 
-  //EJEMPLO PARA IR A UN LUGAR DESDE UN LINK EXTERNO, ABRIR GOOGLE MAPS PARA DIRECCIONES.
-  // GoTo(){
-  //   return window.location.href = 'https://www.google.com/maps/search/?api=1&query=Google&query_place_id='+this.placeid;
-  // }
+    geocoder.geocode( {address}, (results, status) => { } )
+      .then( ({ results }) => {
+        this.map.setCenter(results[0].geometry.location);
+        new google.maps.Marker({
+          map: this.map,
+          position: results[0].geometry.location,
+        });
+      }).catch((e) =>
+        alert('Geocode was not successful for the following reason: ' + e)
+      );
+  }
+
+  /**
+   * Llamar a geocodeAddress para cambiar la situación del mapa
+   * @param pitem : item de la ion-searchbar
+   */
+   goTo(pitem){
+    const address = pitem.description; //In this case it gets the address from an item.description on the ion-list
+    this.geocodeAddress(address);
+    // return window.location.href = 'https://www.google.com/maps/search/?api=1&query=Google&query_place_id='+pitem.placeid;
+  }
 
 }

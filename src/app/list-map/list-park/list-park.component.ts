@@ -3,6 +3,7 @@ import { IParking, IUserParking } from 'src/shared/interfaces/interfaces';
 import { ParkingService } from 'src/shared/services/parking.service';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { FirestoreUserParkingService } from 'src/shared/services/firestore-user-parking.service';
+import { LoadingService } from 'src/shared/services/Loading.service';
 
 @Component({
   selector: 'app-list-park',
@@ -17,17 +18,21 @@ export class ListParkComponent implements OnInit {
 
   constructor(private parkingService: ParkingService,
               private firestoreParkingService: FirestoreParkingService,
-              private firestoreUserParkingService: FirestoreUserParkingService
+              private firestoreUserParkingService: FirestoreUserParkingService,
+              private loadingService: LoadingService
               ) {   }
 
   ngOnInit() {
+    this.loadingService.present();       //init spinner
     this.loadData();
+    this.loadingService.dismiss();                //stop spinner
   }
 
   /**
    * Use firestoreParkingService.getParkings() that returns an observable$
    */
   async loadData() {
+
     let myUPTable: IUserParking[] = [];
     // Retrieve UserParking N:M relationship for the current user this.idUser
     this.idUser = JSON.parse(localStorage.getItem('user')).uid;
@@ -46,7 +51,6 @@ export class ListParkComponent implements OnInit {
        (error) => console.log('ListParkComponent.loadData error : '+error)                     //onrejected
       );
 
-    // console.log('this.parkings  = '+this.parkings);
   }  // end of loadData
 
   parkingList() {
