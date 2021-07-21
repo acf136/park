@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoadingService } from 'src/shared/services/Loading.service';
+import { NavigationService } from 'src/shared/services/navigation.service';
 import { AuthenticationService } from '../../shared/services/authentication.service';
 
 @Component({
@@ -19,7 +20,9 @@ export class LoginComponent implements OnInit {
   constructor(private router: Router,
     private formBuilder: FormBuilder,
     private loadingService: LoadingService,
-    public authService: AuthenticationService) { }
+    private navigation: NavigationService,
+    public authService: AuthenticationService
+    ) { }
 
   ngOnInit() {
     // console.log("Login loaded");
@@ -50,14 +53,14 @@ export class LoginComponent implements OnInit {
     //Form not valid
     if ( !this.loginForm.valid ) alert('Please provide all the required values!');
     else { // ( this.loginForm.valid )
-      let newEmail = this.loginForm.get('email').value;
-      let newPassword =  this.loginForm.get('password').value;
+      const newEmail = this.loginForm.get('email').value;
+      const newPassword =  this.loginForm.get('password').value;
       await this.authService.signIn(newEmail, newPassword).then(
         (resolve) => {                                                      //onfulfilled
           localStorage.setItem('user', JSON.stringify(resolve.user));
           this.router.navigate(['tabs']);
         } ,
-        (reject)  => console.log('Reject authService.signIn :  ' +reject)   //onrejected
+        (reject)  => window.alert('Reject authService.signIn :  ' +reject)   //onrejected
       );
     }
     this.loadingService.dismiss();       //stop spinner
@@ -65,6 +68,21 @@ export class LoginComponent implements OnInit {
 
   public forgotPasswordClicked() {
     this.router.navigate(['/forgot-password']);
+  }
+
+  getBackButtonText() {
+    const win = window as any;
+    const mode = win && win.Ionic && win.Ionic.mode;
+    // return mode === 'ios' ? 'Back' : 'Back';
+    return 'Back';  //no 'Back' text for the moment
+  }
+
+  // [defaultHref]="getBackRoute()"
+  getBackRoute(){
+    // use the navigationService to get the last route into backRoute
+    const backRoute = this.navigation.history[this.navigation.history.length - 2];
+    if ( !backRoute || !this.authService.isLoggedIn )  return '/' ; // only one route in history
+    else   return backRoute;
   }
 
 }

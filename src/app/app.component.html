@@ -8,10 +8,11 @@
           <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
             <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
               <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
-              <ion-label>{{ p.title }}</ion-label>
-              <span *ngIf="p.title === 'Exit'" >
-                <ion-button color="danger" (click)="authService.signOut()">Log Out</ion-button>
-              </span>
+              <ion-label>{{p.title}}
+                <div *ngIf="p.title === ' '" >
+                  <ion-button expand="full"  color="danger" (click)="authService.signOut()">Log Out</ion-button>
+                </div>
+            </ion-label>
             </ion-item>
           </ion-menu-toggle>
         </ion-list>

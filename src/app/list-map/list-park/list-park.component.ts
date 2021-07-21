@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { IParking, IUserParking } from 'src/shared/interfaces/interfaces';
-import { ParkingService } from 'src/shared/services/parking.service';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { FirestoreUserParkingService } from 'src/shared/services/firestore-user-parking.service';
 import { LoadingService } from 'src/shared/services/Loading.service';
@@ -19,13 +18,13 @@ export class ListParkComponent implements OnInit {
   private idUser = '';
 
 
-  constructor(private parkingService: ParkingService,
+  constructor(
               private firestoreParkingService: FirestoreParkingService,
               private firestoreUserParkingService: FirestoreUserParkingService,
-              private globalEventsService : GlobalEventsService,
+              private globalEventsService: GlobalEventsService,
               private loadingService: LoadingService
               ) {
-                this.idUser = JSON.parse(localStorage.getItem('user')).uid;
+                this.idUser = JSON.parse(localStorage.getItem('user'))?.uid;
                 console.log('this.idUser '+ this.idUser);
 
                 this.globalEventsService.getObservable().subscribe( (data) => {
@@ -76,13 +75,13 @@ export class ListParkComponent implements OnInit {
     console.log('pid= '+ pid + ' parkingId =' + pidParking);
     if (window.confirm('Are you sure to delete element with id = '+pid+' (idParking='+pidParking+ ') ?')) {
       // this.firestoreParkingService.delete(pid);
-      const index1: number = this.parkings.findIndex(uparkings => uparkings.id == pid);
+      const index1: number = this.parkings.findIndex(uparkings => uparkings.id === pid);
       if (index1 !== -1) {
           //this.myUPTable.splice(index, 1);
           this.parkings.splice(index1, 1);
       }
 
-      const index2: number = this.uParkingWithFirebaseId.findIndex(uparkings => uparkings.idParking == pid);
+      const index2: number = this.uParkingWithFirebaseId.findIndex(uparkings => uparkings.idParking === pid);
       if (index2 !== -1) {
         //this.myUPTable.splice(index, 1);
         this.firestoreUserParkingService.delete(this.uParkingWithFirebaseId[index2].id);
