@@ -87,7 +87,7 @@ export class Tab2Page implements OnInit {
   printAllParkingsMarkers(){
     this.firestoreParkingService.getParkings().subscribe( (pparkings) =>  {
 
-      const uid = JSON.parse(localStorage.getItem('user')).uid;
+      const uid = JSON.parse(localStorage.getItem('user'))?.uid;
       const userParkingService = this.firestoreUserParkingService;
       const _router = this.router;
 
@@ -202,10 +202,10 @@ export class Tab2Page implements OnInit {
     geocoder.geocode( {address}, (results, status) => { } )
       .then( ({ results }) => {
         this.map.setCenter(results[0].geometry.location);
-        new google.maps.Marker({
-          map: this.map,
-          position: results[0].geometry.location,
-        });
+        // new google.maps.Marker({
+        //   map: this.map,
+        //   position: results[0].geometry.location,
+        // });
       }).catch((e) =>
         alert('Geocode was not successful for the following reason: ' + e)
       );

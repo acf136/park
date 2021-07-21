@@ -63,7 +63,7 @@ export class RegistrationComponent implements OnInit {
     //Form invalid
     if ( !this.ionicForm.valid ) {
       this.loadingService.dismiss();    //stop spinner
-      console.log('Please provide all the required values!');
+      window.alert('Please provide all the required values!');
       return false;
     }
     //Form valid
@@ -75,31 +75,33 @@ export class RegistrationComponent implements OnInit {
     let newPassword =  this.ionicForm.get('password').value;
     await this.signUp(newUser, newPassword).then(
         (resolve) =>  newUid = resolve.user.uid ,                //onfulfilled
-        (reject)  => window.alert(reject.message)                //onrejected
+        (reject)  => window.alert('Unable to Register user: '+reject.message)                //onrejected
     );
+    if ( newUid === '') { this.loadingService.dismiss();  return false; }
     // Step 2: Firestore database create user if don't exist
     let userPrevious = false;
-    if ( newUid !== '')
-      await this.firestoreUserService.getUserSync(newUid).then(
-        (resolve) => userPrevious = true ,                                              //onfulfilled
-        (reject)  => console.log('Reject on firestoreUserService.getUser :  ' +reject)  //onrejected
-      );
+    await this.firestoreUserService.getUserSync(newUid).then(
+      (resolve) => userPrevious = true ,                                              //onfulfilled
+      (reject)  => window.alert('User already exist: ' +reject)  //onrejected
+    );
+    if ( userPrevious ) { this.loadingService.dismiss();  return false; }
     let userSet = false;
-    if ( !userPrevious )
-      await this.firestoreUserService.setUser(newUser, newUid).then(
-        (resolve) => userSet = true ,                                                   //onfulfilled
-        (reject)  => console.log('Reject on firestoreUserService.setUser :  ' +reject)  //onrejected
-      );
+    await this.firestoreUserService.setUser(newUser, newUid).then(
+      (resolve) => userSet = true ,                                                   //onfulfilled
+      (reject)  => window.alert('Unable to create user : ' +reject)  //onrejected
+    );
+    if ( !userSet ) { this.loadingService.dismiss();  return false; }
     // Step 3: sig in with the new user and set the localstorage
     await this.authService.signIn(newUser.email, newPassword).then(
       (resolve) => {                                                      //onfulfilled
         localStorage.setItem('user', JSON.stringify(resolve.user));
         this.router.navigate(['list-map/Map']);
       } ,
-      (reject)  => console.log('Reject authService.signIn :  ' +reject)   //onrejected
+      (reject)  =>  window.alert('Unable to signIn : ' +reject)   //onrejected
     );
     // end of registration transaction
-    this.loadingService.dismiss();    //stop spinner
+    this.loadingService.dismiss();
+    return false;
   }
 
 }   // end of class RegistrationComponent

@@ -13,13 +13,14 @@ export class FirestoreUserParkingService {
     private ngFirestore: AngularFirestore,
   ) { }
 
-  create(userParking: IUserParking) {
+  async create(userParking: IUserParking) {
     return this.ngFirestore.collection('UserParking').add(userParking);
   }
 
   getUserParking(id) {
     return this.ngFirestore.collection('UserParking').doc(id).valueChanges();
   }
+
   async getUserParkingSync(id) {
     return this.ngFirestore.collection('UserParking').doc(id).valueChanges();
   }
