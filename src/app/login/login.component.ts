@@ -22,7 +22,11 @@ export class LoginComponent implements OnInit {
     public authService: AuthenticationService) { }
 
   ngOnInit() {
-    console.log("Login loaded");
+    // console.log("Login loaded");
+    // Persistence: si logged cuando cerraron y arrancamos la app otra vez
+    if (this.authService.isLoggedIn) {
+      this.router.navigate(['/tabs']); //
+    }
 
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.pattern('[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$')]],

@@ -1,10 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { IParking, IPlace } from 'src/shared/interfaces/interfaces';
+import { IParking, IPlace, IUserParking } from 'src/shared/interfaces/interfaces';
 import { ActivatedRoute } from '@angular/router';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { AlertController } from '@ionic/angular';
 import { NavigationService } from 'src/shared/services/navigation.service';
+import { GlobalEventsService } from 'src/shared/services/global-events.service';
+import { FirestoreUserParkingService } from 'src/shared/services/firestore-user-parking.service';
+import { UserService } from 'src/shared/services/user.service';
 
 @Component({
   selector: 'app-view-park',
@@ -16,13 +19,18 @@ export class ViewParkPage implements OnInit {
   @Input() placesRows: IPlace[][] = [[]] ;  //Array of Array of IPlace for ion-grid
   id: any;
   data: any;
+  isNewParking = false;
+  userParkings: IUserParking[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private firestoreParkingService: FirestoreParkingService,
     private barcodeScanner: BarcodeScanner,
     private alertController: AlertController,
-    private navigation: NavigationService
+    private navigation: NavigationService,
+    private firestoreUserParkingService: FirestoreUserParkingService,
+    public globalEventsService: GlobalEventsService,
+    public userService: UserService
    ) {
     this.id = this.activatedRoute.snapshot.paramMap.get('id');
    }
@@ -84,11 +92,39 @@ export class ViewParkPage implements OnInit {
       );
   }
 
+  //Checks if would be needed to add a new relationship user-parking in case the user scans a barcode
+  checkIfNewParking() {
+    this.firestoreUserParkingService.getUserParkingsSync().
+        subscribe(
+          (uparkings) => {
+            this.userParkings = uparkings.map(
+              (t) => ({
+                id: t.payload.doc.id,
+                ...t.payload.doc.data() as IUserParking
+              })
+            ).filter(
+              (up) => up.idUser === JSON.parse(localStorage.getItem('user')).uid
+            );
+            console.log("userParkings: ", this.userParkings);
+
+            let userParkingsString: String[] = [];
+            this.userParkings.forEach(userParking => {
+              userParkingsString.push(userParking.idParking);
+            });
+
+            //Check if this parking is a new one or not
+            if (userParkingsString.indexOf(this.id) < 0) {
+              console.log("Parking nuevo");
+              this.isNewParking = true;
+            }
+          });
+  }
+
   /**
    * Scan QR process, automatically opens camera, and catches
    * the scanned code in barcodeData variable
    */
-  ScanQr() {
+   ScanQr() {
     this.data = null;
     this.barcodeScanner.scan().then(barcodeData => {
       console.log('Barcode data', barcodeData);
@@ -131,7 +167,7 @@ export class ViewParkPage implements OnInit {
     for (var i = 0, len = this.parking.places.length; i < len; i++) {
       console.log(this.parking.places[i].coordX + this.parking.places[i].coordY);
 
-      if (this.parking.places[i].coordX == row && this.parking.places[i].coordY == col) {
+      if (this.parking.places[i].coordX === row && this.parking.places[i].coordY === col) {
         console.log("Place found!");
         return this.parking.places[i];
       }
@@ -147,7 +183,7 @@ export class ViewParkPage implements OnInit {
     for (var i = 0, len = this.parking.places.length; i < len; i++) {
       console.log(this.parking.places[i].coordX + this.parking.places[i].coordY);
 
-      if (this.parking.places[i].coordX == row && this.parking.places[i].coordY == col) {
+      if (this.parking.places[i].coordX === row && this.parking.places[i].coordY === col) {
         console.log("Occupied BEFORE: " + this.parking.places[i].occupied);
         this.parking.places[i].occupied = !this.parking.places[i].occupied;
         console.log("Occupied AFTER: " + this.parking.places[i].occupied);
@@ -156,14 +192,13 @@ export class ViewParkPage implements OnInit {
       console.log('Loop will continue.');
     }
   }
-
   /**
    * Presents the modal where the user is asked to confirm or cancel
    * when he scans a parking place
    *
    * @param data
    */
-  async presentAlertConfirm(_header: string, _message: string, data: string, isLeaving: boolean) {
+   async presentAlertConfirm(_header: string, _message: string, data: string, isLeaving: boolean) {
     console.log("Alert creation");
     const alert = await this.alertController.create({
       header: _header,
@@ -187,7 +222,12 @@ export class ViewParkPage implements OnInit {
               this.invertPlaceStatus(data);
               console.log("PARKING ID: " + this.id);
               console.log("PARKING: " + this.parking.places);
-              this.firestoreParkingService.update(this.id, this.parking)
+              this.firestoreParkingService.update(this.id, this.parking);
+
+              if (this.isNewParking) {
+                console.log("Añade nuevo user parking");
+                this.addNewUserParking();
+              }
 
               this.loadData();
             //}else{
@@ -199,6 +239,27 @@ export class ViewParkPage implements OnInit {
     });
 
     await alert.present();
+  }
+
+  addNewUserParking() {
+    let newUserParking: IUserParking;
+    this.isNewParking = false;
+
+    newUserParking = {
+      idParking: this.id,
+      idUser: JSON.parse(localStorage.getItem('user')).uid
+    };
+
+    this.userService.addParkingOnUser(newUserParking).then(() => {
+      console.log("New UserParking added, idParking: " + newUserParking.idParking);
+      console.log("New UserParking added, idUser: " + newUserParking.idUser);
+    }).catch((err) => {
+      console.log(err);
+    });
+  }
+
+  onBackButtonPressed(){
+    this.globalEventsService.publishSomeData();
   }
 
   getBackButtonText() {
@@ -215,4 +276,5 @@ export class ViewParkPage implements OnInit {
     if ( !backRoute )  return '/' ; // only one route in history
     else   return backRoute;
   }
+
 }

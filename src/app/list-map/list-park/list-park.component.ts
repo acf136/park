@@ -4,6 +4,7 @@ import { ParkingService } from 'src/shared/services/parking.service';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { FirestoreUserParkingService } from 'src/shared/services/firestore-user-parking.service';
 import { LoadingService } from 'src/shared/services/Loading.service';
+import { GlobalEventsService } from 'src/shared/services/global-events.service';
 
 @Component({
   selector: 'app-list-park',
@@ -14,13 +15,24 @@ import { LoadingService } from 'src/shared/services/Loading.service';
 export class ListParkComponent implements OnInit {
   @Input() parking: IParking;
   public parkings: IParking[] = [];
+  public uParkingWithFirebaseId: any;
   private idUser = '';
+
 
   constructor(private parkingService: ParkingService,
               private firestoreParkingService: FirestoreParkingService,
               private firestoreUserParkingService: FirestoreUserParkingService,
+              private globalEventsService : GlobalEventsService,
               private loadingService: LoadingService
-              ) {   }
+              ) {
+                this.idUser = JSON.parse(localStorage.getItem('user')).uid;
+                console.log('this.idUser '+ this.idUser);
+
+                this.globalEventsService.getObservable().subscribe( (data) => {
+                  this.parkings = [];
+                  this.loadData();
+                });
+              }
 
   ngOnInit() {
     this.loadingService.present();       //init spinner
@@ -40,6 +52,7 @@ export class ListParkComponent implements OnInit {
     // Get IUserParking elements for this.idUser
     await this.firestoreUserParkingService.getParkingsOfUser(this.idUser)
             .then( (uptable) => myUPTable = uptable );  //then
+    this.uParkingWithFirebaseId = myUPTable;
     // Get only IParking elements for every idUser,idParking
     for (let i = 0 ; i < myUPTable.length ; i++)
       await this.firestoreParkingService.getParkingPromise(myUPTable[i].idParking).then(
@@ -62,7 +75,18 @@ export class ListParkComponent implements OnInit {
   remove(pidParking,pid) {
     console.log('pid= '+ pid + ' parkingId =' + pidParking);
     if (window.confirm('Are you sure to delete element with id = '+pid+' (idParking='+pidParking+ ') ?')) {
-      this.firestoreParkingService.delete(pid);
+      // this.firestoreParkingService.delete(pid);
+      const index1: number = this.parkings.findIndex(uparkings => uparkings.id == pid);
+      if (index1 !== -1) {
+          //this.myUPTable.splice(index, 1);
+          this.parkings.splice(index1, 1);
+      }
+
+      const index2: number = this.uParkingWithFirebaseId.findIndex(uparkings => uparkings.idParking == pid);
+      if (index2 !== -1) {
+        //this.myUPTable.splice(index, 1);
+        this.firestoreUserParkingService.delete(this.uParkingWithFirebaseId[index2].id);
+      }
     }
   }
 

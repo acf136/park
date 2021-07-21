@@ -62,5 +62,8 @@ export class FirestoreUserParkingService {
     );
   }
 
+  getUserParkingsSync() {
+    return this.ngFirestore.collection('UserParking').snapshotChanges();
+  }
 } // export class FirestoreUserParkingService
 

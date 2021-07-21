@@ -89,7 +89,7 @@ export class Tab2Page implements OnInit {
 
       const uid = JSON.parse(localStorage.getItem('user')).uid;
       const userParkingService = this.firestoreUserParkingService;
-      const _router: Router = this.router;
+      const _router = this.router;
 
       let newUserParking: IUserParking;
 
@@ -105,19 +105,20 @@ export class Tab2Page implements OnInit {
         const marker = new google.maps.Marker( { position: latLngMarker } );
         marker.setMap(this.map);
 
-        google.maps.event.addListener(marker, 'click', () => createNewUserParking(elemParking, userParkingService, _router)  );
+        // google.maps.event.addListener(marker, 'click', () => createNewUserParking(elemParking, userParkingService, _router)  );
+        google.maps.event.addListener(marker, 'click', () => this.router.navigate(['/parking/' + elemParking.id])  );
 
-        async function createNewUserParking(elemParking: IParking, service: FirestoreUserParkingService, _router: Router) {
-          console.log("Parking Selected: " + elemParking.name);
-          //TODO: Toda la lógica que cargue el parking seleccionado para el usuario seleccionado
-          let newUserParking = {  idParking: elemParking.id,  idUser: uid   } ;
-          let myUPTable: IUserParking[] = [];
-          await service.getParkingsOfUser(newUserParking.idUser).then( (uptable) => myUPTable = uptable );
-          const existingUP =  myUPTable.filter( (up) => up.idParking === elemParking.id ) ;
-          // avoid creation of existing UserParking  elements
-          if ( existingUP.length === 0 )  service.create(newUserParking).then( (resolve) => {}  );
-          _router.navigate(['/parking/' + newUserParking.idParking]) ;  //Go to the next page: parking detail
-        }
+        // async function createNewUserParking(elemParking: IParking, service: FirestoreUserParkingService, _router: Router) {
+        //   // console.log("Parking Selected: " + elemParking.name);
+        //   // //TODO: Toda la lógica que cargue el parking seleccionado para el usuario seleccionado
+        //   // let newUserParking = {  idParking: elemParking.id,  idUser: uid   } ;
+        //   // let myUPTable: IUserParking[] = [];
+        //   // await service.getParkingsOfUser(newUserParking.idUser).then( (uptable) => myUPTable = uptable );
+        //   // const existingUP =  myUPTable.filter( (up) => up.idParking === elemParking.id ) ;
+        //   // // avoid creation of existing UserParking  elements
+        //   // if ( existingUP.length === 0 )  service.create(newUserParking).then( (resolve) => {}  );
+        //   _router.navigate(['/parking/' + newUserParking.idParking]) ;  //Go to the next page: parking detail
+        // }
 
       });
 
