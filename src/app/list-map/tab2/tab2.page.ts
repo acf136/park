@@ -70,10 +70,10 @@ export class Tab2Page implements OnInit {
       this.printAllParkingsMarkers();
 
       this.map.addListener('tilesloaded', () => {
-        console.log('accuracy',this.map, this.map.center.lat());
-        this.getAddressFromCoords(this.map.center.lat(), this.map.center.lng())
-        this.lat = this.map.center.lat()
-        this.long = this.map.center.lng()
+        // console.log('accuracy',this.map, this.map.center.lat());
+        this.getAddressFromCoords(this.map.center.lat(), this.map.center.lng());
+        this.lat = this.map.center.lat();
+        this.long = this.map.center.lng();
       });
     }).catch((error) => {
       console.log('Error getting location', error);
@@ -98,12 +98,12 @@ export class Tab2Page implements OnInit {
         id: t.payload.doc.id,   ...t.payload.doc.data() as IParking
       }) );
 
-      console.log("in ", this.parkings);
+      // console.log("in ", this.parkings);
 
       this.parkings.forEach( elemParking => {
         //Por cada párking colocamos un marcador en el mapa
-        let latLngMarker = new google.maps.LatLng(elemParking.lat, elemParking.long);
-        let marker = new google.maps.Marker( { position: latLngMarker } );
+        const latLngMarker = new google.maps.LatLng(elemParking.lat, elemParking.long);
+        const marker = new google.maps.Marker( { position: latLngMarker } );
         marker.setMap(this.map);
 
         google.maps.event.addListener(marker, 'click', () => createNewUserParking(elemParking, userParkingService, _router)  );
@@ -134,7 +134,7 @@ export class Tab2Page implements OnInit {
    * @param longitude
    */
   getAddressFromCoords(lattitude, longitude) {
-    console.log("getAddressFromCoords "+lattitude+" "+longitude);
+    // console.log("getAddressFromCoords "+lattitude+" "+longitude);
     let options: NativeGeocoderOptions = {
       useLocale: true,
       maxResults: 5

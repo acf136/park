@@ -18,10 +18,7 @@ export class ListParkComponent implements OnInit {
   constructor(private parkingService: ParkingService,
               private firestoreParkingService: FirestoreParkingService,
               private firestoreUserParkingService: FirestoreUserParkingService
-              ) {
-                this.idUser = JSON.parse(localStorage.getItem('user')).uid;
-                // console.log('this.idUser '+ this.idUser);
-              }
+              ) {   }
 
   ngOnInit() {
     this.loadData();
@@ -32,51 +29,24 @@ export class ListParkComponent implements OnInit {
    */
   async loadData() {
     let myUPTable: IUserParking[] = [];
-    // using httpclient
-    //
-    // this.parkingService.getParkings()
-    //   .subscribe(
-    //     pparkings =>  this.parkings = pparkings ,
-    //     err => { alert('Error caught at Subscriber on url "' + err.url + '" in ' + this.parkingService.getParkings.name ); },
-    //     () => console.log('Processing '+ this.parkingService.getParkings.name +' Complete.')
-    //   );
-    //
-// Get all Parkings - DON'T DELETE WHILE developing
-// this.firestoreParkingService.getParkings().subscribe(
-//     (pparkings) =>  { this.parkings = pparkings.map( (t) => ({                           //1st subscribe param
-//                     id: t.payload.doc.id,  ...t.payload.doc.data() as IParking ,
-//                   }) ) },
-//     err => { alert('Error caught at subscribe on Firebase url "' + err.url + '" '); } ,  //2nd subscribe param
-//     () => console.log('Parkings = ', this.parkings)                                      //3rd subscribe param
-// );
-// Get all Parkings - DON'T DELETE WHILE developing
-    //
     // Retrieve UserParking N:M relationship for the current user this.idUser
-    // this.idUser = this.authService.getUserData().uid;
     this.idUser = JSON.parse(localStorage.getItem('user')).uid;
-    // if ( !this.idUser ) {
-    //   const userData = JSON.parse(localStorage.getItem('user')) ;
-    //   if ( userData ) this.idUser = userData.uid;
-    // }
-    // this.idUser = 'l4biVd2tDRNDWDTkJWA03bRPLOH3' ; // idUser de prueba
-    // console.log('list-park -> idUser: '+ this.idUser);
     if ( !this.idUser ) return;  //to avoid undefined
     // Get IUserParking elements for this.idUser
     await this.firestoreUserParkingService.getParkingsOfUser(this.idUser)
             .then( (uptable) => myUPTable = uptable );  //then
     // Get only IParking elements for every idUser,idParking
     for (let i = 0 ; i < myUPTable.length ; i++)
-      await this.firestoreParkingService.getParkingPromise(myUPTable[i].idParking)
-              .then(
-                (pparking) => {                                                              //onfulfilled
-                  const newParking: IParking = pparking as IParking;
-                  newParking.id = myUPTable[i].idParking;
-                  this.parkings.push(newParking);
-                } ,
-                (error) => console.log('getParkingPromise error :'+error)                 //onrejected
-              );
+      await this.firestoreParkingService.getParkingPromise(myUPTable[i].idParking).then(
+        (pparking) => {                                                              //onfulfilled
+            const newParking: IParking = pparking as IParking;
+            newParking.id = myUPTable[i].idParking;
+            this.parkings.push(newParking);
+          } ,
+       (error) => console.log('ListParkComponent.loadData error : '+error)                     //onrejected
+      );
 
-    console.log('this.parkings  = '+this.parkings);
+    // console.log('this.parkings  = '+this.parkings);
   }  // end of loadData
 
   parkingList() {

@@ -1,29 +1,35 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy} from '@angular/core';
 import { IParking, IPlace } from 'src/shared/interfaces/interfaces';
 import { ActivatedRoute } from '@angular/router';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NavigationService } from 'src/shared/services/navigation.service';
+import { MessageService } from 'src/shared/services/message.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-modify-park',
   templateUrl: './modify-park.page.html',
   styleUrls: ['./modify-park.page.scss'],
 })
-export class ModifyParkPage implements OnInit {
+export class ModifyParkPage implements OnInit,OnDestroy {
   @Input() parking: IParking;
   @Input() placesRows: IPlace[][] = [[]] ;  //Array of Array of IPlace for the grid
   placesRowsSizes: number[] = [];  // Array of total sizes for every row in the grid
   id: any;
   public duplicateForm: FormGroup;
   public modifyForm: FormGroup;
-  backdropEnabled = false;
+  public backdropEnabled = false; //don't make visible ion-backdrop by default
+  // message management
+  messages: any[] = [];
+  subscription: Subscription;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private firestoreParkingService: FirestoreParkingService,
     public formBuilder: FormBuilder,
-    private navigation: NavigationService
+    private navigation: NavigationService,
+    private messageService: MessageService
    ) {
       this.id = this.activatedRoute.snapshot.paramMap.get('id');
       this.duplicateForm = this.formBuilder.group({
@@ -38,9 +44,18 @@ export class ModifyParkPage implements OnInit {
         lat       : [ 0 ],
         long      : [ 0 ],
         zipCode   : [ '' ]
-    });
+      });
+      // subscrition to change backdropEnable
+      this.subscription = this.messageService.onMessage().subscribe(
+        (msg) => {
+          if ( msg.text === 'this.backdropEnabled = true;' )   //pa que nos vamos a andar con tonterias si esto es javaScript
+            eval( msg.text ); // must be 'this.backdropEnabled = true;'
+        }
+      );
+
 
   }  // end of constructor
+
 
    /**
     *
@@ -88,6 +103,7 @@ export class ModifyParkPage implements OnInit {
   */
   ngOnInit() {
     this.loadData();
+    this.messageService.sendMessage('Should backdropEnabled?');
   }
   /**
     Use  firestoreParkingService.getParking(id) that returns a Subscription embedded in a Promise
@@ -235,4 +251,10 @@ export class ModifyParkPage implements OnInit {
     if ( !backRoute )  return '/' ; // only one route in history
     else   return backRoute;
   }
-}
+
+  // Tasks to clean class ModifyParkPage
+  ngOnDestroy() {
+    this.subscription.unsubscribe();  // unsubscribe to ensure no memory leaks
+  }
+
+}  // end of class ModifyParkPage

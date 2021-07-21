@@ -67,7 +67,7 @@ export class RegistrationComponent implements OnInit {
       return false;
     }
     //Form valid
-    console.log(this.ionicForm.value);
+    // console.log(this.ionicForm.value);
     const newUser: IUser = this.getUserFromForm() ;
 
     // Step 1 : Register the new Firestore authentication user
@@ -91,14 +91,13 @@ export class RegistrationComponent implements OnInit {
         (reject)  => console.log('Reject on firestoreUserService.setUser :  ' +reject)  //onrejected
       );
     // Step 3: sig in with the new user and set the localstorage
-    if ( userSet )
-      await this.authService.signIn(newUser.email, newPassword).then(
-        (resolve) => {                                                      //onfulfilled
-          localStorage.setItem('user', JSON.stringify(resolve.user));
-          this.router.navigate(['list-map/Map']);
-        } ,
-        (reject)  => console.log('Reject authService.signIn :  ' +reject)   //onrejected
-      );
+    await this.authService.signIn(newUser.email, newPassword).then(
+      (resolve) => {                                                      //onfulfilled
+        localStorage.setItem('user', JSON.stringify(resolve.user));
+        this.router.navigate(['list-map/Map']);
+      } ,
+      (reject)  => console.log('Reject authService.signIn :  ' +reject)   //onrejected
+    );
     // end of registration transaction
     this.loadingService.dismiss();    //stop spinner
   }
