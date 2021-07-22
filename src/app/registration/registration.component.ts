@@ -74,22 +74,21 @@ export class RegistrationComponent implements OnInit {
     let newUid = '';
     let newPassword =  this.ionicForm.get('password').value;
     await this.signUp(newUser, newPassword).then(
-        (resolve) =>  newUid = resolve.user.uid ,                //onfulfilled
-        (reject)  => window.alert('Unable to Register user: '+reject.message)                //onrejected
+        (resolve) =>  newUid = resolve.user.uid ,                               //onfulfilled
+        (reject)  => window.alert('Unable to Register user: '+reject.message)   //onrejected
     );
     if ( newUid === '') { this.loadingService.dismiss();  return false; }
-    // Step 2: Firestore database create user if don't exist
-    if ( newUid === '') { this.loadingService.dismiss();  return false; }
+    // Step 2: Firestore database create user if don't exist in User collection of Firestores database
     let userPrevious = false;
-    await this.firestoreUserService.getUserSync(newUid).then(
-      (resolve) => userPrevious = true ,                                              //onfulfilled
-      (reject)  => window.alert('User already exist: ' +reject)  //onrejected
+    await this.firestoreUserService.getUsersByEmail(newUser.email).then(
+      (resolve) => userPrevious = (resolve.length > 0) ,                                   //onfulfilled
+      (reject)  => window.alert('User already exist: ' +reject)            //onrejected
     );
     if ( userPrevious ) { this.loadingService.dismiss();  return false; }
     let userSet = false;
-    await this.firestoreUserService.setUser(newUser, newUid).then(
-      (resolve) => userSet = true ,                                                   //onfulfilled
-      (reject)  => window.alert('Unable to create user : ' +reject)  //onrejected
+    await this.firestoreUserService.createSync(newUser).then(
+      (resolve) => userSet = true ,                                         //onfulfilled
+      (reject)  => window.alert('Unable to create user : ' +reject)         //onrejected
     );
     if ( !userSet ) { this.loadingService.dismiss();  return false; }
     // Step 3: sig in with the new user and set the localstorage
