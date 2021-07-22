@@ -17,6 +17,10 @@ export class FirestoreUserService {
     return this.ngFirestore.collection('User').add(user);
   }
 
+  async setUser(user: IUser, puid: string): Promise<void> {
+    return this.ngFirestore.collection('User').doc(puid).set(user);
+  }
+
   async createSync(user: IUser) {
     return this.ngFirestore.collection('User').add(user);
   }

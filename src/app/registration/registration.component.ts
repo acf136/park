@@ -90,9 +90,9 @@ export class RegistrationComponent implements OnInit {
       return false;
     }
     let userSet = false;
-    await this.firestoreUserService.createSync(newUser).then(
+    await this.firestoreUserService.setUser(newUser, newUid).then(
       (resolve) => userSet = true ,                                         //onfulfilled
-      (reject)  => window.alert('Unable to create user : ' +reject)         //onrejected
+      (reject)  => window.alert('Unable to set user : ' +reject)            //onrejected
     );
     if ( !userSet ) { this.loadingService.dismiss();  return false; }
     // Step 3: sig in with the new user and set the localstorage
