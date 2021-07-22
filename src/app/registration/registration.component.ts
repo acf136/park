@@ -79,6 +79,7 @@ export class RegistrationComponent implements OnInit {
     );
     if ( newUid === '') { this.loadingService.dismiss();  return false; }
     // Step 2: Firestore database create user if don't exist
+    if ( newUid === '') { this.loadingService.dismiss();  return false; }
     let userPrevious = false;
     await this.firestoreUserService.getUserSync(newUid).then(
       (resolve) => userPrevious = true ,                                              //onfulfilled

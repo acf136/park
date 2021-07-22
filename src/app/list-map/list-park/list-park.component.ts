@@ -24,8 +24,13 @@ export class ListParkComponent implements OnInit {
               private globalEventsService: GlobalEventsService,
               private loadingService: LoadingService
               ) {
+<<<<<<< HEAD
                 // this.idUser = JSON.parse(localStorage.getItem('user'))?.uid;
                 // console.log('ListParkComponent.constructor this.idUser= '+ this.idUser);
+=======
+                this.idUser = JSON.parse(localStorage.getItem('user'))?.uid;
+                console.log('this.idUser '+ this.idUser);
+>>>>>>> 5ac2544c5b97ff92f74d17964a69d48b25d4aac4
 
                 this.globalEventsService.getObservable().subscribe( (data) => {
                   this.parkings = [];
