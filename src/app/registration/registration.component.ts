@@ -78,13 +78,17 @@ export class RegistrationComponent implements OnInit {
         (reject)  => window.alert('Unable to Register user: '+reject.message)   //onrejected
     );
     if ( newUid === '') { this.loadingService.dismiss();  return false; }
-    // Step 2: Firestore database create user if don't exist in User collection of Firestores database
+    // Step 2: Firestore database create user if don't exist in User collection of Firestore database
     let userPrevious = false;
     await this.firestoreUserService.getUsersByEmail(newUser.email).then(
       (resolve) => userPrevious = (resolve.length > 0) ,                                   //onfulfilled
-      (reject)  => window.alert('User already exist: ' +reject)            //onrejected
+      (reject)  => window.alert('Error retrieving user by email : ' +reject)              //onrejected
     );
-    if ( userPrevious ) { this.loadingService.dismiss();  return false; }
+    if ( userPrevious ) {
+      window.alert('User with email '+newUser.email+' already exist');
+      this.loadingService.dismiss();
+      return false;
+    }
     let userSet = false;
     await this.firestoreUserService.createSync(newUser).then(
       (resolve) => userSet = true ,                                         //onfulfilled
