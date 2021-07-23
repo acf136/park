@@ -215,7 +215,7 @@ export class ModifyParkPage implements OnInit,OnDestroy {
       await this.firestoreParkingService.create(
         {
           idParking : newIdParking ,
-          id        :  '',   // must be set by create from Firestore
+          // id        :  '',   // must be set by create from Firestore
           name      : this.parking.name,
           address   : this.parking.address,
           lat       : this.parking.lat,
@@ -229,17 +229,17 @@ export class ModifyParkPage implements OnInit,OnDestroy {
           (p) => { window.alert('Created Parking with id : '+p.id); this.newUPidParking = p.id; } , //onfulfilled
           (error) => console.log('error: '+error)                         //onrejected
         ).catch( (err) => console.log(err) );
-     // create relationship with user
-     await this.firestoreUserParkingService.create(
-        {
-          idUser    : JSON.parse(localStorage.getItem('user')).uid,
-          idParking : this.newUPidParking
-        }
-        ) //:Promise<DocumentReference<unknown>>
-        .then(
-          (p) =>  window.alert('Created relationship UserParking with id : '+p.id)  , //onfulfilled
-          (error) => console.log('error: '+error)                                    //onrejected
-        ).catch( (err) => console.log(err) );
+    //  // create relationship with user
+    //  await this.firestoreUserParkingService.create(
+    //     {
+    //       idUser    : JSON.parse(localStorage.getItem('user')).uid,
+    //       idParking : this.newUPidParking
+    //     }
+    //     ) //:Promise<DocumentReference<unknown>>
+    //     .then(
+    //       (p) =>  window.alert('Created relationship UserParking with id : '+p.id)  , //onfulfilled
+    //       (error) => console.log('error: '+error)                                    //onrejected
+    //     ).catch( (err) => console.log(err) );
     }
   }
 
