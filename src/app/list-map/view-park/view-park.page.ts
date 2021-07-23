@@ -19,7 +19,7 @@ export class ViewParkPage implements OnInit {
   @Input() placesRows: IPlace[][] = [[]] ;  //Array of Array of IPlace for ion-grid
   id: any;
   data: any;
-  isNewParking = false;
+  isNewParking: Boolean = false;
   userParkings: IUserParking[];
 
   constructor(
@@ -39,6 +39,7 @@ export class ViewParkPage implements OnInit {
   */
   ngOnInit() {
     this.loadData();
+    this.checkIfNewParking();
   }
 
   // callback function to sort 2 places:
