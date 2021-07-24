@@ -186,8 +186,9 @@ export class ViewParkPage implements OnInit {
   ScanQr() {
     this.data = null;
     this.barcodeScanner.scan().then(barcodeData => {
-      this.data = barcodeData;
-      alert(this.data);
+      //alert(barcodeData.text);
+      this.data = barcodeData.text;
+      //alert("scanned code " + this.data);
       
       // Check if valid code
       const placeIndex = this.checkIfScannedQrIsValid();
@@ -407,22 +408,14 @@ export class ViewParkPage implements OnInit {
    * @returns Returns the place index of the scanned place if it exists. If not, returns -1
    */
   checkIfScannedQrIsValid(): number{
-    alert("Enter check if valid");
-
     const row = this.data[0];
     const col = this.data[1];
 
     for (var i = 0, len = this.parking.places.length; i < len; i++) {
-      alert(this.parking.places[i].coordX + this.parking.places[i].coordY);
-
       if (this.parking.places[i].coordX === row && this.parking.places[i].coordY === col) {
-        alert("Place found!");
-        //return this.parking.places[i];
         return i;
       }
-      //Loop will continue
     }
-    alert("Return not valid");
     return -1;
   }
 
