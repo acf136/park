@@ -3,7 +3,7 @@ import { IParking, IParks, IPlace, IUserParking } from 'src/shared/interfaces/in
 import { ActivatedRoute } from '@angular/router';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
-import { AlertController, ModalController, NumericValueAccessor } from '@ionic/angular';
+import { AlertController } from '@ionic/angular';
 import { NavigationService } from 'src/shared/services/navigation.service';
 import { GlobalEventsService } from 'src/shared/services/global-events.service';
 import { FirestoreUserParkingService } from 'src/shared/services/firestore-user-parking.service';
@@ -33,7 +33,6 @@ export class ViewParkPage implements OnInit {
     private firestoreParkingService: FirestoreParkingService,
     private barcodeScanner: BarcodeScanner,
     private alertController: AlertController,
-    private modalController: ModalController,
     private navigation: NavigationService,
     private firestoreUserParkingService: FirestoreUserParkingService,
     public firestoreParkService: FirestoreParksService,
@@ -186,15 +185,15 @@ export class ViewParkPage implements OnInit {
    */
   ScanQr() {
     this.data = null;
-    //this.barcodeScanner.scan().then(barcodeData => {
-      console.log('Barcode data', "B2");
-      this.data = "C2";
+    this.barcodeScanner.scan().then(barcodeData => {
+      this.data = barcodeData;
+      alert(this.data);
       
       // Check if valid code
       const placeIndex = this.checkIfScannedQrIsValid();
       if(placeIndex > 0){
         //check user answer
-        this.presentAlert('Barcode Scanned','Please confirm', this.data) .then(res => {
+        this.presentAlert('Barcode Scanned','Please confirm', this.data).then(res => {
           if (res == 'confirm') {
             //check if the scanned place is free or not
             if (!this.parking.places[placeIndex].occupied) {
@@ -269,9 +268,9 @@ export class ViewParkPage implements OnInit {
         return;
       }
 
-    //}).catch(err => {
-      //console.log('Error', err);
-    //});
+    }).catch(err => {
+      console.log('Error', err);
+    });
   }
 
   checkIfNewIPark(){
@@ -408,19 +407,22 @@ export class ViewParkPage implements OnInit {
    * @returns Returns the place index of the scanned place if it exists. If not, returns -1
    */
   checkIfScannedQrIsValid(): number{
+    alert("Enter check if valid");
+
     const row = this.data[0];
     const col = this.data[1];
 
     for (var i = 0, len = this.parking.places.length; i < len; i++) {
-      console.log(this.parking.places[i].coordX + this.parking.places[i].coordY);
+      alert(this.parking.places[i].coordX + this.parking.places[i].coordY);
 
       if (this.parking.places[i].coordX === row && this.parking.places[i].coordY === col) {
-        console.log("Place found!");
+        alert("Place found!");
         //return this.parking.places[i];
         return i;
       }
       //Loop will continue
     }
+    alert("Return not valid");
     return -1;
   }
 
