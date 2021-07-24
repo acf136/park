@@ -61,5 +61,5 @@ export interface IParks{
   coordX: string;  //C
   coordY: string;  //1
   datePark: Date;     // Last date of parking in a place , p.e. 20212508 12:37
-  dateLeave: Date;    // Last date the user leave the place, p.e 0000000 0000
+  dateLeave?: Date;    // Last date the user leave the place, p.e 0000000 0000
 }
