@@ -213,6 +213,7 @@ export class ViewParkPage implements OnInit {
                     //so, if this iPark has the dateLeave attribute, it has to be deleted
                     if (!this.checkIfNewIPark()) {
                       //Eliminar el campo dateLeave
+                      this.firestoreParkService.updateParkNewDateParkField(this.IdParkToRemoveDateLeave, new Date());
                       this.firestoreParkService.updateParkRemoveDateLeaveField(this.IdParkToRemoveDateLeave);
                     } else {
                       //user aparca

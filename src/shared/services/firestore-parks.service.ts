@@ -55,11 +55,10 @@ export class FirestoreParksService {
   updateParkRemoveDateLeaveField(id: string){
     //dateLeave: firebase.default.firestore.FieldValue.delete();
     this.ngFirestore.collection('Parks').doc(id).update({ ["dateLeave"]: firebase.default.firestore.FieldValue.delete() });
-    //this.ngFirestore.collection('Parks').doc(id).remove({dateLeave: date});
-    //   this.ngFirestore.collection('Parks').doc(id).update(park).then(
-    //     () => console.log('park with id = '+ id +' updated') ,               //onfulfilled
-    //     (err) => console.log('Parking with id = '+ id +' REJECTED to update')   //onrejected
-    //  );
+  }
+
+  updateParkNewDateParkField(id:string, date: Date){
+    this.ngFirestore.collection('Parks').doc(id).update({ "datePark": date });
   }
 
   async getParksPromise(): Promise<any> {
