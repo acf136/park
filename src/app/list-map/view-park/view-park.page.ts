@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { IParking, IPlace, IUserParking } from 'src/shared/interfaces/interfaces';
+import { IParking, IParks, IPlace, IUserParking } from 'src/shared/interfaces/interfaces';
 import { ActivatedRoute } from '@angular/router';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
@@ -8,6 +8,7 @@ import { NavigationService } from 'src/shared/services/navigation.service';
 import { GlobalEventsService } from 'src/shared/services/global-events.service';
 import { FirestoreUserParkingService } from 'src/shared/services/firestore-user-parking.service';
 import { UserService } from 'src/shared/services/user.service';
+import { FirestoreParksService } from 'src/shared/services/firestore-parks.service';
 
 @Component({
   selector: 'app-view-park',
@@ -22,6 +23,11 @@ export class ViewParkPage implements OnInit {
   isNewParking: Boolean = false;
   userParkings: IUserParking[];
 
+  iparks: IParks[] = [];
+  idPark: string;
+  iParksWithFirebaseId: any;
+  IdParkToRemoveDateLeave: string;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private firestoreParkingService: FirestoreParkingService,
@@ -29,6 +35,7 @@ export class ViewParkPage implements OnInit {
     private alertController: AlertController,
     private navigation: NavigationService,
     private firestoreUserParkingService: FirestoreUserParkingService,
+    public firestoreParkService: FirestoreParksService,
     public globalEventsService: GlobalEventsService,
     public userService: UserService
    ) {
@@ -41,6 +48,37 @@ export class ViewParkPage implements OnInit {
     this.loadData();
     this.checkIfNewParking();
   }
+
+  // getParksId(){
+  //   this.firestoreParkService.getParks().subscribe(iparks => {
+  //     iparks.forEach(park => {  
+  //       this.iparks = park.map(
+  //       (t) => ( { id: t.payload.doc.id,  ...t.payload.doc.data() as IUserParking } )
+  //       );
+  //       resolve( this.myUserParkings );
+  //       if ( puserParkings.length <= 0 ) reject('puserParkings empty');
+  //     },
+  //     err => { alert('getUserParkings : subscribe => Error: ' + err); 
+  //     });
+        
+  //     //   {
+  //     //   if (park.idUser == JSON.parse(localStorage.getItem('user')).uid) 
+  //     //   {
+  //     //     this.iparks = park.data();
+  //     //     result = true;
+  //     //   }   
+  //     // });
+  //   },(err) => { 
+  //     alert('Error caught at subscribe on Firebase url "' + err.url + '" ');
+  //     console.log("Error getting document:", err);
+  //   },
+  //   () => {
+  //     if (!result) {
+  //       observer.next(false);
+  //       observer.complete();
+  //     }
+  //   });
+  // }
 
   // callback function to sort 2 places:
   placesSortCriteria = (p1: IPlace, p2: IPlace) => {
@@ -73,7 +111,7 @@ export class ViewParkPage implements OnInit {
   /**
     Use  firestoreParkingService.getParking(id) that returns a Subscription embedded in a Promise
    */
-  loadData() {
+  async loadData() {
     this.firestoreParkingService.getParking(this.id)
       .subscribe(
         (pparking) => {
@@ -91,6 +129,26 @@ export class ViewParkPage implements OnInit {
         (err) => { alert('Error caught at subscribe on Firebase url "' + err.url + '" '); },   //2nd subscribe param
         () => {} //Complete
       );
+
+      let iPTable: IParks[] = [];
+      await this.firestoreParkService.getParksOfUser(JSON.parse(localStorage.getItem('user')).uid)
+            .then( (iparks) => iPTable = iparks );
+      //this.getParksId();
+      this.iParksWithFirebaseId = iPTable;
+
+      for (let i = 0 ; i < iPTable.length ; i++)
+      await this.firestoreParkService.getParksPromise().then(
+        (ppark) => {                                                              //onfulfilled
+            const iPark: IParks = ppark as IParks;
+            //iPark.id = iPTable[i].idParking;
+            this.iparks.push(iPark);
+          } ,
+       (error) => console.log('ListParkComponent.loadData error : '+error)                     //onrejected
+      );
+
+      this.iparks.forEach(element => {
+        console.log(element);
+      });
   }
 
   //Checks if would be needed to add a new relationship user-parking in case the user scans a barcode
@@ -125,58 +183,247 @@ export class ViewParkPage implements OnInit {
    * Scan QR process, automatically opens camera, and catches
    * the scanned code in barcodeData variable
    */
-   ScanQr() {
+  ScanQr() {
     this.data = null;
     this.barcodeScanner.scan().then(barcodeData => {
-      console.log('Barcode data', barcodeData);
-      this.data = barcodeData;
-      //TODO:
-      //Buscar si existe la plaza escaneada
-      const place = this.checkScannedCode(barcodeData.text);
-      if(place != null){
-        //mirar el estado de la plaza escaneada
-        let header: string = "Barcode " + this.data.text + " Scanned!";
-        let message: string;
-        let isLeaving: boolean;
-        if(place.occupied){
-          //Ask sure leaving
-          console.log("Place occupied!");
-          message = "Do you want to leave your parking place free?";
-          isLeaving = true;
-        }else{
-          //Ask sure staying
-          console.log("Place NOT occupied!");
-          isLeaving = false;
-          message = "Do you want to park in this place?";
-        }
-        this.presentAlertConfirm(header, message, this.data.text, isLeaving)
+      //alert(barcodeData.text);
+      this.data = barcodeData.text;
+      //alert("scanned code " + this.data);
+      
+      // Check if valid code
+      const placeIndex = this.checkIfScannedQrIsValid();
+      if(placeIndex > 0){
+        //check user answer
+        this.presentAlert('Barcode Scanned','Please confirm', this.data).then(res => {
+          if (res == 'confirm') {
+            //check if the scanned place is free or not
+            if (!this.parking.places[placeIndex].occupied) {
+              //if free, checks if the current user is already parked in any parking
+              //this.isUserParkedAlready().subscribe(yes => {
+                
+              if (this.isUserParkedAlready()) {
+                alert("Please, leave your current place before occupying another one");
+                return;
+              } 
+              else 
+              {
+                this.presentAlert('Barcode Scanned','Please confirm you want to park in ' + this.data).then(response => {
+                  if (response) {
+                    //check if the user has parked before in this place to update it and not creating a new IPark
+                    //so, if this iPark has the dateLeave attribute, it has to be deleted
+                    if (!this.checkIfNewIPark()) {
+                      //Eliminar el campo dateLeave
+                      this.firestoreParkService.updateParkNewDateParkField(this.IdParkToRemoveDateLeave, new Date());
+                      this.firestoreParkService.updateParkRemoveDateLeaveField(this.IdParkToRemoveDateLeave);
+                    } else {
+                      //user aparca
+                      let newIpark: IParks = {
+                        idUser: JSON.parse(localStorage.getItem('user')).uid,
+                        idParking: this.id,
+                        coordX: this.data[0],
+                        coordY: this.data[1],
+                        datePark: new Date()
+                      };  
+                      //add new Park
+                      this.firestoreParkService.create(newIpark);
+                    }
+                    this.invertPlaceStatus(this.data);
+                    this.firestoreParkingService.update(this.id, this.parking);
+                    //check if adding a new UserParking is needed (??????)
+                    if (this.isNewParking) {
+                      this.addNewUserParking();
+                    }
+                    this.loadData();
+                  }else{
+                    return;
+                  }
+                });
+              }
+              //}, 
+              //error => { 
+                //alert(error);
+              //});
+            }else{
+              //this.isActualUserPlace().subscribe(yes => {
+                if (this.isThisCurrentUserPlace()) 
+                {
+                  //desocupar IPark del user
+                  this.leavePlace();
+                  this.loadData();
+                }else{
+                  alert("You cannot park into another users place!");
+                  return;
+                }
+              //}, 
+              //error => { 
+                
+              //});
+            }
+          }else{
+              //cancelado por el usuario
+             return;
+          }
+        });
+
       }else{
-        console.log("El código escaneado no existe en este párking");
+        console.log("Non valid code. Please, scan a 2 digits barcode");
+        return;
       }
-      //Dependiendo del estado, preguntar una cosa u otra
-      //Responder l input del usuario
 
     }).catch(err => {
       console.log('Error', err);
     });
   }
 
-  checkScannedCode(data: string): IPlace{
-    const row = data[0];
-    const col = data[1];
+  checkIfNewIPark(){
+    const row = this.data[0];
+    const col = this.data[1];
 
-    for (var i = 0, len = this.parking.places.length; i < len; i++) {
-      console.log(this.parking.places[i].coordX + this.parking.places[i].coordY);
-
-      if (this.parking.places[i].coordX === row && this.parking.places[i].coordY === col) {
-        console.log("Place found!");
-        return this.parking.places[i];
+    for (let index = 0; index < this.iParksWithFirebaseId.length; index++) {
+      const park = this.iParksWithFirebaseId[index];
+      if (park.coordX == row && park.coordY == col && park.idParking == this.id) {
+        if (this.hasOwnProperty(park, "dateLeave")) {
+          this.IdParkToRemoveDateLeave = park.id;
+          return false;
+        }
       }
-      console.log('Loop will continue.');
     }
-    return null;
+    return true;
   }
 
+  //Leaves the user's place free
+  leavePlace() {
+    const row = this.data[0];
+    const col = this.data[1];
+
+    for (let index = 0; index < this.iParksWithFirebaseId.length; index++) {
+      const park = this.iParksWithFirebaseId[index];
+      if (park.coordX == row && park.coordY == col && park.idParking == this.id) {
+        const firestoreParkId = park.id;
+        this.firestoreParkService.updateParkAddDateLeaveField(new Date(), firestoreParkId);
+        this.invertPlaceStatus(this.data);
+        this.firestoreParkingService.update(this.id, this.parking);
+        break;
+      }
+    }
+  }
+
+  //Checks if an object cointains a certain field
+  hasOwnProperty(obj, prop) {
+    var proto = obj.__proto__ || obj.constructor.prototype;
+    return (prop in obj) &&
+        (!(prop in proto) || proto[prop] !== obj[prop]);
+  }
+
+  //When scanning an occupied place, checks if it belongs to the current user
+  isThisCurrentUserPlace(): Boolean {
+    const row = this.data[0];
+    const col = this.data[1];
+
+    for (let index = 0; index < this.iParksWithFirebaseId.length; index++) {
+      const park = this.iParksWithFirebaseId[index];
+      if (park.coordX  == row && park.coordY == col && park.idParking == this.id) {
+        if (!this.hasOwnProperty(park, "dateLeave")) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+
+    // return new Observable(observer => {
+    //   let result = false;
+    //   const row = this.data[0];
+    //   const col = this.data[1];
+
+    //   this.firestoreParkService.getParks().subscribe(iparks => {
+
+    //     this.iparks.forEach(element => {
+    //       console.log(element);
+    //     });
+        
+    //     iparks.docs.forEach(park => {
+    //       if (park.data().idUser == JSON.parse(localStorage.getItem('user')).uid && park.data().idParking == this.id) 
+    //       {
+    //         if (park.data().coordX == row && park.data().coordY == col) 
+    //         {
+    //           result = true;
+    //           observer.next(true);
+    //           observer.complete();
+    //         }
+    //       }   
+    //     });
+    //   },(err) => { 
+    //     alert('Error caught at subscribe on Firebase url "' + err.url + '" ');
+    //     console.log("Error getting document:", err);
+    //   },
+    //   () => {
+    //     if (!result) {
+    //       observer.next(false);
+    //       observer.complete();
+    //     }
+    //   });
+    // });
+  }
+
+  /**
+   * 
+   * @returns Checks if the user is already parked in any other place. If he is, returns true
+   */
+  isUserParkedAlready(): Boolean {
+
+    for (let index = 0; index < this.iParksWithFirebaseId.length; index++) {
+      const park = this.iParksWithFirebaseId[index];
+      if (!this.hasOwnProperty(park, "dateLeave")) {
+        this.idPark = park.id;
+        return true;
+      }
+    }
+
+    return false;
+
+    // return new Observable(observer => { 
+    //   let result = false;
+    //   this.firestoreParkService.getParks().subscribe(iparks => {
+    //     iparks.docs.forEach(park => {
+    //       if (park.data().idUser == JSON.parse(localStorage.getItem('user')).uid) {
+    //         result = true;
+    //         observer.next(true);
+    //         observer.complete();
+    //       }   
+    //     });
+    //   },(err) => { 
+    //     alert('Error caught at subscribe on Firebase url "' + err.url + '" ');
+    //       observer.error(err);
+    //       observer.complete();
+    //       console.log("Error getting document:", err);
+    //   },
+    //   () => {
+    //     if (!result) {
+    //       observer.next(false);
+    //       observer.complete();
+    //     }
+    //   });
+    // });
+  }
+
+  /**
+   * 
+   * @returns Returns the place index of the scanned place if it exists. If not, returns -1
+   */
+  checkIfScannedQrIsValid(): number{
+    const row = this.data[0];
+    const col = this.data[1];
+
+    for (var i = 0, len = this.parking.places.length; i < len; i++) {
+      if (this.parking.places[i].coordX === row && this.parking.places[i].coordY === col) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  //Invert the status of a place if the scan process is resolved
   invertPlaceStatus(data: string){
     const row = data[0];
     const col = data[1];
@@ -185,63 +432,50 @@ export class ViewParkPage implements OnInit {
       console.log(this.parking.places[i].coordX + this.parking.places[i].coordY);
 
       if (this.parking.places[i].coordX === row && this.parking.places[i].coordY === col) {
-        console.log("Occupied BEFORE: " + this.parking.places[i].occupied);
+        //console.log("Occupied BEFORE: " + this.parking.places[i].occupied);
         this.parking.places[i].occupied = !this.parking.places[i].occupied;
-        console.log("Occupied AFTER: " + this.parking.places[i].occupied);
+        //console.log("Occupied AFTER: " + this.parking.places[i].occupied);
         break;
       }
       console.log('Loop will continue.');
     }
   }
+
   /**
    * Presents the modal where the user is asked to confirm or cancel
    * when he scans a parking place
    *
    * @param data
    */
-   async presentAlertConfirm(_header: string, _message: string, data: string, isLeaving: boolean) {
-    console.log("Alert creation");
-    const alert = await this.alertController.create({
-      header: _header,
-      message: _message,
-      backdropDismiss: false,
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: (blah) => {
-            console.log('Confirm Cancel: blah');
+  async presentAlert(_header: string, _message: string, data?: string) {
+    return new Promise(async (resolve) => {
+      const alert = this.alertController.create({
+        header: _header,
+        message: _message,
+        backdropDismiss: false,
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            handler: (cancel) => {
+              resolve('cancel');
+            }
+          }, {
+            text: 'Confirm',
+            role: 'confirm',
+            handler: (confirm) => {
+              resolve('confirm');
+            }
           }
-        }, {
-          text: 'Okay',
-          handler: () => {
-            console.log('Confirm Okay');
-            //if (isLeaving) {
-              //
-              //const place = this.checkScannedCode(data);
-              this.invertPlaceStatus(data);
-              console.log("PARKING ID: " + this.id);
-              console.log("PARKING: " + this.parking.places);
-              this.firestoreParkingService.update(this.id, this.parking);
+        ]
+      });
 
-              if (this.isNewParking) {
-                console.log("Añade nuevo user parking");
-                this.addNewUserParking();
-              }
-
-              this.loadData();
-            //}else{
-              //
-            //}
-          }
-        }
-      ]
+      (await alert).present();
     });
 
-    await alert.present();
   }
 
+  //Adds a new UserParking if the scan process is resolved and the relationship between user and park is new
   addNewUserParking() {
     let newUserParking: IUserParking;
     this.isNewParking = false;
@@ -278,4 +512,14 @@ export class ViewParkPage implements OnInit {
     else   return backRoute;
   }
 
+}
+
+export interface IParksWithId{
+  id: string,
+  idUser: string;     // emailnuevo@ggg.com
+  idParking: string;  // Pl.Catalunya
+  coordX: string;  //C
+  coordY: string;  //1
+  datePark: Date;     // Last date of parking in a place , p.e. 20212508 12:37
+  dateLeave?: Date;    // Last date the user leave the place, p.e 0000000 0000
 }
