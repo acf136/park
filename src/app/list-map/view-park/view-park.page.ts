@@ -291,6 +291,7 @@ export class ViewParkPage implements OnInit {
     return true;
   }
 
+  //Leaves the user's place free
   leavePlace() {
     const row = this.data[0];
     const col = this.data[1];
@@ -307,12 +308,14 @@ export class ViewParkPage implements OnInit {
     }
   }
 
+  //Checks if an object cointains a certain field
   hasOwnProperty(obj, prop) {
     var proto = obj.__proto__ || obj.constructor.prototype;
     return (prop in obj) &&
         (!(prop in proto) || proto[prop] !== obj[prop]);
   }
 
+  //When scanning an occupied place, checks if it belongs to the current user
   isThisCurrentUserPlace(): Boolean {
     const row = this.data[0];
     const col = this.data[1];
@@ -420,6 +423,7 @@ export class ViewParkPage implements OnInit {
     return -1;
   }
 
+  //Invert the status of a place if the scan process is resolved
   invertPlaceStatus(data: string){
     const row = data[0];
     const col = data[1];
@@ -471,6 +475,7 @@ export class ViewParkPage implements OnInit {
 
   }
 
+  //Adds a new UserParking if the scan process is resolved and the relationship between user and park is new
   addNewUserParking() {
     let newUserParking: IUserParking;
     this.isNewParking = false;
