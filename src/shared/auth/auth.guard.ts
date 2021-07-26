@@ -33,7 +33,9 @@ export class AuthGuard implements CanActivate,OnDestroy {
       (result) =>  this.isTheAdmin = true,                   //onfullfilled
       (error)  =>  this.isTheAdmin = false                   //onRejected
     );
-    await this.authenticationService.signOutSync().then( (resolve) => localStorage.setItem('user', JSON.stringify(currentUser))  );
+    if ( this.isTheAdmin ) {
+      await this.authenticationService.signOutSyncAdmin().then( (resolve) => localStorage.setItem('user', JSON.stringify(currentUser))  );
+    }
     // Should backdropEnabled?
     this.subscription = this.messageService.onMessage().subscribe(
       (msg) => {

@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import firebase from 'firebase/app';
-
+import { PushNotifService } from 'src/shared/services/push-notif.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +17,8 @@ export class AuthenticationService {
     public afStore: AngularFirestore,
     public ngFireAuth: AngularFireAuth,
     public router: Router,
-    public ngZone: NgZone
+    public ngZone: NgZone,
+    public pushNotifService: PushNotifService
   ) { }
 
   // Login in with email/password -sync mode - call   await signIn . . .
@@ -110,8 +111,16 @@ export class AuthenticationService {
   async signOutSync() {   // Promise<void>
     await this.ngFireAuth.signOut();
     localStorage.removeItem('user');
+    // Remove all the notifications from the notifications screen
+    this.pushNotifService.removeAllDeliveredNotifications();   // without then process
+    // Remove all listeners
+    this.pushNotifService.removeAllListeners(); // without then process
   }
 
+  // signOut for administrator called in auth.guard.ts
+  async signOutSyncAdmin() {
+    return this.ngFireAuth.signOut();
+  }
 }
 
 export interface IUserLS {

@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { IUser } from 'src/shared/interfaces/interfaces';
 import { LoadingService } from 'src/shared/services/Loading.service';
 import { NavigationService } from 'src/shared/services/navigation.service';
 import { AuthenticationService } from '../../shared/services/authentication.service';
+import { FirestoreUserService } from 'src/shared/services/firestore-user.service';
+import { PushNotifService } from 'src/shared/services/push-notif.service';
 
 @Component({
   selector: 'app-login',
@@ -16,12 +19,15 @@ export class LoginComponent implements OnInit {
   isSubmitted = false;
   isLoading = false;
   form: any;
+  myUserLogin: IUser ;
 
   constructor(private router: Router,
     private formBuilder: FormBuilder,
     private loadingService: LoadingService,
     private navigation: NavigationService,
-    public authService: AuthenticationService
+    public authService: AuthenticationService,
+    public firestoreUserService: FirestoreUserService,
+    public pushNotifService: PushNotifService,
     ) { }
 
   ngOnInit() {
@@ -53,21 +59,54 @@ export class LoginComponent implements OnInit {
     //Form not valid
     if ( !this.loginForm.valid ) alert('Please provide all the required values!');
     else { // ( this.loginForm.valid )
-      const newEmail = this.loginForm.get('email').value;
-      const newPassword =  this.loginForm.get('password').value;
-      await this.authService.signIn(newEmail, newPassword).then(
-        (resolve) => {                                                      //onfulfilled
-          localStorage.setItem('user', JSON.stringify(resolve.user));
-          this.router.navigate(['tabs']);
-        } ,
-        (reject)  => window.alert('Reject authService.signIn :  ' +reject)   //onrejected
-      );
+      if ( !this.authService.isLoggedIn ) {
+        const newEmail = this.loginForm.get('email').value;
+        const newPassword =  this.loginForm.get('password').value;
+        await this.authService.signIn(newEmail, newPassword).then(
+          (resolve) => {                                                      //onfulfilled
+            localStorage.setItem('user', JSON.stringify(resolve.user));
+            this.registerNotifEnvDisp();                           // register to push-notifications
+            console.log('registerNotifEnvDisp:after!' );
+            this.router.navigate(['tabs']);
+          } ,
+          (reject)  => window.alert('Reject authService.signIn :  ' +reject)   //onrejected
+        );
+      } else {
+        console.log('Already logged. Trying to log again!' );
+      }
     }
+
     this.loadingService.dismiss();       //stop spinner
   }
 
   public forgotPasswordClicked() {
     this.router.navigate(['/forgot-password']);
+  }
+
+  // register to push-notifications for envioDisponibilidad
+  async registerNotifEnvDisp() {
+    const idUser = JSON.parse(localStorage.getItem('user')).uid;
+    await this.firestoreUserService.getUserSync(idUser).then(
+      (puser)   => this.myUserLogin = puser as IUser,
+      (reject)  => {
+        console.log('registerNotifEnvDisp: reject = '+reject);
+        return;
+      }
+    );
+    if ( this.myUserLogin.envioDisponibilidad ) {
+      let registered = false;
+      console.log('this.myUserLogin.envioDisponibilidad: user.envioDisponibilidad is true');
+      await this.pushNotifService.register().then(   // Register with Apple / Google to receive push via APNS/FCM
+          (result) =>  registered = true ,
+          (err) => console.log('PushNotifService.register : error = ', err)
+        );
+      if ( registered )  {
+        this.pushNotifService.registration();
+        this.pushNotifService.registrationError();
+        this.pushNotifService.pushNotificationReceived();
+        this.pushNotifService.pushNotificationActionPerformed();
+      }
+    }
   }
 
   getBackButtonText() {

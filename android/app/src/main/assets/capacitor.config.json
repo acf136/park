@@ -1,5 +1,5 @@
 {
-	"appId": "io.ionic.starter",
+	"appId": "com.park2021.push",
 	"appName": "park",
 	"webDir": "www",
 	"bundledWebRuntime": false

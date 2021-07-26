@@ -55,6 +55,17 @@ export class FirestoreUserService {
     return this.ngFirestore.collection('User').doc(id).valueChanges();
   }
 
+  async getUserSync(id) {
+    return new Promise( (resolve, reject) => {  //make to call with await
+        this.ngFirestore.collection('User').doc(id).valueChanges().subscribe(
+          (puser) => {
+              if (puser) resolve(puser);
+              else       reject('getUserSync: no user with id = '+id);
+          } ,
+          (err) => { alert('getUserSync : subscribe => Error: ' + err); }
+        );
+    });
+  }
 
   update(id, puser: IUser) {
     this.ngFirestore.collection('User').doc(id).update(puser).then(

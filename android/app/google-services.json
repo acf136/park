@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "149382680253",
+    "project_id": "ionicfirebase-a7300",
+    "storage_bucket": "ionicfirebase-a7300.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149382680253:android:4587bbd6d298be974471d4",
+        "android_client_info": {
+          "package_name": "com.park2021.push"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "149382680253-qthh9usuuru97vngedntjk0163dbp8u9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8hYrh9NAyzCrxd53AvN5lQ5LeN8pqSwc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "149382680253-qthh9usuuru97vngedntjk0163dbp8u9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149382680253:android:e26f74cfdad0ea4b4471d4",
+        "android_client_info": {
+          "package_name": "io.ionic.starter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "149382680253-qthh9usuuru97vngedntjk0163dbp8u9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8hYrh9NAyzCrxd53AvN5lQ5LeN8pqSwc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "149382680253-qthh9usuuru97vngedntjk0163dbp8u9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

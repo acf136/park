@@ -54,12 +54,33 @@ export interface IUserParking{
   idUser: string;    // external key to IParking.id Firestores key
   idParking: string; // external key to IUser.id Firestore key
 }
-
+/**
+ * IParks: Historial de aparcamientos por usuario/parking/plaza
+ */
 export interface IParks{
-  idUser: string;     // emailnuevo@ggg.com
-  idParking: string;  // Pl.Catalunya
-  coordX: string;  //C
-  coordY: string;  //1
+  idUser: string;     // id de Firebase correspondiente a un usuario registrado de la colección User
+  idParking: string;  // id de Firebase correspondiente a un elem. de la colección Parking
+  coordX: string;  // p.e. C
+  coordY: string;  // p.e. 1
   datePark: Date;     // Last date of parking in a place , p.e. 20212508 12:37
   dateLeave: Date;    // Last date the user leave the place, p.e 0000000 0000
+}
+
+/**
+ * INotifDisponibilidad: Ultima plaza ocupada para la que el usuario desea recibir notificaciones
+ *    Se registra al iniciar la aplicación si el usuario tiene IUser.envioDisponibilidad === true
+ *
+ * Las notificaciones las envía el server node a los users de esta colección para los que dateLeave esté informada
+ * *  mediante polling (cada 3 min p.e.)
+ *  También tiene que haver un registrationToken (vacío si no registrado)
+ *  Si el user no quiere envio de disponibilidad idParking,coordX,coordy deben estar vacíos (set by userConfig)
+ *  DateLeave se informa al aparcar (scanQR)
+ */
+export interface INotifDisponibilidad{
+  idUser: string;             // id de Firebase correspondiente a un usuario registrado de la colección User
+  registrationToken: string;  // Token recibido en el registro  . . .PushNotifications.addListener('registration', (token:Token)
+  idParking: string;  // Parking para el que se quiere ser notificado de que queda libre la plaza
+  coordX: string;  // Plaza objeto de seguimiento
+  coordY: string;  //
+  dateLeave: Date; // Momento de la liberación
 }
