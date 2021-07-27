@@ -1,8 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { IParking, IUserParking } from 'src/shared/interfaces/interfaces';
-import { ParkingService } from 'src/shared/services/parking.service';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { FirestoreUserParkingService } from 'src/shared/services/firestore-user-parking.service';
+import { LoadingService } from 'src/shared/services/Loading.service';
+import { GlobalEventsService } from 'src/shared/services/global-events.service';
 
 @Component({
   selector: 'app-list-park',
@@ -13,70 +14,55 @@ import { FirestoreUserParkingService } from 'src/shared/services/firestore-user-
 export class ListParkComponent implements OnInit {
   @Input() parking: IParking;
   public parkings: IParking[] = [];
+  public uParkingWithFirebaseId: any;
   private idUser = '';
 
-  constructor(private parkingService: ParkingService,
+
+  constructor(
               private firestoreParkingService: FirestoreParkingService,
-              private firestoreUserParkingService: FirestoreUserParkingService
+              private firestoreUserParkingService: FirestoreUserParkingService,
+              private globalEventsService: GlobalEventsService,
+              private loadingService: LoadingService
               ) {
-                this.idUser = JSON.parse(localStorage.getItem('user')).uid;
-                console.log('this.idUser '+ this.idUser);
+                // this.idUser = JSON.parse(localStorage.getItem('user'))?.uid;
+                // console.log('ListParkComponent.constructor this.idUser= '+ this.idUser);
+
+                this.globalEventsService.getObservable().subscribe( (data) => {
+                  this.parkings = [];
+                  this.loadData();
+                });
               }
 
   ngOnInit() {
+    this.loadingService.present();       //init spinner
     this.loadData();
+    this.loadingService.dismiss();                //stop spinner
   }
 
   /**
    * Use firestoreParkingService.getParkings() that returns an observable$
    */
   async loadData() {
+
     let myUPTable: IUserParking[] = [];
-    // using httpclient
-    //
-    // this.parkingService.getParkings()
-    //   .subscribe(
-    //     pparkings =>  this.parkings = pparkings ,
-    //     err => { alert('Error caught at Subscriber on url "' + err.url + '" in ' + this.parkingService.getParkings.name ); },
-    //     () => console.log('Processing '+ this.parkingService.getParkings.name +' Complete.')
-    //   );
-    //
-// Get all Parkings - DON'T DELETE WHILE developing
-// this.firestoreParkingService.getParkings().subscribe(
-//     (pparkings) =>  { this.parkings = pparkings.map( (t) => ({                           //1st subscribe param
-//                     id: t.payload.doc.id,  ...t.payload.doc.data() as IParking ,
-//                   }) ) },
-//     err => { alert('Error caught at subscribe on Firebase url "' + err.url + '" '); } ,  //2nd subscribe param
-//     () => console.log('Parkings = ', this.parkings)                                      //3rd subscribe param
-// );
-// Get all Parkings - DON'T DELETE WHILE developing
-    //
     // Retrieve UserParking N:M relationship for the current user this.idUser
-    // this.idUser = this.authService.getUserData().uid;
     this.idUser = JSON.parse(localStorage.getItem('user')).uid;
-    // if ( !this.idUser ) {
-    //   const userData = JSON.parse(localStorage.getItem('user')) ;
-    //   if ( userData ) this.idUser = userData.uid;
-    // }
-    // this.idUser = 'l4biVd2tDRNDWDTkJWA03bRPLOH3' ; // idUser de prueba
-    console.log('list-park -> idUser: '+ this.idUser);
     if ( !this.idUser ) return;  //to avoid undefined
     // Get IUserParking elements for this.idUser
     await this.firestoreUserParkingService.getParkingsOfUser(this.idUser)
             .then( (uptable) => myUPTable = uptable );  //then
+    this.uParkingWithFirebaseId = myUPTable;
     // Get only IParking elements for every idUser,idParking
     for (let i = 0 ; i < myUPTable.length ; i++)
-      await this.firestoreParkingService.getParkingPromise(myUPTable[i].idParking)
-              .then(
-                (pparking) => {                                                              //onfulfilled
-                  const newParking: IParking = pparking as IParking;
-                  newParking.id = myUPTable[i].idParking;
-                  this.parkings.push(newParking);
-                } ,
-                (error) => console.log('getParkingPromise error :'+error)                 //onrejected
-              );
+      await this.firestoreParkingService.getParkingPromise(myUPTable[i].idParking).then(
+        (pparking) => {                                                              //onfulfilled
+            const newParking: IParking = pparking as IParking;
+            newParking.id = myUPTable[i].idParking;
+            this.parkings.push(newParking);
+          } ,
+       (error) => console.log('ListParkComponent.loadData error : '+error)                     //onrejected
+      );
 
-    console.log('this.parkings  = '+this.parkings);
   }  // end of loadData
 
   parkingList() {
@@ -88,7 +74,18 @@ export class ListParkComponent implements OnInit {
   remove(pidParking,pid) {
     console.log('pid= '+ pid + ' parkingId =' + pidParking);
     if (window.confirm('Are you sure to delete element with id = '+pid+' (idParking='+pidParking+ ') ?')) {
-      this.firestoreParkingService.delete(pid);
+      // this.firestoreParkingService.delete(pid);
+      const index1: number = this.parkings.findIndex(uparkings => uparkings.id === pid);
+      if (index1 !== -1) {
+          //this.myUPTable.splice(index, 1);
+          this.parkings.splice(index1, 1);
+      }
+
+      const index2: number = this.uParkingWithFirebaseId.findIndex(uparkings => uparkings.idParking === pid);
+      if (index2 !== -1) {
+        //this.myUPTable.splice(index, 1);
+        this.firestoreUserParkingService.delete(this.uParkingWithFirebaseId[index2].id);
+      }
     }
   }
 

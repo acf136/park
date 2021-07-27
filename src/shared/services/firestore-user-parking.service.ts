@@ -13,11 +13,15 @@ export class FirestoreUserParkingService {
     private ngFirestore: AngularFirestore,
   ) { }
 
-  create(userParking: IUserParking) {
+  async create(userParking: IUserParking) {
     return this.ngFirestore.collection('UserParking').add(userParking);
   }
 
   getUserParking(id) {
+    return this.ngFirestore.collection('UserParking').doc(id).valueChanges();
+  }
+
+  async getUserParkingSync(id) {
     return this.ngFirestore.collection('UserParking').doc(id).valueChanges();
   }
 
@@ -41,7 +45,7 @@ export class FirestoreUserParkingService {
   async getParkingsOfUser(idUser: string): Promise<IUserParking[]> {   //: Promise<IUserParking[]>
     const response = await this.getUserParkings();
     if ( response.length > 0 )
-      this.myUserParkings = response.filter( (up) => up.idUser === idUser ) //discard if not idUser
+      this.myUserParkings = response.filter( (up) => up.idUser === idUser ); //discard if not idUser
     return this.myUserParkings;
   }
 
@@ -59,5 +63,8 @@ export class FirestoreUserParkingService {
     );
   }
 
+  getUserParkingsSync() {
+    return this.ngFirestore.collection('UserParking').snapshotChanges();
+  }
 } // export class FirestoreUserParkingService
 

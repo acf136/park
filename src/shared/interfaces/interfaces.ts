@@ -33,7 +33,7 @@ export type PlaceCapacity = { size: PlaceSize ; numOfPlaces: number } ;
  */
 export interface IParking{
   idParking: number;
-  id: string;
+  id?: string;
   name: string;
   address: string;
   zipCode: string;
@@ -56,8 +56,10 @@ export interface IUserParking{
 }
 
 export interface IParks{
-  idUser: string;
-  idParking: string;
-  datePark: Date;     // Last date of parking in a place
-  dateLeave: Date;    // Last date the user leave the place
+  idUser: string;     // emailnuevo@ggg.com
+  idParking: string;  // Pl.Catalunya
+  coordX: string;  //C
+  coordY: string;  //1
+  datePark: Date;     // Last date of parking in a place , p.e. 20212508 12:37
+  dateLeave?: Date;    // Last date the user leave the place, p.e 0000000 0000
 }

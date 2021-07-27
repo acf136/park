@@ -1,29 +1,40 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy} from '@angular/core';
 import { IParking, IPlace } from 'src/shared/interfaces/interfaces';
-import { Router, ActivatedRoute } from '@angular/router';
-import {Observable} from 'rxjs';
-import {map} from 'rxjs/operators';
+import { ActivatedRoute } from '@angular/router';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
+import { FirestoreUserParkingService } from 'src/shared/services/firestore-user-parking.service';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { NavigationService } from 'src/shared/services/navigation.service';
+import { MessageService } from 'src/shared/services/message.service';
+import { Subscription } from 'rxjs';
+import { GlobalEventsService } from 'src/shared/services/global-events.service';
 
 @Component({
   selector: 'app-modify-park',
   templateUrl: './modify-park.page.html',
   styleUrls: ['./modify-park.page.scss'],
 })
-export class ModifyParkPage implements OnInit {
+export class ModifyParkPage implements OnInit,OnDestroy {
   @Input() parking: IParking;
   @Input() placesRows: IPlace[][] = [[]] ;  //Array of Array of IPlace for the grid
   placesRowsSizes: number[] = [];  // Array of total sizes for every row in the grid
-  id: any;
+  id = '';
+  newUPidParking = '';
   public duplicateForm: FormGroup;
   public modifyForm: FormGroup;
+  public backdropEnabled = false; //don't make visible ion-backdrop by default
+  // message management
+  messages: any[] = [];
+  subscription: Subscription;
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private router: Router,
     private firestoreParkingService: FirestoreParkingService,
-    public formBuilder: FormBuilder
+    private firestoreUserParkingService: FirestoreUserParkingService,
+    public formBuilder: FormBuilder,
+    private navigation: NavigationService,
+    private messageService: MessageService,
+    public globalEventsService: GlobalEventsService,
    ) {
       this.id = this.activatedRoute.snapshot.paramMap.get('id');
       this.duplicateForm = this.formBuilder.group({
@@ -38,9 +49,18 @@ export class ModifyParkPage implements OnInit {
         lat       : [ 0 ],
         long      : [ 0 ],
         zipCode   : [ '' ]
-    });
+      });
+      // subscrition to change backdropEnable
+      this.subscription = this.messageService.onMessage().subscribe(
+        (msg) => {
+          if ( msg.text === 'this.backdropEnabled = true;' )   //pa que nos vamos a andar con tonterias si esto es javaScript
+            eval( msg.text ); // must be 'this.backdropEnabled = true;'
+        }
+      );
+
 
   }  // end of constructor
+
 
    /**
     *
@@ -88,6 +108,7 @@ export class ModifyParkPage implements OnInit {
   */
   ngOnInit() {
     this.loadData();
+    this.messageService.sendMessage('Should backdropEnabled?');
   }
   /**
     Use  firestoreParkingService.getParking(id) that returns a Subscription embedded in a Promise
@@ -149,7 +170,7 @@ export class ModifyParkPage implements OnInit {
   /**
    *  Duplicatte the data in Firestore
    */
-  onSubmitDuplicate() {
+  async onSubmitDuplicate() {
     this.extractModifyForm(); // get modifications in this.parking 1st level collection fields
     const newRows = this.duplicateForm.controls.rows.value;
     const newCols = this.duplicateForm.controls.cols.value;
@@ -191,10 +212,10 @@ export class ModifyParkPage implements OnInit {
           };;
         }
       }
-      this.firestoreParkingService.create(
+      await this.firestoreParkingService.create(
         {
           idParking : newIdParking ,
-          id        : this.parking.id,
+          // id        :  '',   // must be set by create from Firestore
           name      : this.parking.name,
           address   : this.parking.address,
           lat       : this.parking.lat,
@@ -205,9 +226,20 @@ export class ModifyParkPage implements OnInit {
         }
         ) //:Promise<DocumentReference<unknown>>
         .then(
-          (p) => console.log('returned: '+p) ,                           //onfulfilled
+          (p) => { window.alert('Created Parking with id : '+p.id); this.newUPidParking = p.id; } , //onfulfilled
           (error) => console.log('error: '+error)                         //onrejected
         ).catch( (err) => console.log(err) );
+    //  // create relationship with user
+    //  await this.firestoreUserParkingService.create(
+    //     {
+    //       idUser    : JSON.parse(localStorage.getItem('user')).uid,
+    //       idParking : this.newUPidParking
+    //     }
+    //     ) //:Promise<DocumentReference<unknown>>
+    //     .then(
+    //       (p) =>  window.alert('Created relationship UserParking with id : '+p.id)  , //onfulfilled
+    //       (error) => console.log('error: '+error)                                    //onrejected
+    //     ).catch( (err) => console.log(err) );
     }
   }
 
@@ -220,4 +252,29 @@ export class ModifyParkPage implements OnInit {
     const sizeRelative = ( pplaceCol.size * (1 / this.placesRowsSizes[pndxRow]) ) * 100 ; // / pncols) ;
     return 'width: '+sizeRelative.toString()+'%;';
   }
-}
+
+  onBackButtonPressed(){
+    this.globalEventsService.publishSomeData();
+  }
+
+  getBackButtonText() {
+    const win = window as any;
+    const mode = win && win.Ionic && win.Ionic.mode;
+    // return mode === 'ios' ? 'Back' : 'Back';
+    return 'Back';  //no 'Back' text for the moment
+  }
+
+  // [defaultHref]="getBackRoute()"
+  getBackRoute(){
+    // use the navigationService to get the last route into backRoute
+    const backRoute = this.navigation.history[this.navigation.history.length - 2];
+    if ( !backRoute )  return '/' ; // only one route in history
+    else   return backRoute;
+  }
+
+  // Tasks to clean class ModifyParkPage
+  ngOnDestroy() {
+    this.subscription.unsubscribe();  // unsubscribe to ensure no memory leaks
+  }
+
+}  // end of class ModifyParkPage

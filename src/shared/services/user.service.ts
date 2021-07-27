@@ -5,7 +5,9 @@ import { Observable } from 'rxjs';
 import { IUser, IUserParking } from '../interfaces/interfaces';
 import { AuthenticationService } from './authentication.service';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class UserService {
 
   constructor ( private httpClient: HttpClient,

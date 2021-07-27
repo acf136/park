@@ -1,11 +1,14 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button (click)="onBackButtonPressed()" [text]="getBackButtonText()" [defaultHref]="getBackRoute()"></ion-back-button>
+    </ion-buttons>
     <ion-title>MODIFY Parking {{ parking?.name }} idParking = {{ parking?.idParking }} </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-
+  <span  *ngIf="backdropEnabled" class="backdrop">  <ion-backdrop style="opacity: 0.3;"></ion-backdrop> </span>
   <ion-grid  fixed="true" >       <!-- Fixed width of grid -->
     <ion-row *ngFor="let placeRow of placesRows">
       <ion-col  class="gridBorder place" *ngFor="let placeCol of placeRow;count as ncols" [size]="myPlaceColSize(ncols,placeCol)">
