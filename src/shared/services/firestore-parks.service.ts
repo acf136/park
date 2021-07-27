@@ -44,7 +44,7 @@ export class FirestoreParksService {
     });
   }
 
-  updateParkAddDateLeaveField(date: Date, id: string){
+  updateParkDateLeave(date: Date, id: string){
     this.ngFirestore.collection('Parks').doc(id).update({dateLeave: date});
     //   this.ngFirestore.collection('Parks').doc(id).update(park).then(
     //     () => console.log('park with id = '+ id +' updated') ,               //onfulfilled
