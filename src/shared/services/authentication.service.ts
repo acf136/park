@@ -110,6 +110,7 @@ export class AuthenticationService {
   async signOutSync() {   // Promise<void>
     await this.ngFireAuth.signOut();
     localStorage.removeItem('user');
+    this.router.navigate(['/home'])
   }
 
 }

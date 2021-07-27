@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="tabs/tab1" ></ion-back-button>
+      <ion-back-button [text]="getBackButtonText()" [defaultHref]="getBackRoute()"></ion-back-button>
     </ion-buttons>
     <ion-title>Charts</ion-title>
   </ion-toolbar>
@@ -18,7 +18,6 @@
       <canvas #doughnutCanvas></canvas>
     </ion-card-content>
   </ion-card>
-
 
   <!-- <ion-card class="welcome-card">
     <ion-card-header>

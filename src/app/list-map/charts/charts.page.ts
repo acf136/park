@@ -4,6 +4,7 @@ import { Chart, registerables } from 'chart.js';
 import { IParking } from 'src/shared/interfaces/interfaces';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { LoadingService } from 'src/shared/services/Loading.service';
+import { NavigationService } from 'src/shared/services/navigation.service';
 
 @Component({
   selector: 'app-charts',
@@ -30,7 +31,8 @@ export class ChartsPage implements OnInit {
 
   constructor(private firestoreParkingService: FirestoreParkingService,
     private router: Router,
-    private loadingService: LoadingService) { 
+    private loadingService: LoadingService,
+    private navigation: NavigationService) { 
     Chart.register(...registerables);
   }
 
@@ -51,6 +53,12 @@ export class ChartsPage implements OnInit {
         id: t.payload.doc.id,
         ...t.payload.doc.data() as IParking
       }));
+
+      // let pparkings = parkings as IParking[];
+      // pparkings.forEach(parking => {
+      //   let newParking = parking as IParking;
+      //   this.parkingList.push(newParking)
+      // });
 
       //Counts how many free / occupied places there are in total
       this.parkingList.forEach(parking => {
@@ -111,10 +119,31 @@ export class ChartsPage implements OnInit {
     });
   }
 
-  onClickBack(){
-    // return this.backRoute ;
-    //return '/tabs/tab1';
-    this.router.navigate(['/tabs/tab1']);
+  // onClickBack(){
+  //   // return this.backRoute ;
+  //   //return '/tabs/tab1';
+  //   this.router.navigate(['/tabs/tab1']);
+  // }
+
+  getBackButtonText() {
+    const win = window as any;
+    const mode = win && win.Ionic && win.Ionic.mode;
+    // return mode === 'ios' ? 'Back' : 'Back';
+    return 'Back';  //no 'Back' text for the moment
+  }
+
+  // [defaultHref]="getBackRoute()"
+  getBackRoute(){
+    // use the navigationService to get the last route into backRoute
+    const backRoute = this.navigation.history[this.navigation.history.length - 2];
+    if ( !backRoute ) {
+    //  console.log('getBackRoute /');
+      return '/' ; // only one route in history
+    }
+    else {
+      // console.log('getBackRoute '+backRoute);
+      return backRoute;
+    }
   }
 
 }
