@@ -20,6 +20,12 @@ export class LoginComponent implements OnInit {
   isLoading = false;
   form: any;
   myUserLogin: IUser ;
+  dateIni1 = new Date(1900,1,1);
+  dateIni2 = new Date(1900,1,1);
+  //  if ( !(this.dateIni1 < this.dateIni2) && !(this.dateIni1 > this.dateIni2) ) // entonces son iguales
+  //  esto se lee, si no es menor ni es mayor es igual
+  //  NO UTILIZAR this.dateIni1 != this.dateIni2
+  // también se puede utilizar this.dateIni1.toString() === this.dateIni2.toString()
 
   constructor(private router: Router,
     private formBuilder: FormBuilder,
@@ -65,8 +71,8 @@ export class LoginComponent implements OnInit {
         await this.authService.signIn(newEmail, newPassword).then(
           (resolve) => {                                                      //onfulfilled
             localStorage.setItem('user', JSON.stringify(resolve.user));
-            this.registerNotifEnvDisp();                           // register to push-notifications
-            console.log('registerNotifEnvDisp:after!' );
+            this.pushNotifService.registerNotifEnvDisp();                    // register to push-notifications
+            console.log('Login.component:submitForm: registerNotifEnvDisp:after!' );
             this.router.navigate(['tabs']);
           } ,
           (reject)  => window.alert('Reject authService.signIn :  ' +reject)   //onrejected
@@ -81,32 +87,6 @@ export class LoginComponent implements OnInit {
 
   public forgotPasswordClicked() {
     this.router.navigate(['/forgot-password']);
-  }
-
-  // register to push-notifications for envioDisponibilidad
-  async registerNotifEnvDisp() {
-    const idUser = JSON.parse(localStorage.getItem('user')).uid;
-    await this.firestoreUserService.getUserSync(idUser).then(
-      (puser)   => this.myUserLogin = puser as IUser,
-      (reject)  => {
-        console.log('registerNotifEnvDisp: reject = '+reject);
-        return;
-      }
-    );
-    if ( this.myUserLogin.envioDisponibilidad ) {
-      let registered = false;
-      console.log('this.myUserLogin.envioDisponibilidad: user.envioDisponibilidad is true');
-      await this.pushNotifService.register().then(   // Register with Apple / Google to receive push via APNS/FCM
-          (result) =>  registered = true ,
-          (err) => console.log('PushNotifService.register : error = ', err)
-        );
-      if ( registered )  {
-        this.pushNotifService.registration();
-        this.pushNotifService.registrationError();
-        this.pushNotifService.pushNotificationReceived();
-        this.pushNotifService.pushNotificationActionPerformed();
-      }
-    }
   }
 
   getBackButtonText() {

@@ -41,7 +41,7 @@ export class FirestoreNotifDisponibilidadService {
                                 if ( pnotifDisponibilidades.length <= 0 ) reject('pnotifDisponibilidades empty');
                               },
           err => { alert('getNotifDisponibilidades : subscribe => Error: ' + err); }       //2nd subscribe param
-          // () => console.log('NotifDisponibilidades = ', this.myNotifDisponibilidades)                                   //3rd subscribe param
+          // () => console.log('NotifDisponibilidades = ', this.myNotifDisponibilidades)   //3rd subscribe param
         );
 
     });
@@ -51,43 +51,9 @@ export class FirestoreNotifDisponibilidadService {
   async getNotifDisponibilidadOfUser(idUser: string): Promise<INotifDisponibilidad[]> {   //: Promise<INotifDisponibilidad[]>
     const response = await this.getNotifDisponibilidades();
     if ( response.length > 0 )
-      this.myNotifDisponibilidades = response.filter( (up) => up.idUser === idUser ); //discard if not idUser
+      this.myNotifDisponibilidades = response.filter( (nd) => nd.idUser === idUser ); //discard if not idUser
     return this.myNotifDisponibilidades;
   }
-
-  // Devuelve las notificaciones de disponibilidad del user (ATENCION: INICIALMENTE SOLO ES UNA)
-  async getNotifDisponibilidadWhereUser(pidUser: string): Promise<INotifDisponibilidad[]> {   //: Promise<INotifDisponibilidad[]>
-
-    db.collection('NotifDisponibilidad').where('idUser','==',pidUser).get().then(
-      (querySnapshot) => {
-        this.myNotifDisponibilidades = querySnapshot.docs.map(  (doc) => ( { id: doc.id,   ...doc.data() } ) );
-        console.log("Users with idUser =  ", pidUser);
-      }
-    );
-    return new Promise ( (resolve, reject) => {  //make to call with await
-      if ( this.myNotifDisponibilidades.length > 0 ) resolve ( this.myNotifDisponibilidades ) ;
-      else                                           reject('No NotifDisponibilidad with idUser = '+pidUser);
-    });
-
-  }
-
-  // Devuelve las notificaciones de disponibilidad del user (ATENCION: INICIALMENTE SOLO ES UNA)
-  async nggetNotifDisponibilidadWhereUser(pidUser: string): Promise<INotifDisponibilidad[]> {   //: Promise<INotifDisponibilidad[]>
-    const query = this.ngFirestore.collection('NotifDisponibilidad').ref.where('uid', '==', pidUser);
-    query.get().then(querySnapshot => {
-      if (querySnapshot.empty) {
-          console.log('no data found');
-      } else if (querySnapshot.size > 1) {
-          console.log('no unique data');
-      } else {
-          querySnapshot.forEach(documentSnapshot => {
-              this.selectedUser$ = this.afs.doc(documentSnapshot.ref);
-              // this.afs.doc(documentSnapshot.ref).valueChanges().subscribe(console.log);
-              });
-          }
-      });
-  }
-
 
   update(id, pNotifDisponibilidad: INotifDisponibilidad) {
     this.ngFirestore.collection('NotifDisponibilidad').doc(id).update(pNotifDisponibilidad).then(

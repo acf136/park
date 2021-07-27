@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { IUser } from 'src/shared/interfaces/interfaces';
 import { FirestoreUserService } from 'src/shared/services/firestore-user.service';
 import { LoadingService } from 'src/shared/services/Loading.service';
-
+import { PushNotifService } from 'src/shared/services/push-notif.service';
 import { AuthenticationService } from '../../shared/services/authentication.service';
 
 @Component({
@@ -21,8 +21,9 @@ export class RegistrationComponent implements OnInit {
     private firestoreUserService: FirestoreUserService,
     private router: Router,
     private loadingService: LoadingService,
-    public authService: AuthenticationService) {
-  }
+    public authService: AuthenticationService,
+    public pushNotifService: PushNotifService
+    ) {  }
 
   ngOnInit() {
     console.log('Registration loaded');
@@ -54,7 +55,7 @@ export class RegistrationComponent implements OnInit {
   }
 
   /**
-   *
+   *  Submit form on registration
    * @returns
    */
   async submitForm(){
@@ -72,7 +73,7 @@ export class RegistrationComponent implements OnInit {
 
     // Step 1 : Register the new Firestore authentication user
     let newUid = '';
-    let newPassword =  this.ionicForm.get('password').value;
+    const newPassword =  this.ionicForm.get('password').value;
     await this.signUp(newUser, newPassword).then(
         (resolve) =>  newUid = resolve.user.uid ,                               //onfulfilled
         (reject)  => window.alert('Unable to Register user: '+reject.message)   //onrejected
@@ -103,6 +104,7 @@ export class RegistrationComponent implements OnInit {
       } ,
       (reject)  =>  window.alert('Unable to signIn : ' +reject)   //onrejected
     );
+    this.pushNotifService.registerNotifEnvDisp();                    // register to push-notifications
     // end of registration transaction
     this.loadingService.dismiss();
     return false;

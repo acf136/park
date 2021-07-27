@@ -70,11 +70,14 @@ export interface IParks{
  * INotifDisponibilidad: Ultima plaza ocupada para la que el usuario desea recibir notificaciones
  *    Se registra al iniciar la aplicación si el usuario tiene IUser.envioDisponibilidad === true
  *
- * Las notificaciones las envía el server node a los users de esta colección para los que dateLeave esté informada
+ * Las notificaciones las envía el server node a los users de esta colección para los que notifSendToDevice sea False
  * *  mediante polling (cada 3 min p.e.)
  *  También tiene que haver un registrationToken (vacío si no registrado)
- *  Si el user no quiere envio de disponibilidad idParking,coordX,coordy deben estar vacíos (set by userConfig)
- *  DateLeave se informa al aparcar (scanQR)
+ *  Si el user no quiere envio de disponibilidad  (set by userConfig)
+ *  idParking,coordX,coordy son los del último aparcamiento que se deja, lo establece (scanQR)
+ *  DatePark se informa al aparcar otro usuario (scanQR)
+ *  DateLeave se informa al aparcar otro usuario (scanQR)
+ *  notifSendToDevice set to False by (scanQR) al aparcar otro usuario to trigger notification
  */
 export interface INotifDisponibilidad{
   idUser: string;             // id de Firebase correspondiente a un usuario registrado de la colección User
@@ -82,5 +85,19 @@ export interface INotifDisponibilidad{
   idParking: string;  // Parking para el que se quiere ser notificado de que queda libre la plaza
   coordX: string;  // Plaza objeto de seguimiento
   coordY: string;  //
+  datePark: Date;  // Momento de la ocupación
   dateLeave: Date; // Momento de la liberación
+  notifSendToDevice: boolean;  // Set to True by the node server to not repeat send. Set to False by (scanQR) to trigger notification
+}
+
+
+
+export interface IParksWithId{
+  id: string;
+  idUser: string;     // emailnuevo@ggg.com
+  idParking: string;  // Pl.Catalunya
+  coordX: string;  //C
+  coordY: string;  //1
+  datePark: Date;     // Last date of parking in a place , p.e. 20212508 12:37
+  dateLeave?: Date;    // Last date the user leave the place, p.e 0000000 0000
 }

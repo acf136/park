@@ -1,12 +1,48 @@
 import { Injectable } from '@angular/core';
 import { ActionPerformed, PushNotificationSchema, PushNotifications, Token } from '@capacitor/push-notifications';
+import { IUser } from '../interfaces/interfaces';
+import { FirestoreUserService } from './firestore-user.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PushNotifService {
+  myUserLogin: IUser ;
 
-  constructor() { }
+  constructor(
+    public firestoreUserService: FirestoreUserService
+  ) { }
+
+  // register to push-notifications for envioDisponibilidad
+  async registerNotifEnvDisp() {
+    const idUser = JSON.parse(localStorage.getItem('user')).uid;
+    await this.firestoreUserService.getUserSync(idUser).then(
+      (puser)   => this.myUserLogin = puser as IUser,
+      (reject)  => {
+        console.log('registerNotifEnvDisp: reject = '+reject);
+        return;
+      }
+    );
+    if ( this.myUserLogin.envioDisponibilidad ) {
+      let registered = false;
+      console.log('this.myUserLogin.envioDisponibilidad: user.envioDisponibilidad is true');
+      await this.register().then(   // Register with Apple / Google to receive push via APNS/FCM
+          (result) =>  registered = true ,
+          (err) => console.log('PushNotifService.register : error = ', err)
+        );
+      if ( registered )  {
+        this.registration();
+        this.registrationError();
+        this.pushNotificationReceived();
+        this.pushNotificationActionPerformed();
+      }
+    } else {     //this.myUserLogin.envioDisponibilidad = false
+      // Remove all the notifications from the notifications screen
+      this.removeAllDeliveredNotifications();   // without then process
+      // Remove all listeners
+      this.removeAllListeners(); // without then process
+    }
+  }
 
   async register(): Promise<void> {
     let permission = false;

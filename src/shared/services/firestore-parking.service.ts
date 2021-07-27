@@ -23,6 +23,39 @@ export class FirestoreParkingService {
     return this.ngFirestore.collection('Parking').doc(id).valueChanges();
   }
 
+  /**
+   * Dada un collection en Firestore con nombre pCollectionName
+   * y dado un pfieldName de la colección
+   * devuelve el id del último elemento de Firestore
+   * para una query con una condición where,
+   *  con una comparison, y un pvalue del mismo tipo que pfieldName
+   *
+   * @param pCollectionName : Name of the Collection in Firebase, p.e. 'Parking'
+   * @param pfieldName : Name of the field , p.e. 'idParking'
+   * @param pcomparison : p.e. '==', is of type WhereFilterOp
+   * @param pvalue      : p.e 7, can be any type
+   * @returns Promise<any>
+   */
+  async getCollectionElemIdSync(pCollectionName: string, pfieldName: string, pcomparison, pvalue: any): Promise<any> {
+    let selectedId ;
+    // const query = this.ngFirestore.collection('Parking').ref.where('idParking', '==', pidParking);
+    const query = this.ngFirestore.collection(pCollectionName).ref.where(pfieldName, pcomparison, pvalue);
+    await query.get().then(
+      (querySnapshot) => {
+        if ( !querySnapshot.empty && querySnapshot.size > 0 )
+        {
+          querySnapshot.forEach(
+            (documentSnapshot) => selectedId = documentSnapshot.id
+          );
+        }
+      }
+    );
+    // return this.ngFirestore.collection('Parking').doc(id).ref.id;
+    return  new Promise( (resolve, reject) => {  //make to call with await
+       resolve(selectedId);
+    });
+  }
+
   async getParkingPromise(pid): Promise<any> {
     return new Promise( (resolve, reject) => {  //make to call with await
       this.ngFirestore.collection('Parking').doc(pid).valueChanges().subscribe(

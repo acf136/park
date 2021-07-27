@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthenticationService } from 'src/shared/services/authentication.service';
+import { PushNotifService } from 'src/shared/services/push-notif.service';
 
 @Component({
   selector: 'app-home',
@@ -9,10 +10,16 @@ import { AuthenticationService } from 'src/shared/services/authentication.servic
 })
 export class HomePage implements OnInit{
 
-  constructor(private router: Router, public authService: AuthenticationService) {}
-  
+  constructor(
+    private router: Router,
+    public authService: AuthenticationService,
+    public pushNotifService: PushNotifService,
+    ) {}
+
   ngOnInit(): void {
     if (this.authService.isLoggedIn) {
+      this.pushNotifService.registerNotifEnvDisp();     // register to push-notifications
+      console.log('home.page.ts: isLoggedIn registerNotifEnvDisp: after!' );
       this.router.navigate(['/tabs']);
     }
   }

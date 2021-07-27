@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, QuerySnapshot } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import { IParks } from '../interfaces/interfaces';
+import { IParks, IParksWithId } from '../interfaces/interfaces';
 import * as firebase from 'firebase/app';
 
 @Injectable({
@@ -9,7 +9,8 @@ import * as firebase from 'firebase/app';
 })
 export class FirestoreParksService {
 
-  public myParks;
+  public myParks: IParks[] = [] ;
+  public initialDate = new Date(1900,1,1);  // establecemos una fecha inicial
 
   constructor(public ngFirestore: AngularFirestore) { }
 
@@ -61,6 +62,10 @@ export class FirestoreParksService {
     this.ngFirestore.collection('Parks').doc(id).update({ "datePark": date });
   }
 
+  updateParkNewDateLeaveField(id:string, date: Date){
+    this.ngFirestore.collection('Parks').doc(id).update({ "dateLeave": date });
+  }
+
   async getParksPromise(): Promise<any> {
     return new Promise( (resolve, reject) => {  //make to call with await
       this.ngFirestore.collection('Parks').valueChanges().subscribe(
@@ -73,4 +78,66 @@ export class FirestoreParksService {
     });  // new Promise
   }
 
-}
+  /**
+   *  Devuelve el aparcamiento del historial (IParks) donde está el usuario aparcado
+   *    o el ultimo aparcamiento donde se ha aparcado
+   *
+   * @param puid : id del usuario
+   * @returns  Si no ha aparcado todavía devuelve IParks con IParks.user === ''
+   */
+  async getPlazaDeUsuario(puid: string): Promise<IParks> {
+    let myAparcamiento: IParks = { idUser: '', idParking: '', coordX : '', coordY : '',
+                                   datePark : this.initialDate,  dateLeave : this.initialDate } ;
+    // Recorrer IParks (historial de aparcamientos) buscando uno con idUser = puid y datePark !== initialDate y dateLeave == initialDate
+    await this.getParksOfUser(puid);  // rellena this.myParks
+    let lastDateLeave = this.initialDate ;
+    let i = 0 ;
+    // Buscar en el historial IParks el dateLeave mayor o el dateLeave inicial(todavía aparcado)
+    for ( i = 0 ; i < this.myParks.length ; i++) {
+      if ( this.myParks[i].datePark === this.initialDate  ) continue ; // no debería haber!!
+      if ( this.myParks[i].dateLeave === this.initialDate ) {  // aparcado, hemos acabado
+        myAparcamiento = this.myParks[i];
+        break;
+      } else { // cogerlo si es posterior a la ultimo que hemos registrado en lasatDateLeave y seguir
+        if ( this.myParks[i].dateLeave > lastDateLeave ) {
+          lastDateLeave =  this.myParks[i].dateLeave;
+          myAparcamiento = this.myParks[i];
+        }
+      }
+    }
+    // devolver resultado : myAparcamiento está vacio si no se ha encontrado ninguna IParks en el historial
+    return new Promise( (resolve) => resolve(myAparcamiento) ) ;
+  }
+
+
+  /**
+   * Dada un collection en Firestore con nombre pCollectionName
+   * y dado un pfieldName de la colección
+   * devuelve el set de elementos de Firestore
+   * para una query con una condición where,
+   *  con una comparison, y un pvalue del mismo tipo que pfieldName
+   *
+   * @param pCollectionName : Name of the Collection in Firebase, p.e. 'Parking'
+   * @param pfieldName : Name of the field , p.e. 'idParking'
+   * @param pcomparison : p.e. '==', is of type WhereFilterOp
+   * @param pvalue      : p.e 7, can be any type
+   * @returns Promise<any>
+   */
+   async getCollectionElemsSync(pCollectionName: string, pfieldName: string, pcomparison, pvalue: any): Promise<any> {
+    let selectedSet: IParksWithId[] ;
+    // const query = this.ngFirestore.collection('Parks').ref.where('idUser', '==', pvalue);
+    const query = this.ngFirestore.collection(pCollectionName).ref.where(pfieldName, pcomparison, pvalue);
+    await query.get().then(
+      (querySnapshot) => {
+        if ( !querySnapshot.empty && querySnapshot.size > 0 )
+           selectedSet = querySnapshot.docs.map( (t) => ( { id: t.id,  ...t.data() as IParks } ) );
+      }
+    );
+    // return this.ngFirestore.collection('Parking').doc(id).ref.id;
+    return  new Promise( (resolve, reject) => {  //make to call with await
+       resolve(selectedSet);
+    });
+  }
+
+} // End of FirestoreParksService
+

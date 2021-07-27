@@ -4,6 +4,7 @@ import { IUser } from 'src/shared/interfaces/interfaces';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FirestoreUserService } from 'src/shared/services/firestore-user.service';
 import { NavigationService } from 'src/shared/services/navigation.service';
+import { PushNotifService } from 'src/shared/services/push-notif.service';
 
 @Component({
   selector: 'app-config',
@@ -20,7 +21,8 @@ export class ConfigPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private firestoreUserService: FirestoreUserService,
     public formBuilder: FormBuilder,
-    private navigation: NavigationService
+    private navigation: NavigationService,
+    public pushNotifService: PushNotifService
   ) {
       this.modifyForm = this.formBuilder.group({
         name      : [ '' ],
@@ -82,6 +84,7 @@ export class ConfigPage implements OnInit {
   onSubmitModify() {
     this.extractModifyForm(); // get modifications in this.user
     this.firestoreUserService.update(this.id, this.user);
+    this.pushNotifService.registerNotifEnvDisp();     // register to push-notifications
   }
 
   getBackButtonText() {

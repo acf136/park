@@ -63,6 +63,15 @@ export class ListParkComponent implements OnInit {
        (error) => console.log('ListParkComponent.loadData error : '+error)                     //onrejected
       );
 
+    let myIdP = ''; let myValue = 7;
+    await this.firestoreParkingService.getCollectionElemIdSync('Parking','idParking','==',myValue).then(
+      (resultId) =>  {
+        myIdP = resultId as string;
+        console.log('resultId = '+ resultId);
+      } ,
+      (err) => console.log(err)
+    );
+
   }  // end of loadData
 
   parkingList() {
