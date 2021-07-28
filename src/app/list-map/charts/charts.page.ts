@@ -41,6 +41,10 @@ export class ChartsPage implements OnInit {
   }
 
   ngOnInit() {
+    //Charts creation needs to be in ionViewDidEnter
+  }
+
+  ionViewDidEnter() {
     this.loadData().subscribe(res => {
       this.manageData();
       this.createDoughnutChart();
