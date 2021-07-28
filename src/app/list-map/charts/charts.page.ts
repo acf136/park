@@ -1,6 +1,8 @@
 import { Component, ViewChild, OnInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
+import { Observable } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { IParking } from 'src/shared/interfaces/interfaces';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { LoadingService } from 'src/shared/services/Loading.service';
@@ -13,13 +15,11 @@ import { NavigationService } from 'src/shared/services/navigation.service';
 })
 export class ChartsPage implements OnInit {
 
-  //@ViewChild('barCanvas') private barCanvas: ElementRef;
+  @ViewChild('barCanvas') private barCanvas: ElementRef;
   @ViewChild('doughnutCanvas') private doughnutCanvas: ElementRef;
-  //@ViewChild('lineCanvas') private lineCanvas: ElementRef;
 
-  //barChart: any;
+  barChart: any;
   doughnutChart: any;
-  //lineChart: any;
 
   bars: any;
   colorArray: any;
@@ -29,6 +29,10 @@ export class ChartsPage implements OnInit {
   public occupiedPlaces: number = 0;
   public freePlaces: number = 0;
 
+  public numberFreePlacesData: number[] = [];
+  public numberOccupiedPlacesData: number[] = [];
+  public ParkingNamesLabels: string[] = [];
+
   constructor(private firestoreParkingService: FirestoreParkingService,
     private router: Router,
     private loadingService: LoadingService,
@@ -37,63 +41,87 @@ export class ChartsPage implements OnInit {
   }
 
   ngOnInit() {
-    this.loadData();
-  }
-
-  //Counts how many occupied and free places are in all different parkings
-  loadData(){
-    //init spinner
-    this.loadingService.present();
-
-    this.firestoreParkingService.getParkings().subscribe((parkings) => {
-      //stop spinner
-      this.loadingService.dismiss();
-
-      this.parkingList = parkings.map((t) => ({
-        id: t.payload.doc.id,
-        ...t.payload.doc.data() as IParking
-      }));
-
-      // let pparkings = parkings as IParking[];
-      // pparkings.forEach(parking => {
-      //   let newParking = parking as IParking;
-      //   this.parkingList.push(newParking)
-      // });
-
-      //Counts how many free / occupied places there are in total
-      this.parkingList.forEach(parking => {
-        this.totalPlaces += parking.places.length;
-        parking.places.forEach(place => {
-          if (place.occupied) {
-            this.occupiedPlaces += 1;
-          }else{
-            this.freePlaces += 1;
-          }
-        });
-      });
-
+    this.loadData().subscribe(res => {
+      this.manageData();
       this.createDoughnutChart();
-    }, (err) => {
-      //stop spinner
-      this.loadingService.dismiss();
-      console.error(err);
+      this.createBarChart();
+    }, error => { 
+      alert("Error getting all parkings");
     });
   }
 
-  // countPlaces() {
-  //   this.parkingList.forEach(parking => {
-  //     this.totalPlaces += parking.places.length;
-  //     parking.places.forEach(place => {
-  //       if (place.occupied) {
-  //         this.occupiedPlaces += 1;
-  //       }else{
-  //         this.freePlaces += 1;
-  //       }
-  //     });
-  //   });
+  manageData(){
+    let eachParkingFreePlaces: number = 0;
+    let eachParkingOccupiedPlaces: number = 0;
+      
+    //Gets data to display on charts
+    this.parkingList.forEach(parking => {
+      this.ParkingNamesLabels.push(parking.name);
+      this.totalPlaces += parking.places.length;
+      parking.places.forEach(place => {
+        if (place.occupied) {
+          this.occupiedPlaces += 1;
+          eachParkingOccupiedPlaces += 1;
+        }else{
+          this.freePlaces += 1;
+          eachParkingFreePlaces += 1;
+        }
+      });
+      this.numberFreePlacesData.push(eachParkingFreePlaces);
+      this.numberOccupiedPlacesData.push(eachParkingOccupiedPlaces);
+      eachParkingFreePlaces = 0;
+      eachParkingOccupiedPlaces = 0;
+    });
+  }
 
-  //   this.createDoughnutChart();
-  // }
+  //Counts how many occupied and free places are in all different parkings
+  loadData(): Observable<boolean> {
+    return new Observable(observer => {
+      //init spinner
+      this.loadingService.present();
+
+      this.firestoreParkingService.getParkings().subscribe( (pparkings) =>  {
+        //stop spinner
+        this.loadingService.dismiss();
+
+        this.parkingList = pparkings.map( (t) => ({                           //1st subscribe param
+          id: t.payload.doc.id,   ...t.payload.doc.data() as IParking
+        }) );
+
+        observer.next(true);
+        observer.complete();
+      }, (err) => {
+        //stop spinner
+        this.loadingService.dismiss();
+        observer.error(err);
+        observer.complete();
+        console.log("Error getting document:", err);
+      });
+    });
+  }
+
+  createBarChart() {
+    this.barChart = new Chart(this.barCanvas.nativeElement, {
+      type: 'bar',
+      data: {
+        labels: this.ParkingNamesLabels,
+        datasets: [{
+          label: 'Number of free Places',
+          data: this.numberFreePlacesData,
+          backgroundColor: 'rgb(0,128,0)',
+          borderColor: 'rgb(0,128,0)',
+          borderWidth: 1
+        },
+        {
+          label: 'Number of occupied Places',
+          data: this.numberOccupiedPlacesData,
+          backgroundColor: 'rgb(255,0,0)',
+          borderColor: 'rgb(255,0,0)',
+          borderWidth: 1
+        }]
+      }
+    });
+  }
 
   /**
    * Creates the Doughnut chart displaying Occupied / free places
@@ -118,12 +146,6 @@ export class ChartsPage implements OnInit {
       }
     });
   }
-
-  // onClickBack(){
-  //   // return this.backRoute ;
-  //   //return '/tabs/tab1';
-  //   this.router.navigate(['/tabs/tab1']);
-  // }
 
   getBackButtonText() {
     const win = window as any;
