@@ -29,7 +29,8 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { environment } from '../environments/environment';
 import { AuthenticationService } from 'src/shared/services/authentication.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
-
+import { Contacts } from '@ionic-native/contacts/ngx';
+import { SocialSharing } from '@ionic-native/social-sharing/ngx';
 
 @NgModule({
   declarations: [AppComponent,
@@ -61,6 +62,8 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
     Geolocation,
     NativeGeocoder,
     BarcodeScanner,
+    Contacts,
+    SocialSharing,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
 })

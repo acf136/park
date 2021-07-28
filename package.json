@@ -28,11 +28,14 @@
     "@capacitor/keyboard": "1.0.1",
     "@capacitor/status-bar": "1.0.1",
     "@ionic-native/barcode-scanner": "^5.34.0",
+    "@ionic-native/contacts": "^5.34.0",
     "@ionic-native/core": "^5.1.0",
     "@ionic-native/geolocation": "^5.34.0",
     "@ionic-native/native-geocoder": "^5.34.0",
+    "@ionic-native/social-sharing": "^5.34.0",
     "@ionic/angular": "^5.5.2",
     "@ionic/pwa-elements": "^3.0.2",
+    "cordova-plugin-contacts": "^3.0.1",
     "cordova-plugin-geolocation": "^4.1.0",
     "cordova-plugin-nativegeocoder": "^3.4.1",
     "firebase": "^8.6.8",
@@ -61,6 +64,7 @@
     "@typescript-eslint/eslint-plugin": "4.16.1",
     "@typescript-eslint/parser": "4.16.1",
     "angular-in-memory-web-api": "^0.11.0",
+    "cordova-plugin-x-socialsharing": "^6.0.3",
     "eslint": "^7.6.0",
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-jsdoc": "30.7.6",
@@ -80,7 +84,8 @@
   "description": "An Ionic project",
   "cordova": {
     "plugins": {
-      "phonegap-plugin-barcodescanner": {}
+      "phonegap-plugin-barcodescanner": {},
+      "cordova-plugin-x-socialsharing": {}
     }
   }
 }
