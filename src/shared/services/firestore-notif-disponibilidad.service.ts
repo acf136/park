@@ -1,11 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { INotifDisponibilidad } from '../interfaces/interfaces';
-
-const firebase = require('firebase');
-// Required for side-effects
-require('firebase/firestore');
-var db = firebase.firestore();
+import { INotifDisponibilidad, INotifDisponibilidadWithId } from '../interfaces/interfaces';
+import * as firebase from 'firebase/app';
 
 @Injectable({
   providedIn: 'root'
@@ -55,6 +51,25 @@ export class FirestoreNotifDisponibilidadService {
     return this.myNotifDisponibilidades;
   }
 
+  updateNotifNewDateParkField(id:string, date: Date){
+    this.ngFirestore.collection('NotifDisponibilidad').doc(id).update({ "datePark": date });
+  }
+
+  updateNotifNewDateLeaveField(id:string, date: Date){
+    this.ngFirestore.collection('NotifDisponibilidad').doc(id).update({ "dateLeave": date });
+  }
+
+  updateNotifField(pCollectionName: string, pfieldName: string, id: string,  value: any){
+    // this.ngFirestore.collection('NotifDisponibilidad').doc(id).update({ "dateLeave": value });
+    let varFieldName = '"'+pfieldName+'"';
+    this.ngFirestore.collection(pCollectionName).doc(id).update( { varFieldName : value } ).then(
+      resolve => console.log('updateNotifField: resolve='+resolve),
+      err => console.log('updateNotifField: err='+err)
+    );
+
+  }
+
+
   update(id, pNotifDisponibilidad: INotifDisponibilidad) {
     this.ngFirestore.collection('NotifDisponibilidad').doc(id).update(pNotifDisponibilidad).then(
       () => console.log('NotifDisponibilidad with id = '+ id +' updated') ,            //onfulfilled
@@ -68,6 +83,35 @@ export class FirestoreNotifDisponibilidadService {
       () => console.log('NotifDisponibilidad with id = '+ id +' REJECTED to delete')   //onrejected
     );
   }
+
+    /**
+   * Dada un collection en Firestore con nombre pCollectionName
+   * y dado un pfieldName de la colección
+   * devuelve el set de elementos de Firestore
+   * para una query con una condición where,
+   *  con una comparison, y un pvalue del mismo tipo que pfieldName
+   *
+   * @param pCollectionName : Name of the Collection in Firebase, p.e. 'NotifDisponibilidad'
+   * @param pfieldName : Name of the field , p.e. 'idParking'
+   * @param pcomparison : p.e. '==', is of type WhereFilterOp
+   * @param pvalue      : p.e 'FUhMenvk1or7N4wnx6xM', can be any type
+   * @returns Promise<any>
+   */
+     async getCollectionNotifElemsSync(pCollectionName: string, pfieldName: string, pcomparison, pvalue: any): Promise<any> {
+      let selectedSet: INotifDisponibilidadWithId[] ;
+      // const query = this.ngFirestore.collection('NotifDisponibilidad').ref.where('idParking', '==', pvalue);
+      const query = this.ngFirestore.collection(pCollectionName).ref.where(pfieldName, pcomparison, pvalue);
+      await query.get().then(
+        (querySnapshot) => {
+          if ( !querySnapshot.empty && querySnapshot.size > 0 )
+             selectedSet = querySnapshot.docs.map( (t) => ( { id: t.id,  ...t.data() as any } ) );
+        }
+      );
+      // return this.ngFirestore.collection('Parking').doc(id).ref.id;
+      return  new Promise( (resolve, reject) => {  //make to call with await
+         resolve(selectedSet);
+      });
+    }
 
 } // export class FirestoreNotifDisponibilidadService
 

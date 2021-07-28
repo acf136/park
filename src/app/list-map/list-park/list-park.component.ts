@@ -67,7 +67,7 @@ export class ListParkComponent implements OnInit {
     await this.firestoreParkingService.getCollectionElemIdSync('Parking','idParking','==',myValue).then(
       (resultId) =>  {
         myIdP = resultId as string;
-        console.log('resultId = '+ resultId);
+        // console.log('resultId = '+ resultId);
       } ,
       (err) => console.log(err)
     );

@@ -97,14 +97,16 @@ export class RegistrationComponent implements OnInit {
     );
     if ( !userSet ) { this.loadingService.dismiss();  return false; }
     // Step 3: sig in with the new user and set the localstorage
+    let signInComplete = false;
     await this.authService.signIn(newUser.email, newPassword).then(
       (resolve) => {                                                      //onfulfilled
         localStorage.setItem('user', JSON.stringify(resolve.user));
+        signInComplete = true;
         this.router.navigate(['list-map/Map']);
       } ,
       (reject)  =>  window.alert('Unable to signIn : ' +reject)   //onrejected
     );
-    this.pushNotifService.registerNotifEnvDisp();                    // register to push-notifications
+    if ( signInComplete ) this.pushNotifService.registerNotifEnvDisp();                    // register to push-notifications
     // end of registration transaction
     this.loadingService.dismiss();
     return false;

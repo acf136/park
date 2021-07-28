@@ -45,8 +45,8 @@ export class FirestoreParksService {
     });
   }
 
-  updateParkDateLeave(date: Date, id: string){
-    this.ngFirestore.collection('Parks').doc(id).update({dateLeave: date});
+  updateParksDateLeave(date: Date, id: string){
+    this.ngFirestore.collection('Parks').doc(id).update( {dateLeave: date} );
     //   this.ngFirestore.collection('Parks').doc(id).update(park).then(
     //     () => console.log('park with id = '+ id +' updated') ,               //onfulfilled
     //     (err) => console.log('Parking with id = '+ id +' REJECTED to update')   //onrejected
@@ -85,30 +85,38 @@ export class FirestoreParksService {
    * @param puid : id del usuario
    * @returns  Si no ha aparcado todavía devuelve IParks con IParks.user === ''
    */
-  async getPlazaDeUsuario(puid: string): Promise<IParks> {
+  async getPlazaDeUsuario(puid: string): Promise<any> {
     let myAparcamiento: IParks = { idUser: '', idParking: '', coordX : '', coordY : '',
                                    datePark : this.initialDate,  dateLeave : this.initialDate } ;
+    let myIdAparcamiento = '';
+    // await this.getParksOfUser(puid);  // rellena this.myParks
+
+    let myIParks: IParksWithId[] = [] ; const myValue = puid;
+    await this.getCollectionElemsSync('Parks','idUser','==',myValue).then(
+      (resultSet) =>  {
+        if ( resultSet?.length > 0 )  myIParks = resultSet;
+        // myIParks.forEach( e => console.log('myIParks id (idUser,idParking) = '+ e.id+' '+e.idUser+',' + e.idParking) );
+      } ,
+      (err) => console.log(err)
+    );
     // Recorrer IParks (historial de aparcamientos) buscando uno con idUser = puid y datePark !== initialDate y dateLeave == initialDate
-    await this.getParksOfUser(puid);  // rellena this.myParks
-    let lastDateLeave = this.initialDate ;
+    let lastDateLeave = this.initialDate;
     let i = 0 ;
     // Buscar en el historial IParks el dateLeave mayor o el dateLeave inicial(todavía aparcado)
-    for ( i = 0 ; i < this.myParks.length ; i++) {
-      if ( this.myParks[i].datePark === this.initialDate  ) continue ; // no debería haber!!
-      if ( this.myParks[i].dateLeave === this.initialDate ) {  // aparcado, hemos acabado
-        myAparcamiento = this.myParks[i];
+    for ( i = 0 ; i < myIParks.length ; i++) {
+      if ( myIParks[i].dateLeave < myIParks[i].datePark ) {  // aparcado, hemos acabado
+        myAparcamiento = myIParks[i]; myIdAparcamiento = myIParks[i].id;
         break;
       } else { // cogerlo si es posterior a la ultimo que hemos registrado en lasatDateLeave y seguir
-        if ( this.myParks[i].dateLeave > lastDateLeave ) {
-          lastDateLeave =  this.myParks[i].dateLeave;
-          myAparcamiento = this.myParks[i];
+        if ( myIParks[i].dateLeave > lastDateLeave ) {
+          lastDateLeave =  myIParks[i].dateLeave;
+          myAparcamiento = myIParks[i]; myIdAparcamiento = myIParks[i].id;
         }
       }
     }
     // devolver resultado : myAparcamiento está vacio si no se ha encontrado ninguna IParks en el historial
-    return new Promise( (resolve) => resolve(myAparcamiento) ) ;
+    return new Promise( (resolve) => resolve( { id: myIdAparcamiento, aparcamiento: myAparcamiento} ) ) ;
   }
-
 
   /**
    * Dada un collection en Firestore con nombre pCollectionName
@@ -130,7 +138,7 @@ export class FirestoreParksService {
     await query.get().then(
       (querySnapshot) => {
         if ( !querySnapshot.empty && querySnapshot.size > 0 )
-           selectedSet = querySnapshot.docs.map( (t) => ( { id: t.id,  ...t.data() as IParks } ) );
+           selectedSet = querySnapshot.docs.map( (t) => ( { id: t.id,  ...t.data() as any } ) );
       }
     );
     // return this.ngFirestore.collection('Parking').doc(id).ref.id;

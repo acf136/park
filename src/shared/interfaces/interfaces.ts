@@ -90,14 +90,24 @@ export interface INotifDisponibilidad{
   notifSendToDevice: boolean;  // Set to True by the node server to not repeat send. Set to False by (scanQR) to trigger notification
 }
 
-
-
 export interface IParksWithId{
-  id: string;
+  id: string;    //id of Firebase
   idUser: string;     // emailnuevo@ggg.com
   idParking: string;  // Pl.Catalunya
   coordX: string;  //C
   coordY: string;  //1
   datePark: Date;     // Last date of parking in a place , p.e. 20212508 12:37
   dateLeave?: Date;    // Last date the user leave the place, p.e 0000000 0000
+}
+
+export interface INotifDisponibilidadWithId{
+  id: string;   // id of Firebase
+  idUser: string;             // id de Firebase correspondiente a un usuario registrado de la colección User
+  registrationToken: string;  // Token recibido en el registro  . . .PushNotifications.addListener('registration', (token:Token)
+  idParking: string;  // Parking para el que se quiere ser notificado de que queda libre la plaza
+  coordX: string;  // Plaza objeto de seguimiento
+  coordY: string;  //
+  datePark: Date;  // Momento de la ocupación
+  dateLeave: Date; // Momento de la liberación
+  notifSendToDevice: boolean;  // Set to True by the node server to not repeat send. Set to False by (scanQR) to trigger notification
 }
