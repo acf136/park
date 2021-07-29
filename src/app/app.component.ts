@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SocialSharing } from '@ionic-native/social-sharing/ngx';
 import { AuthenticationService } from 'src/shared/services/authentication.service';
 import { NavigationService } from 'src/shared/services/navigation.service';
 
@@ -17,6 +18,11 @@ export class AppComponent {
   public labels = ['List-park', 'Map-park' ];
   constructor(
     public authService: AuthenticationService,
-    private navigation: NavigationService
+    private navigation: NavigationService,
+    private socialSharing: SocialSharing,
     ) {}
+
+    shareButtonClicked(){
+      this.socialSharing.share("Hey! Try the app Park, It's great!", 'App Park', null);
+    }
 }
