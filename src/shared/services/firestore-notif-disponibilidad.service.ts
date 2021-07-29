@@ -51,12 +51,18 @@ export class FirestoreNotifDisponibilidadService {
     return this.myNotifDisponibilidades;
   }
 
-  updateNotifNewDateParkField(id:string, date: Date){
-    this.ngFirestore.collection('NotifDisponibilidad').doc(id).update({ "datePark": date });
+  updateNotifNewDateParkField(pid:string, pdate: Date){
+    this.ngFirestore.collection('NotifDisponibilidad').doc(pid).update({ "datePark": pdate }).then(
+      (resolve) => console.log('updateNotifNewDateParkField  id= '+pid+ 'updated'),
+      (reject) => console.log('updateNotifNewDateParkField err = '+reject)
+    );
   }
 
-  updateNotifNewDateLeaveField(id:string, date: Date){
-    this.ngFirestore.collection('NotifDisponibilidad').doc(id).update({ "dateLeave": date });
+  updateNotifNewDateLeaveField(pid:string, pdate: Date){
+    this.ngFirestore.collection('NotifDisponibilidad').doc(pid).update({ "dateLeave": pdate }).then(
+      (resolve) => console.log('updateNotifNewDateLeaveField  id= '+pid+ ' updated'),
+      (reject) => console.log('updateNotifNewDateLeaveField err = '+reject)
+    );
   }
 
   updateNotifField(pCollectionName: string, pfieldName: string, id: string,  value: any){

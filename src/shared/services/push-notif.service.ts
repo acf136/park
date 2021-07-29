@@ -29,7 +29,7 @@ export class PushNotifService {
     this.removeAllListeners(); // without then process
   }
 
-  // register to push-notifications
+  // register to notifDisponibilidad push-notifications
   async registerPushNotif(): Promise<boolean> {
     // begin: register push-notif
     let registered = false;
@@ -39,10 +39,10 @@ export class PushNotifService {
         (err) => console.log('PushNotifService.register : error = ', err)
       );
     if ( registered )  {
-      this.registration();
-      this.registrationError();
-      this.pushNotificationReceived();
-      this.pushNotificationActionPerformed();
+      this.addLregistration();
+      this.addLregistrationError();
+      this.addLpushNotificationReceived();
+      this.addLpushNotificationActionPerformed();
     }
     return new Promise( (resolve) => resolve(registered) ) ;
   } // end : register push-notif
@@ -61,8 +61,8 @@ export class PushNotifService {
       let registered = false;
       await this.registerPushNotif().then( (result) => registered = result );
       if ( !registered ) {  // to have a token for push-notifications
-        window.alert('Unble to register to push-notifications');
-        return ;
+        window.alert('Unable to register to push-notifications');
+        // return ;
       }
       // Buscar aparcamiento del historial (IParks) donde está el usuario aparcado
       //     o el ultimo aparcamiento donde se ha aparcado
@@ -85,24 +85,34 @@ export class PushNotifService {
         idParking: '', // Ultima plaza que ocupó el usuario
         coordX: '',  //
         coordY: '',
-        datePark: null,
-        dateLeave: null,
+        datePark: this.initialDate,
+        dateLeave: this.initialDate,
         notifSendToDevice: true
       } ;
-      // si NO Ha aparcado nunca O user está aparcado entonces
-      if ( this.lastParkingPlaceOfUser.idUser === ''  ||
-        this.lastParkingPlaceOfUser.dateLeave < this.lastParkingPlaceOfUser.datePark ) {
-        //  poner NotifDisponibilidad vacio <= dejar a inicial
-
-      } else {  // sino (Ha aparcado una vez y NO está aparcado)
-        //  poner NotifDisponibilidad con plaza
-        if ( myNotifs.length > 0 ) { // actualizar la plaza con la que ya existía
-          newNotif.idParking = myNotifs[0].idParking ;
-          newNotif.coordY = myNotifs[0].coordX ;
-          newNotif.coordY = myNotifs[0].coordY ;
+      // casos en que NO hay que actualizar la NotifDisponibilidad
+      // 1- si NO Ha aparcado nunca
+      if ( this.lastParkingPlaceOfUser.idUser === '' ) { // NO Ha aparcado nunca
+        // no hacer nada
+      } else {                                // Ha aparcado una vez por lo menos
+        newNotif.idParking = this.lastParkingPlaceOfUser.idParking ;
+        newNotif.coordX = this.lastParkingPlaceOfUser.coordX ;
+        newNotif.coordY = this.lastParkingPlaceOfUser.coordY ;
+        newNotif.datePark = this.lastParkingPlaceOfUser.datePark;
+        // Si ha dejado la plaza
+        if ( this.lastParkingPlaceOfUser.dateLeave > this.lastParkingPlaceOfUser.datePark ) {
+          newNotif.dateLeave = this.lastParkingPlaceOfUser.dateLeave;
           newNotif.notifSendToDevice = false;   // para que el node server envíe la notif
-        } else {
-          // La plaza la actualizará scanQR al dejar la plaza este usuario
+        } else { // no ha dejado la plaza
+          // conservar la plaza que tenía para que le notifiquen
+          if ( myNotifs.length > 0 ) { // debe ser 0  o  1
+            newNotif.idParking = myNotifs[0].idParking ;
+            newNotif.coordX= myNotifs[0].coordX ;
+            newNotif.coordY = myNotifs[0].coordY ;
+            newNotif.datePark = myNotifs[0].datePark;
+            newNotif.dateLeave = myNotifs[0].dateLeave;
+            newNotif.notifSendToDevice = myNotifs[0].notifSendToDevice;   // conservamos estado
+          }
+          // La plaza y estado de NotifDisponibilidad la cambiará scanQR al dejar la plaza actual este usuario
         }
       } // fsi
       // Actualizar
@@ -110,11 +120,11 @@ export class PushNotifService {
       // Crear
       else this.firestoreNotifDisponibilidadService.create(newNotif) ;
 
-
     } else this.unregisterPushNotif();    //this.myUserLogin.envioDisponibilidad = false
 
   }
 
+  // Registration with a token received from FCM = Firebase Cloud Messaging
   async register(): Promise<any> {
     let permission = false;
     // iOS will prompt user and return if they granted permission or not || // Android will just grant without prompting
@@ -129,8 +139,8 @@ export class PushNotifService {
     else return new Promise( resolve => resolve(false) );
   }
 
-  // Registration with a token received from FCM
-  registration() {
+  // add Listener registration with a token received from FCM = Firebase Cloud Messaging
+  addLregistration() {
     PushNotifications.addListener('registration',
        (token: Token) => {
         localStorage.setItem('tokenPushNotifications', JSON.stringify(token.value));
@@ -139,21 +149,10 @@ export class PushNotifService {
          // The token should be in INotifDisponibilidad.registrationToken set on registration process
        }
      );
-     // Buscar una NotifDisponibilidad anterior de este user (puede existir de otro register de notifDisponibilidad)
-     // Si no existe crearla
-     // Buscar la última plaza ocupada por el user
-     // Si no ha aparcado todavía poner notifSendToDevice a true y salir
-     // Si el user está aparcado se le enviarán notificaciones cuando la ocupe y la deje otro usuario en scanQR,
-     //    poner notifSendToDevice a true y salir
-
-     // Si coinciden las Parking+plaza del user entonces poner notifSendToDevice a true
-     // Si no coinciden actualizar la plaza de notifSendToDevice y poner notifSendToDevice a true
-     // Crear una NotifDisponibilidad para este usuario que se rellenará con la plaza y fechas cuando la ocupe/abandone otro user
-
   }
 
   // Registration error handler
-  registrationError() {
+  addLregistrationError() {
     PushNotifications.addListener('registrationError',
         (error: any) => {
           window.alert('Error on registration: ' + JSON.stringify(error));
@@ -161,8 +160,9 @@ export class PushNotifService {
      );
   }
 
-  // pushNotificationReceived handler to show the notification payload if the app is open on our device
-  pushNotificationReceived() {
+  // add Listener pushNotificationReceived handler
+  //   called to show the notification payload if the app is open on our device
+  addLpushNotificationReceived() {
     PushNotifications.addListener('pushNotificationReceived',
       (notification: PushNotificationSchema) => {
         window.alert('Push received: ' + JSON.stringify(notification));
@@ -170,8 +170,9 @@ export class PushNotifService {
     );
   }
 
-  // Method called when tapping on a notification on status bar and the app is not in foreground
-  pushNotificationActionPerformed(){
+  // add Listener pushNotificationActionPerformed
+  //  cCalled when tapping on a notification on status bar on the device  and the app is not in foreground
+  addLpushNotificationActionPerformed(){
     PushNotifications.addListener('pushNotificationActionPerformed',
       (notification: ActionPerformed) => {
         window.alert('Push action performed: ' + JSON.stringify(notification));

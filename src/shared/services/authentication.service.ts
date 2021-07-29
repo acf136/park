@@ -105,16 +105,19 @@ export class AuthenticationService {
    * Log out current user and modify localstorage accordingly
    */
   async signOut() {
-    return this.ngFireAuth.signOut().then( (resolve) => localStorage.removeItem('user') );
+    // return this.ngFireAuth.signOut().then( (resolve) => localStorage.removeItem('user') );
+    return this.ngFireAuth.signOut();
   }
 
   async signOutSync() {   // Promise<void>
     await this.signOut();
+    localStorage.removeItem('user');
     // Remove all the notifications from the notifications screen
     this.pushNotifService.removeAllDeliveredNotifications();   // without then process
     // Remove all listeners
     this.pushNotifService.removeAllListeners(); // without then process
     localStorage.removeItem('tokenPushNotifications');
+    this.router.navigate(['/home']);
   }
 
   // signOut for administrator called in auth.guard.ts
