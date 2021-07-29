@@ -74,6 +74,11 @@ export class FirestoreUserService {
     );
   }
 
+  async updateSync(id, puser: IUser) {
+    return this.ngFirestore.collection('User').doc(id).update(puser);
+  }
+
+
   delete(id: string) {
     this.ngFirestore.doc('User/' + id).delete().then(
        () => console.log('User with id = '+ id +' deleted') ,            //onfulfilled

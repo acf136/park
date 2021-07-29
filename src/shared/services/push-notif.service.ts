@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { ActionPerformed, PushNotificationSchema, PushNotifications, Token } from '@capacitor/push-notifications';
+import { AlertController } from '@ionic/angular';
 import { INotifDisponibilidad, INotifDisponibilidadWithId, IParksWithId, IUser } from '../interfaces/interfaces';
 import { FirestoreNotifDisponibilidadService } from './firestore-notif-disponibilidad.service';
 import { FirestoreParksService } from './firestore-parks.service';
@@ -18,7 +20,9 @@ export class PushNotifService {
   constructor(
     public firestoreUserService: FirestoreUserService,
     public firestoreParksService: FirestoreParksService,
-    public firestoreNotifDisponibilidadService: FirestoreNotifDisponibilidadService
+    public firestoreNotifDisponibilidadService: FirestoreNotifDisponibilidadService,
+    private alertController: AlertController,
+    public router: Router
   ) { }
 
   // unregister to push-notifications
@@ -62,8 +66,9 @@ export class PushNotifService {
       await this.registerPushNotif().then( (result) => registered = result );
       if ( !registered ) {  // to have a token for push-notifications
         window.alert('Unable to register to push-notifications');
-        // return ;
+        return ;
       }
+      // alert('registerNotifEnvDisp: YES registerPushNotif');
       // Buscar aparcamiento del historial (IParks) donde está el usuario aparcado
       //     o el ultimo aparcamiento donde se ha aparcado
       await this.firestoreParksService.getPlazaDeUsuario(idUser).then(
@@ -120,7 +125,10 @@ export class PushNotifService {
       // Crear
       else this.firestoreNotifDisponibilidadService.create(newNotif) ;
 
-    } else this.unregisterPushNotif();    //this.myUserLogin.envioDisponibilidad = false
+    } else {
+      // alert('registerNotifEnvDisp:unregisterPushNotif');
+      this.unregisterPushNotif();    //this.myUserLogin.envioDisponibilidad = false
+    }
 
   }
 
@@ -165,20 +173,70 @@ export class PushNotifService {
   addLpushNotificationReceived() {
     PushNotifications.addListener('pushNotificationReceived',
       (notification: PushNotificationSchema) => {
-        window.alert('Push received: ' + JSON.stringify(notification));
+        // window.alert('Push received: ' + JSON.stringify(notification));
+        let myTitle = notification.title ;
+        let myBody = notification?.body ;
+        const myData = notification?.data ;
+        let respButton = '';
+        this.presentAlertNotifOk(myTitle,myBody, myData ).then( resp => respButton = resp as string );
       }
     );
   }
 
   // add Listener pushNotificationActionPerformed
-  //  cCalled when tapping on a notification on status bar on the device  and the app is not in foreground
+  //  Called when tapping on a notification on status bar on the device  and the app is not in foreground
   addLpushNotificationActionPerformed(){
     PushNotifications.addListener('pushNotificationActionPerformed',
       (notification: ActionPerformed) => {
-        window.alert('Push action performed: ' + JSON.stringify(notification));
+        // window.alert('Push action performed: ' + JSON.stringify(notification));
+        let myData = notification.notification.data;
+        let myTitle = 'Plaza '+ myData.coordX + myData.coordY+' en Parking de ' + myData.address+ '\n' ;
+        let myBody ='Ocupada el '+ myData.datePark ;
+        let respButton = '';
+        this.presentAlertNotifOk(myTitle,myBody, myData ).then( resp => respButton = resp as string );
+        // myTitle = 'Go to Map';
+        // myBody = 'Would you like to enter Map ?';
+        // this.presentAlertNotifBackgroud(myTitle,myBody, myData ).then( resp => respButton = resp as string );
+        // if ( respButton === 'Confirm' ) {  //do the action
+        //   window.alert('entering tab2');
+        //   this.router.navigate(['tab2']);
+        // }
       }
     );
   }
+
+  /**
+   * Presents the modal where the user is asked to OK
+   * when he receives a push-notification with the app in foreground
+   */
+   async presentAlertNotifOk(_header: string, _message: string, data?: string) {
+    return new Promise( async (resolve) => {
+      const alert = this.alertController.create( {
+        header: _header,
+        message: _message,
+        backdropDismiss: false,
+        buttons: [  { text: 'Ok',  role: 'confirm',  handler: cancel => resolve('Ok')   } ]
+      } );  //alertController.create
+      ( await alert ).present();
+    });
+  }
+    /**
+   * Presents the modal where the user is asked to Confirm or Cancel
+   * when he receives a push-notification with the app in Background
+   */
+      async presentAlertNotifBackgroud(_header: string, _message: string, data?: string) {
+      return new Promise( async (resolve) => {
+        const alert = this.alertController.create( {
+          header: _header,
+          message: _message,
+          backdropDismiss: false,
+          buttons: [  { text: 'Confirm',  role: 'confirm',  handler: cancel => resolve('Confirm')  },
+                      { text: 'Cancel',  role: 'cancel',  handler: cancel => resolve('Cancel')  }
+                   ]
+        } );  //alertController.create
+        ( await alert ).present();
+      });
+    }
 
   removeAllDeliveredNotifications(){
     return PushNotifications.removeAllDeliveredNotifications();

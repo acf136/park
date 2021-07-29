@@ -206,7 +206,8 @@ export class ModifyParkPage implements OnInit,OnDestroy {
           this.parking.places[irow * newCols + icol] = {
             coordX       :  newPlacesRows[irow][icol].coordX,
             coordY       :  newPlacesRows[irow][icol].coordY,
-            occupied     :  newPlacesRows[irow][icol].occupied,
+            // occupied     :  newPlacesRows[irow][icol].occupied,
+            occupied     :  false,
             outOfService :  newPlacesRows[irow][icol].outOfService,
             size         :  newPlacesRows[irow][icol].size
           };;

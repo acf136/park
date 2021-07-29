@@ -81,9 +81,12 @@ export class ConfigPage implements OnInit {
     /**
    *  Modify the data in Firestore
    */
-  onSubmitModify() {
+  async onSubmitModify() {
     this.extractModifyForm(); // get modifications in this.user
-    this.firestoreUserService.update(this.id, this.user);
+    await this.firestoreUserService.updateSync(this.id, this.user).then(
+      () => console.log('User with id = '+ this.id +' updated') ,            //onfulfilled
+      () => console.log('User with id = '+ this.id +' REJECTED to update')   //onrejected
+    );
     this.pushNotifService.registerNotifEnvDisp();     // register to push-notifications
   }
 
