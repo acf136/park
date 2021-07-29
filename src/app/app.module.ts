@@ -31,6 +31,9 @@ import { AuthenticationService } from 'src/shared/services/authentication.servic
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { Contacts } from '@ionic-native/contacts/ngx';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { UserService } from 'src/shared/services/user.service';
+
 
 @NgModule({
   declarations: [AppComponent,
@@ -54,8 +57,15 @@ import { SocialSharing } from '@ionic-native/social-sharing/ngx';
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
     AngularFireDatabaseModule,
-    AngularFirestoreModule],
-  providers: [
+    AngularFirestoreModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+      // Register the ServiceWorker as soon as the app is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: 'registerWhenStable:30000'
+    })],
+  providers: [ 
+    UserService,
     FirestoreUserService,
     LoadingService,
     AuthenticationService,

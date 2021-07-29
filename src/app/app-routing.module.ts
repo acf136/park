@@ -12,6 +12,7 @@ const routes: Routes = [
   { path: 'registration',    component: RegistrationComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'tabs',  loadChildren: () => import('./list-map/tabs/tabs.module').then(m => m.TabsPageModule) },
+  { path: 'charts', loadChildren: () => import('./list-map/charts/charts.module').then( m => m.ChartsPageModule) },
   { path: '',  loadChildren: () => import('./list-map/tabs/tabs.module').then(m => m.TabsPageModule) },
   { path: '**', redirectTo: '/login' }
 ];

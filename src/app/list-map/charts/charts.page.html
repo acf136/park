@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button [text]="getBackButtonText()" [defaultHref]="getBackRoute()"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Charts</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="ion-padding">
+
+    <ion-card>
+      <ion-card-header>
+        Number of each parking free places
+      </ion-card-header>
+      <ion-card-content>
+        <canvas #barCanvas style="position: relative; height:20vh; width:40vw"></canvas>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-header>
+        Total parking places
+      </ion-card-header>
+      <ion-card-content>
+        <canvas #doughnutCanvas style="position: relative; height:20vh; width:40vw"></canvas>
+      </ion-card-content>
+    </ion-card>
+ 
+  </div>
+</ion-content>
