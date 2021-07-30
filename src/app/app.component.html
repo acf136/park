@@ -13,8 +13,15 @@
           </ion-menu-toggle>
 
           <ion-menu-toggle auto-hide="false">
+            <ion-item button (click)="shareButtonClicked()" lines="none" detail="false">
+              <ion-icon slot="start" name="share"></ion-icon>
+              <ion-label>Recommend us!</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+
+          <ion-menu-toggle auto-hide="false">
               <!-- <ion-button expand="full" color="danger" [routerLink]="['/home']" (click)="authService.signOutSync()">Log Out</ion-button> -->
-              <ion-button expand="full" color="danger"  (click)="authService.signOutSync()">Log Out</ion-button>
+              <ion-button expand="full" color="danger" (click)="authService.signOutSync()">Log Out</ion-button>
           </ion-menu-toggle>
 
         </ion-list>

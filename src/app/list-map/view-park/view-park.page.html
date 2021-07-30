@@ -17,6 +17,7 @@
           <ion-icon *ngIf="placeCol.size === 2" name="car" size="small"></ion-icon>
           <ion-icon *ngIf="placeCol.size === 3" name="car-sport" size="small"></ion-icon>
           <ion-icon *ngIf="placeCol.size === 4" name="bus" size="small"></ion-icon>
+          {{ placeCol.coordX }}-{{ placeCol.coordY }}
         </span>
         <span  *ngIf="!placeCol.occupied" class="free" >{{ placeCol.coordX }}-{{ placeCol.coordY }}</span>
       </ion-col>
