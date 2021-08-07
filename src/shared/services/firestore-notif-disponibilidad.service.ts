@@ -65,10 +65,16 @@ export class FirestoreNotifDisponibilidadService {
     );
   }
 
+  updateNotifnotifSendToDeviceField(pid:string, pvalue: boolean){
+    this.ngFirestore.collection('NotifDisponibilidad').doc(pid).update({ "notifSendToDevice": pvalue }).then(
+      (resolve) => console.log('updateNotifNewDateLeaveField  id= '+pid+ ' updated'),
+      (reject) => console.log('updateNotifNewDateLeaveField err = '+reject)
+    );
+  }
+
   updateNotifField(pCollectionName: string, pfieldName: string, id: string,  value: any){
-    // this.ngFirestore.collection('NotifDisponibilidad').doc(id).update({ "dateLeave": value });
-    let varFieldName = '"'+pfieldName+'"';
-    this.ngFirestore.collection(pCollectionName).doc(id).update( { varFieldName : value } ).then(
+    const pname = `${pfieldName}`;
+    this.ngFirestore.collection(pCollectionName).doc(id).update( { pname : value } ).then(
       resolve => console.log('updateNotifField: resolve='+resolve),
       err => console.log('updateNotifField: err='+err)
     );

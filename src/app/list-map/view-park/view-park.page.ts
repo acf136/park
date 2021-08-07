@@ -150,18 +150,18 @@ export class ViewParkPage implements OnInit {
   /**
    * Emulate the scan - for debuging purposes
    */
-  //  emulatescanQR() {
-  //    this.dataQR = prompt("Enter QR code i.e. C1 : ", "code here");
+   emulatescanQR() {
+     this.dataQR = prompt("Enter QR code i.e. C1 : ", "code here");
 
   /**
    * Scan QR process, automatically opens camera, and catches
    * the scanned code in barcodeData variable
    */
 ////////////////////////////                commented by emulatescanQR
-  scanQR() {
-    this.dataQR = null;
-    this.barcodeScanner.scan().then( barcodeData => {
-      this.dataQR = barcodeData.text;
+  // scanQR() {
+  //   this.dataQR = null;
+  //   this.barcodeScanner.scan().then( barcodeData => {
+  //     this.dataQR = barcodeData.text;
 ////////////////////////////                commented by emulatescanQR
       // Check if valid code
       const placeIndex = this.checkIfScannedQrIsValid();
@@ -223,9 +223,9 @@ export class ViewParkPage implements OnInit {
         }
       });  //presentAlert
 ////////////////////////////                commented by emulatescanQR
-    }).catch(err => {
-      console.log('Error On barcodeScanner.scan()', err);
-    });
+    // }).catch(err => {
+    //   console.log('Error On barcodeScanner.scan()', err);
+    // });
 ////////////////////////////                commented by emulatescanQR
   }
 
@@ -271,12 +271,13 @@ export class ViewParkPage implements OnInit {
       if ( pdateNameToUpdate === 'dateLeave' ) {
         newNotif.datePark = myNotifs[0].datePark;
         newNotif.dateLeave =pdateValue;
+        newNotif.notifSendToDevice = false;   // para que el node server envíe la notif de plaza ocupada/liberada
       }
     } else {  // notificación nueva actualizar las fechas
       if ( pdateNameToUpdate === 'datePark' )  newNotif.datePark = pdateValue;
       if ( pdateNameToUpdate === 'dateLeave' ) newNotif.dateLeave = pdateValue;
     }
-    newNotif.notifSendToDevice = false;   // para que el node server envíe la notif de plaza ocupada/liberada
+
     // Actualizar
     if ( myNotifs.length > 0 )   this.firestoreNotifDisponibilidadService.update(myNotifs[0].id, newNotif) ;
     // Crear
@@ -308,10 +309,12 @@ export class ViewParkPage implements OnInit {
     myNotifs = myNotifs.filter( (n) => { return ( n.coordX === this.dataQR[0] &&  n.coordY === this.dataQR[1] );}  );
     // 2. Si encontrado actualizar fechas
     myNotifs.forEach(  elem => {
-      if ( pdateNameToUpdate === 'datePark' )
-        this.firestoreNotifDisponibilidadService.updateNotifNewDateParkField(elem.id, pdateValue);
-      if ( pdateNameToUpdate === 'dateLeave' )
-        this.firestoreNotifDisponibilidadService.updateNotifNewDateLeaveField(elem.id, pdateValue);
+      // if ( pdateNameToUpdate === 'datePark' )
+      //   this.firestoreNotifDisponibilidadService.updateNotifNewDateParkField(elem.id, pdateValue);
+      // if ( pdateNameToUpdate === 'dateLeave' )
+      //   this.firestoreNotifDisponibilidadService.updateNotifNewDateLeaveField(elem.id, pdateValue);
+      // para que el node server envíe la notif de plaza ocupada/liberada
+      this.firestoreNotifDisponibilidadService.updateNotifField('NotifDisponibilidad',pdateNameToUpdate, elem.id, false);
       console.log('modifEnvNotifOtherUsers:pdateNameToUpdate =  '+pdateNameToUpdate);
       console.log('                        :elem.id =  '+elem.id);
       console.log('                         :datePark =  '+pdateValue);
