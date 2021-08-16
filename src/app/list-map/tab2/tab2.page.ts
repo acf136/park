@@ -9,6 +9,7 @@ import { FirestoreParkingService } from 'src/shared/services/firestore-parking.s
 import { FirestoreUserParkingService } from 'src/shared/services/firestore-user-parking.service';
 import { LoadingService } from 'src/shared/services/Loading.service';
 
+// import * as $ from 'jquery';
 
 declare var google;
 
@@ -77,45 +78,96 @@ export class Tab2Page implements OnInit {
 
   }  //end of loadMap()
 
+  // /**
+  //  * overrideMapsOverlayView : Changes behaviour of MarkerLabel
+  //  */
+  overrideMapsOverlayView() {
+    // // change prototype Marker.setLabel()
+    // google.maps.Marker.prototype.setLabel = function(label){
+    //   this.label = new MarkerLabel({
+    //     map: this.map,
+    //     marker: this,
+    //     text: label
+    //   });
+    //   this.label.bindTo('position', this, 'position');
+    // };
+    // // redefine MarkerLabel as a function
+    // var MarkerLabel = function(options) {
+    //     this.setValues(options);
+    //     this.span = document.createElement('span');
+    //     this.span.className = 'map-marker-label';
+    // };
+    // // change prototype MarkerLabel as an extension of  google.maps.OverlayView()
+    // MarkerLabel.prototype = $.extend(new google.maps.OverlayView(), {
+    //     onAdd: function() {
+    //         this.getPanes().overlayImage.appendChild(this.span);
+    //         var self = this;
+    //         this.listeners = [ google.maps.event.addListener(this, 'position_changed', function() { self.draw();    })];
+    //     },
+    //     draw: function() {
+    //         var text = String(this.get('text'));
+    //         var position = this.getProjection().fromLatLngToDivPixel(this.get('position'));
+    //         var markersizeLength = 32 ; var markersizeHigh = 32 ; //we use icon 32x32 for the marker
+    //         this.span.innerHTML = text;
+    //         this.span.style.left = (position.x - (markersizeLength / 2)) - (text.length * 3) + 10 + 'px';
+    //         this.span.style.top = (position.y - markersizeHigh + 40) + 'px';
+    //     }
+    // });
+
+
+  // // custom function to apply to the map
+  //   function Label() { this.setMap(this.map); } ;
+  //   // prototype your subclass and add HTML nodes:
+  //   Label.prototype = new google.maps.OverlayView; //subclassing google's overlayView
+  //   Label.prototype.onAdd = function() {
+  //     this.MySpecialDiv               = document.createElement('div');
+  //     this.MySpecialDiv.className     = 'MyLabel';
+  //     this.getPanes().overlayImage.appendChild(this.MySpecialDiv); //attach it to overlay panes so it behaves like markers
+  //   };
+  //   //  implement remove function as stated in the API docs,
+  //   Label.prototype.onRemove = function() {
+  //    // remove your stuff and its events if any
+  //   };
+  //   //  implement draw function as stated in the API docs,
+  //   Label.prototype.draw = function() {
+  //     // translate map latLng coords into DOM px coords for css positioning
+  //     var position = this.getProjection().fromLatLngToDivPixel(this.get('position'));
+  //     var pos = this.get('position');
+  //     $('.MyLabel').css( { 'top' : position.y + 'px',
+  //                          'left'  : position.x + 'px'
+  //                       });
+  //   };
+
+  }  // end of overrideMapsOverlayView
+
   /**
    * Print all parking marks in the map
    */
   printAllParkingsMarkers(){
+    // this.overrideMapsOverlayView();
     // const iconBase = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/';
     const iconBase = '../assets/icon/';
     const icons: Record<string, { icon: string }> = {
       parking: {
         icon: iconBase + 'P@RKING-SEED-Transp-32x32.png',
-        // icon: iconBase + 'parking_lot_maps.png',
-      },
-      library: {
-        icon: iconBase + 'library_maps.png',
-      },
-      info: {
-        icon: iconBase + 'info-i_maps.png',
       },
     };
 
     this.firestoreParkingService.getParkings().subscribe( (pparkings) =>  {
-
-      const uid = JSON.parse(localStorage.getItem('user'))?.uid;
-      const userParkingService = this.firestoreUserParkingService;
-      const _router = this.router;
-
-      let newUserParking: IUserParking;
-
       this.parkings = pparkings.map( (t) => ({                           //1st subscribe param
         id: t.payload.doc.id,   ...t.payload.doc.data() as IParking
       }) );
-
-      console.log("printAllParkingsMarkers ", this.parkings);
-
+      // console.log("printAllParkingsMarkers ", this.parkings);
       this.parkings.forEach( elemParking => {
         //Por cada párking colocamos un marcador en el mapa
-        const latLngMarker = new google.maps.LatLng(elemParking.lat, elemParking.long);
+        const latLngMarker = new google.maps.LatLng( elemParking.lat, elemParking.long );
         const marker = new google.maps.Marker(
           { position: latLngMarker,
             icon: icons["parking"].icon,
+            // labelOrigin: new google.maps.Point( parseFloat(elemParking.lat), parseFloat(elemParking.long)) ;
+            label: { text: elemParking.name , color: 'red', className : "MyLabelTranslate50px" } ,
+            opacity: 0.75,
+            draggable : true,
           }
         );
         marker.setMap(this.map);

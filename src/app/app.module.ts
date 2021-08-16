@@ -10,7 +10,7 @@ import { LoginComponent } from './login/login.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 // simulating Http client through In-memory Web API
 // import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
 // import { InMemoryDataService } from '../shared/services/in-memory-data.service';
@@ -33,14 +33,24 @@ import { Contacts } from '@ionic-native/contacts/ngx';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { UserService } from 'src/shared/services/user.service';
+// Translation
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+// import { HttpModule, Http } from '@angular/http';
 
+// eslint-disable-next-line prefer-arrow/prefer-arrow-functions
+export function createTranslateLoader(http: HttpClient) {
+  return new TranslateHttpLoader(http, '../assets/i18n/locale-', '.json');
+}
 
 @NgModule({
+  // declarations //
   declarations: [AppComponent,
     LoginComponent,
     RegistrationComponent,
     ForgotPasswordComponent],
   entryComponents: [],
+  // imports //
   imports: [
     BrowserModule,
     HttpClientModule,
@@ -63,8 +73,22 @@ import { UserService } from 'src/shared/services/user.service';
       // Register the ServiceWorker as soon as the app is stable
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'
-    })],
-  providers: [ 
+    }),
+    TranslateModule.forRoot( {
+      defaultLanguage: 'en',
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (createTranslateLoader),
+        deps: [HttpClient]
+      }
+    } ),
+  ],
+  // exports //
+  exports: [
+    TranslateModule
+  ],
+  // providers //
+  providers: [
     UserService,
     FirestoreUserService,
     LoadingService,
@@ -75,6 +99,7 @@ import { UserService } from 'src/shared/services/user.service';
     Contacts,
     SocialSharing,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  // boostrap //
   bootstrap: [AppComponent],
 })
 export class AppModule {

@@ -1,0 +1,20 @@
+{
+  "Language" : {
+  	"English" : "English",
+  	"Spanish" : "Spanish",
+  	"Catalan" : "Catalan"
+  },
+  "ParkWithParam-param4Park.param4Park.value": "PLACE {{value}}",
+  "Park" : "Park",
+  "Register"  : "Register",
+  "Sign In"   : "Sign In",
+  "or" : "or",
+  "Already a user?": "Already a user ?",
+	"List"  : "List",
+	"Map"   : "Map",
+	"Config": "Config",
+	"Charts": "Charts",
+  "Recommend us!": "Recommend us !",
+  "Log Out" : "Log Out",
+  "Reset Your Password" : "Reset Your Password"
+}

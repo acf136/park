@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button [text]="getBackButtonText()" [defaultHref]="getBackRoute()"></ion-back-button>
     </ion-buttons>
-    <ion-title>Log In</ion-title>
+    <ion-title>{{'Log In' | translate}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -30,8 +30,8 @@
 
     <ion-row>
       <ion-col>
-        <ion-button type="submit" color="danger" expand="block">Sign In</ion-button>
-        <a (click)="forgotPasswordClicked()" class="small-text">Forgot Password?</a>
+        <ion-button type="submit" color="danger" expand="block">{{'Sign In' | translate}}</ion-button>
+        <a (click)="forgotPasswordClicked()" class="small-text">{{'Forgot Password?'| translate}}</a>
       </ion-col>
     </ion-row>
   </form>

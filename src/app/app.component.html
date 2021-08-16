@@ -3,25 +3,38 @@
     <ion-menu contentId="main-content" type="overlay" disabled="false" menuId="mId-Park">
       <ion-content>
         <ion-list id="inbox-list">
-          <ion-list-header>@Park</ion-list-header>
+          <!-- <ion-list-header><h2>@{{ 'Park' | translate:param4Park }}</h2></ion-list-header> -->
+          <ion-list-header><h2>@{{ 'Park' | translate }}</h2></ion-list-header>
+
+          <ion-menu-toggle auto-hide="false">
+            <ion-item color="secondary">
+              <ion-select interface="popover" value="en" [(ngModel)]="langValue" (ionChange)="optionsFn();" >
+                <ion-select-option value="{{item.key}}"  *ngFor="let item of languages">
+                  {{item.name | translate}}
+                </ion-select-option>
+              </ion-select>
+              <!-- <ion-icon src="..\assets\flags\icons8-great-britain-48-flag-color.svg" slot="end"></ion-icon> -->
+              <ion-icon src="{{flagLocation}}{{currentFlag}}" slot="end"></ion-icon>
+
+            </ion-item>
+          </ion-menu-toggle>
 
           <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
             <ion-item routerDirection="root" [routerLink]="[p.url]" lines="none" detail="false" routerLinkActive="selected">
               <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
-              <ion-label>{{p.title}}</ion-label>
+              <ion-label>{{p.title | translate}}</ion-label>
             </ion-item>
           </ion-menu-toggle>
 
           <ion-menu-toggle auto-hide="false">
             <ion-item button (click)="shareButtonClicked()" lines="none" detail="false">
               <ion-icon slot="start" name="share"></ion-icon>
-              <ion-label>Recommend us!</ion-label>
+              <ion-label>{{ 'Recommend us!' | translate }}</ion-label>
             </ion-item>
           </ion-menu-toggle>
 
           <ion-menu-toggle auto-hide="false">
-              <!-- <ion-button expand="full" color="danger" [routerLink]="['/home']" (click)="authService.signOutSync()">Log Out</ion-button> -->
-              <ion-button expand="full" color="danger" (click)="authService.signOutSync()">Log Out</ion-button>
+              <ion-button expand="full" color="danger" (click)="authService.signOutSync()">{{'Log Out' | translate}}</ion-button>
           </ion-menu-toggle>
 
         </ion-list>

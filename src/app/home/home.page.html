@@ -10,13 +10,12 @@
   <ion-grid>
     <ion-row>
       <ion-col align-self-center>
-        <ion-button (click)="RegisterClicked()" expand="block" color="primary">Register</ion-button>
+        <ion-button (click)="RegisterClicked()" expand="block" color="primary">{{'Register' | translate}}</ion-button>
 
-        <span class="divider line one-line">or</span>
+        <span class="divider line one-line">{{ 'or' | translate }}&nbsp;</span>
+        <span class="already">{{ 'Already a user?' | translate }}</span>
 
-        <span class="already">Already a user?</span>
-
-        <ion-button (click)="LoginClicked()" expand="block" color="danger">Sign In</ion-button>
+        <ion-button (click)="LoginClicked()" expand="block" color="danger">{{'Sign In' | translate }}</ion-button>
       </ion-col>
     </ion-row>
   </ion-grid>

@@ -1,0 +1,21 @@
+{
+  "Language" : {
+  	"English" : "Inglés",
+  	"Spanish" : "Español",
+  	"Catalan" : "Catalán"
+  },
+  "Park": "Aparcamiento",
+  "Register"  : "Registrarse",
+  "Sign In"   : "Entrar",
+  "Log In"    : "Entrar",
+  "Forgot Password?": "¿ Has olvidado tu clave ?",
+  "or" : "o ",
+  "Already a user?": "¿ ya eres un usuario registrado ?",
+	"List"  : "Lista",
+	"Map"   : "Mapa",
+	"Config": "Configuración",
+	"Charts": "Estadísticas",
+  "Recommend us!": "¡ Recomiéndanos !",
+  "Log Out" : "Desconectarse",
+  "Reset Your Password" : "Inicia Clave de Acceso"
+}
