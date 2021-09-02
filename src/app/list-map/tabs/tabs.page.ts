@@ -12,27 +12,18 @@ export class TabsPage implements OnInit{
     public authService: AuthenticationService) { }
 
   ngOnInit(): void {
-    // console.log("after login (ngOnInit): " + this.authService.isLoggedIn);
   }
 
   ionViewWillEnter(){
-    // console.log("after login (will enter): " + this.authService.isLoggedIn);
   }
 
   ionViewDidEnter(){
-    // cambia la propiedad disabled del tag html  <ion-menu> en app.component.html
-    // <ion-menu contentId="main-content" type="overlay" disabled="true" menuId="mId-Park">
-    // this.menu.enable(true, 'mId-Park');
-    // console.log("after login (did enter): " + this.authService.isLoggedIn);
   }
 
   ionViewWillLeave(){
-    // console.log("after login (will leave): " + this.authService.isLoggedIn);
   }
 
   ionViewDidLeave(){
-    // this.menu.enable(false, 'mId-Park');
-    // console.log("after login (did leave): " + this.authService.isLoggedIn);d
   }
 
 }

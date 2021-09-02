@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { IParking, IParks,IParksWithId,  IPlace, IUserParking, INotifDisponibilidad,  INotifDisponibilidadWithId, IUser } from 'src/shared/interfaces/interfaces';
+import { IParking, IParks, IPlace, IUserParking, INotifDisponibilidad, IUser } from 'src/shared/interfaces/interfaces';
+import { IParksWithId, INotifDisponibilidadWithId } from 'src/shared/interfaces/interfaces';
 import { ActivatedRoute } from '@angular/router';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
@@ -11,6 +12,7 @@ import { UserService } from 'src/shared/services/user.service';
 import { FirestoreParksService } from 'src/shared/services/firestore-parks.service';
 import { FirestoreNotifDisponibilidadService } from 'src/shared/services/firestore-notif-disponibilidad.service';
 import { FirestoreUserService } from 'src/shared/services/firestore-user.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-view-park',
@@ -44,7 +46,8 @@ export class ViewParkPage implements OnInit {
     public firestoreUserService: FirestoreUserService,
     public firestoreNotifDisponibilidadService: FirestoreNotifDisponibilidadService,
     public globalEventsService: GlobalEventsService,
-    public userService: UserService
+    public userService: UserService,
+    public translate: TranslateService
    ) {
     this.id = this.activatedRoute.snapshot.paramMap.get('id');
    }
@@ -445,7 +448,7 @@ export class ViewParkPage implements OnInit {
     const win = window as any;
     const mode = win && win.Ionic && win.Ionic.mode;
     // return mode === 'ios' ? 'Back' : 'Back';
-    return 'Back';  //no 'Back' text for the moment
+    return this.translate.instant('Back');  //no 'Back' text for the moment
   }
 
   // [defaultHref]="getBackRoute()"

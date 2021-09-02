@@ -10,23 +10,23 @@
 <ion-content>
   <form [formGroup]='modifyForm' (ngSubmit)="onSubmitModify()">
     <ion-item>
-      <ion-label position="floating">Name</ion-label>
+      <ion-label position="floating">{{ 'First name' | translate }}</ion-label>
       <ion-input formControlName="name" type="text" required></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label position="floating">Surname</ion-label>
+      <ion-label position="floating">{{ 'Last name' | translate }}</ion-label>
       <ion-input formControlName="surname" type="text" required></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label position="floating">email</ion-label>
+      <ion-label position="floating">{{ 'Email' | translate }}</ion-label>
       <ion-input formControlName="email" type="email" required></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label position="inline">Envio Disponibilidad Ultimo Parking</ion-label>
+      <ion-label position="inline">{{ 'Notify last park place availability' | translate }}</ion-label>
       <ion-checkbox formControlName="envioDisponibilidad" checked="true"></ion-checkbox>
     </ion-item>
     <ion-item>
-      <ion-label position="inline">Envio Informes de actividad</ion-label>
+      <ion-label position="inline">{{ 'Send History Reports' | translate }}</ion-label>
       <ion-checkbox formControlName="envioInformes"  checked="true"></ion-checkbox>
     </ion-item>
 

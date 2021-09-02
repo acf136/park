@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <!-- <ion-searchbar [(ngModel)]="autocomplete.input" (ionInput)="updateSearchResults()" placeholder="Search for a place"  (ionClear)="clearAutocomplete()"></ion-searchbar> -->
+    <ion-buttons slot="start">  <ion-menu-button></ion-menu-button>  </ion-buttons>
+    <!-- <ion-title>  Map  </ion-title> -->
+  </ion-toolbar>
+<!--
+  <ion-list [hidden]="autocompleteItems.length === 0">
+    <ion-item *ngFor="let item of autocompleteItems" tappable (click)="selectSearchResult(item)">
+      {{ item.description }}
+    </ion-item>
+  </ion-list> -->
+
+</ion-header>
+
+<ion-content>
+  <!--  Leaflet div map contatiner-->
+  <div class="map-container">
+    <div class="map-frame">
+      <div id="mapLeaflet">
+
+          <!-- Marcador que sale en el centro de la pantalla -->
+          <div class="map-wrapper" style="height: 100%;">
+            <div id="map_center">
+              <ion-icon name="pin" size="large" color="danger"></ion-icon>
+            </div>
+            <!-- <div #map id="map"  style="height: 100%;"></div> -->
+          </div>
+
+          <!-- Botón info coordenadas -->
+          <ion-fab vertical="bottom" horizontal="start" slot="fixed">
+            <ion-fab-button (click)="showCords()" ion-fab color="tertiary">
+              <ion-icon name="information-circle-outline"></ion-icon>
+            </ion-fab-button>
+          </ion-fab>
+      </div>
+    </div>
+  </div>
+
+</ion-content>
+
+
+
+

@@ -194,13 +194,6 @@ export class PushNotifService {
         let myBody ='Ocupada el '+ myData.datePark ;
         let respButton = '';
         this.presentAlertNotifOk(myTitle,myBody, myData ).then( resp => respButton = resp as string );
-        // myTitle = 'Go to Map';
-        // myBody = 'Would you like to enter Map ?';
-        // this.presentAlertNotifBackgroud(myTitle,myBody, myData ).then( resp => respButton = resp as string );
-        // if ( respButton === 'Confirm' ) {  //do the action
-        //   window.alert('entering tab2');
-        //   this.router.navigate(['tab2']);
-        // }
       }
     );
   }

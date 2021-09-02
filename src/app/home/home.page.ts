@@ -17,7 +17,7 @@ export class HomePage implements OnInit{
     public pushNotifService: PushNotifService,
     public translate: TranslateService
     ) {
-      this.translate.use('es');
+      // this.translate.use('es');
     }
 
   ngOnInit(): void {

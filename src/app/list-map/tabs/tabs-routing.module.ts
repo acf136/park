@@ -14,11 +14,15 @@ const routes: Routes = [
       { path: 'tab2',
         loadChildren: () => import('../tab2/tab2.module').then(m => m.Tab2PageModule)
       },
+      { path: 'tab3',
+        loadChildren: () => import('../tab3/tab3.module').then(m => m.Tab3PageModule)
+      },
       { path: '', redirectTo: '/tabs/tab1', pathMatch: 'full' } //by default
     ]
   },
   { path: 'list-map/List', redirectTo: '/tabs/tab1' },
   { path: 'list-map/Map',  redirectTo: '/tabs/tab2' },
+  { path: 'list-map/Leaflet',  redirectTo: '/tabs/tab3' },
   { path: 'parking/:id',
     loadChildren: () => import('../view-park/view-park.module').then( m => m.ViewParkPageModule)
   },

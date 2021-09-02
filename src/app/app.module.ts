@@ -37,6 +37,7 @@ import { UserService } from 'src/shared/services/user.service';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 // import { HttpModule, Http } from '@angular/http';
+import { MarkerService } from 'src/shared/services/marker.service'; // Leaflet Marker Service
 
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function createTranslateLoader(http: HttpClient) {
@@ -48,7 +49,9 @@ export function createTranslateLoader(http: HttpClient) {
   declarations: [AppComponent,
     LoginComponent,
     RegistrationComponent,
-    ForgotPasswordComponent],
+    ForgotPasswordComponent
+  ],
+  // entryComponents //
   entryComponents: [],
   // imports //
   imports: [
@@ -98,7 +101,9 @@ export function createTranslateLoader(http: HttpClient) {
     BarcodeScanner,
     Contacts,
     SocialSharing,
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    MarkerService
+  ],
   // boostrap //
   bootstrap: [AppComponent],
 })

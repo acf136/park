@@ -8,6 +8,7 @@ import { NavigationService } from 'src/shared/services/navigation.service';
 import { MessageService } from 'src/shared/services/message.service';
 import { Subscription } from 'rxjs';
 import { GlobalEventsService } from 'src/shared/services/global-events.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-modify-park',
@@ -35,6 +36,7 @@ export class ModifyParkPage implements OnInit,OnDestroy {
     private navigation: NavigationService,
     private messageService: MessageService,
     public globalEventsService: GlobalEventsService,
+    public translate: TranslateService
    ) {
       this.id = this.activatedRoute.snapshot.paramMap.get('id');
       this.duplicateForm = this.formBuilder.group({
@@ -262,7 +264,7 @@ export class ModifyParkPage implements OnInit,OnDestroy {
     const win = window as any;
     const mode = win && win.Ionic && win.Ionic.mode;
     // return mode === 'ios' ? 'Back' : 'Back';
-    return 'Back';  //no 'Back' text for the moment
+    return this.translate.instant('Back');  //no 'Back' text for the moment
   }
 
   // [defaultHref]="getBackRoute()"

@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button (click)="onBackButtonPressed()" [text]="getBackButtonText()" [defaultHref]="getBackRoute()"></ion-back-button>
     </ion-buttons>
-    <ion-title>Parking {{ parking?.name }}</ion-title>
+    <ion-title>{{ 'Parking' | translate }} {{ parking?.name }}</ion-title>
   </ion-toolbar>
 </ion-header>
 

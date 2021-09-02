@@ -1,8 +1,8 @@
 import { Component, ViewChild, OnInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { Chart, registerables } from 'chart.js';
 import { Observable } from 'rxjs';
-import { delay } from 'rxjs/operators';
 import { IParking } from 'src/shared/interfaces/interfaces';
 import { FirestoreParkingService } from 'src/shared/services/firestore-parking.service';
 import { LoadingService } from 'src/shared/services/Loading.service';
@@ -36,7 +36,9 @@ export class ChartsPage implements OnInit {
   constructor(private firestoreParkingService: FirestoreParkingService,
     private router: Router,
     private loadingService: LoadingService,
-    private navigation: NavigationService) { 
+    private navigation: NavigationService,
+    public translate: TranslateService
+    ) {
     Chart.register(...registerables);
   }
 
@@ -49,7 +51,7 @@ export class ChartsPage implements OnInit {
       this.manageData();
       this.createDoughnutChart();
       this.createBarChart();
-    }, error => { 
+    }, error => {
       alert("Error getting all parkings");
     });
   }
@@ -57,7 +59,7 @@ export class ChartsPage implements OnInit {
   manageData(){
     let eachParkingFreePlaces: number = 0;
     let eachParkingOccupiedPlaces: number = 0;
-      
+
     //Gets data to display on charts
     this.parkingList.forEach(parking => {
       this.ParkingNamesLabels.push(parking.name);
@@ -110,14 +112,14 @@ export class ChartsPage implements OnInit {
       data: {
         labels: this.ParkingNamesLabels,
         datasets: [{
-          label: 'Number of free Places',
+          label: this.translate.instant( 'Number of free Places' ),
           data: this.numberFreePlacesData,
           backgroundColor: 'rgb(0,128,0)',
           borderColor: 'rgb(0,128,0)',
           borderWidth: 1
         },
         {
-          label: 'Number of occupied Places',
+          label: this.translate.instant( 'Number of occupied Places' ) ,
           data: this.numberOccupiedPlacesData,
           backgroundColor: 'rgb(255,0,0)',
           borderColor: 'rgb(255,0,0)',
@@ -134,9 +136,11 @@ export class ChartsPage implements OnInit {
     this.doughnutChart = new Chart(this.doughnutCanvas.nativeElement, {
       type: 'doughnut',
       data: {
-        labels: ['Occupied Places', 'Free Places'],
+        labels: [ this.translate.instant( 'Occupied Places' ),
+                  this.translate.instant( 'Free Places' )
+                ],
         datasets: [{
-          label: 'Places',
+          label: this.translate.instant( 'Places' ),
           data: [this.occupiedPlaces, this.freePlaces],
           backgroundColor: [
             'rgb(255,0,0)',
@@ -155,7 +159,7 @@ export class ChartsPage implements OnInit {
     const win = window as any;
     const mode = win && win.Ionic && win.Ionic.mode;
     // return mode === 'ios' ? 'Back' : 'Back';
-    return 'Back';  //no 'Back' text for the moment
+    return this.translate.instant('Back');  //no 'Back' text for the moment
   }
 
   // [defaultHref]="getBackRoute()"

@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { ViewParkPageRoutingModule } from './view-park-routing.module';
 
 import { ViewParkPage } from './view-park.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    ViewParkPageRoutingModule
+    ViewParkPageRoutingModule,
+    TranslateModule
   ],
   declarations: [ViewParkPage]
 })
